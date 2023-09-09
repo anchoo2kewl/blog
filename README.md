@@ -24,3 +24,10 @@ curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh
 ~/go/bin/air -c .air.toml
 ```
 Which runs the code on 8080, unless .air.toml file has been modified.
+
+Now, run a Postgres Server:
+
+```
+docker pull postgres
+docker volume create postgres-volume
+```
