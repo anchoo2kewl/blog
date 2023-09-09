@@ -11,13 +11,13 @@ docker buildx build --progress=plain --platform=linux/arm64/v8 -t biswas/blog:v0
 #For Linux on X86_64
 docker buildx build --progress=plain --platform=linux/amd64 -t biswas/blog:v0.1 .
 
-docker run -d -p 22222:22222 --name blog -v $(PWD):/go/src/blog biswas/blog:v0.1
+docker run -d -p 22222:22222 --name blog -v $(pwd):/go/src/blog biswas/blog:v0.1
 ```
 
 or to run on port 8080:
 
 ```
-docker run -d -p 8080:8080 --name blog -v $(PWD):/go/src/blog biswas/blog:v0.1 ./main --listen-addr :8080
+docker run -d -p 8080:8080 --name blog -v $(pwd):/go/src/blog biswas/blog:v0.1 ./main --listen-addr :8080
 ```
 
 To run locally for live reloading, install air:
