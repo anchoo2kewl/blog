@@ -1,6 +1,6 @@
 # My Blog
 
-This code is aimed at replicating a simple blog. The design of this blog will be found on my [blog](anshumanbiswas.com).
+This code is aimed at replicating a simple blog. The design of this blog will be found on my [blog](https://anshumanbiswas.com).
 
 To run using docker:
 
