@@ -18,4 +18,4 @@ FROM gcr.io/distroless/static-debian11 as production
 
 COPY --from=base /main .
 
-CMD ["./main", "--listen-addr", ":8080"]
+CMD ["./main", "--listen-addr", ":22222"]
