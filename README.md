@@ -5,15 +5,19 @@ This code is aimed at replicating a simple blog. The design of this blog will be
 To run using docker:
 
 ```
-docker build -t biswas/blog:v0.1 .
+# For Mx Macs:
+docker buildx build --progress=plain --platform=linux/arm64/v8 -t biswas/blog:v0.1 .
+
+#For Linux on X86_64
+docker buildx build --progress=plain --platform=linux/amd64 -t biswas/blog:v0.1 .
 
 docker run -d -p 22222:22222 --name blog -v $(PWD):/go/src/blog biswas/blog:v0.1
 ```
 
-or to run on port 3000:
+or to run on port 8080:
 
 ```
-docker run -d -p 3000:3000 --name blog -v $(PWD):/go/src/blog biswas/blog:v0.1 ./main --listen-addr :3000
+docker run -d -p 8080:8080 --name blog -v $(PWD):/go/src/blog biswas/blog:v0.1 ./main --listen-addr :8080
 ```
 
 To run locally for live reloading, install air:
