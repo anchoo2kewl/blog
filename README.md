@@ -39,17 +39,23 @@ Now, run a Postgres Server:
 docker pull postgres
 docker volume create postgres-volume
 
-
+# Change this to a more secure password
 export PG_PASSWORD=1234
 
-docker run --name postgres -e POSTGRES_PASSWORD=$PG_PASSWORD -e POSTGRES_USER=blog -p 5433:5432 -v postgres-volume:/var/lib/postgresql/data -d postgres
+export PG_PORT=5433
+export PG_USER=blog
+export PG_DB=blog
+export PG_HOST=127.0.0.1
+export APP_DISABLE_SIGNUP=true
+
+docker run --name pg -e POSTGRES_PASSWORD=$PG_PASSWORD -e POSTGRES_USER=$PG_USER -p $PG_PORT:5432 -v postgres-volume:/var/lib/postgresql/data -d postgres
 ```
 
 Other tools can be used, but for mac, installing a local PSQL:
 ```
 brew install libpq
 # Add to Path, and test:
-psql postgresql://blog:$PG_PASSWORD@127.0.0.1:5433/blog\?sslmode=disable
+psql postgresql://$PG_USER:$PG_PASSWORD@$PG_HOST:$PG_PORT/$PG_USER\?sslmode=disable
 ```
 
 Install Migrate:
@@ -61,5 +67,13 @@ brew install golang-migrate
 Then run the migration:
 
 ```
-migrate -source file://migrations -database postgresql://blog:$PG_PASSWORD@127.0.0.1:5433/blog\?sslmode=disable up
+migrate -source file://migrations -database postgresql://$PG_USER:$PG_PASSWORD@$PG_HOST:$PG_PORT/$PG_USER\?sslmode=disable up
+```
+
+Prepare the DB:
+
+```
+psql postgresql://$PG_USER:$PG_PASSWORD@$PG_HOST:$PG_PORT/$PG_USER\?sslmode=disable -c "INSERT INTO ROLES (role_name) values ('Commenter')"
+#Check
+psql postgresql://$PG_USER:$PG_PASSWORD@$PG_HOST:$PG_PORT/$PG_USER\?sslmode=disable -c 'SELECT * FROM roles'
 ```
