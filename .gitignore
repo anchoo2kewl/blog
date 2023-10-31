@@ -1,1 +1,4 @@
 tmp/**
+.env
+.vscode/
+__debug_**

@@ -28,7 +28,6 @@ func (u Users) Disabled(w http.ResponseWriter, r *http.Request) {
 		LoggedIn         bool
 		IsSignupDisabled bool
 	}
-	fmt.Println("Here......,,")
 	data.Email = r.FormValue("email")
 	data.LoggedIn = false
 	data.IsSignupDisabled = true
@@ -106,6 +105,8 @@ func (u Users) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Println("Works!!!!!")
 
 	token, err := readCookie(r, CookieSession)
 	email, err := readCookie(r, CookieUserEmail)

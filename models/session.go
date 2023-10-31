@@ -99,8 +99,8 @@ func (ss *SessionService) User(token string, email string) (*User, error) {
 		Token: token,
 	}
 
-	row := ss.DB.QueryRow(`SELECT s.id, s.token_hash from users as u INNER JOIN sessions as s
-							on u.id = s.user_id where u.email like $1`, email)
+	row := ss.DB.QueryRow(`SELECT s.user_id, s.token_hash from users as u INNER JOIN sessions as s
+							on u.user_id = s.user_id where u.email like $1`, email)
 
 	err := row.Scan(&session.ID, &session.TokenHash)
 	if err != nil {

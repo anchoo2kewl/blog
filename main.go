@@ -80,6 +80,9 @@ func main() {
 	usersC.Templates.SignIn = views.Must(views.ParseFS(
 		templates.FS, "signin.gohtml", "tailwind.gohtml"))
 
+	usersC.Templates.LoggedIn = views.Must(views.ParseFS(
+		templates.FS, "home.gohtml", "tailwind.gohtml"))
+
 	r.Get("/signin", usersC.SignIn)
 	r.Post("/signin", usersC.ProcessSignIn)
 

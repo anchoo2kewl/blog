@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -33,9 +34,10 @@ func (us *UserService) Create(email, username, password string) (*User, error) {
 	role_id := 1 // This is assumed to be the commenter. Please verify.
 
 	passwordHash := string(hashedBytes)
+
 	row := us.DB.QueryRow(`
-		INSERT INTO Users (email, username, password, role_id)
-		VALUES ($1, $2, $3, $4) RETURNING user_id`, email, username, passwordHash, role_id)
+		INSERT INTO Users (email, username, password, role_id, registration_date)
+		VALUES ($1, $2, $3, $4, $5) RETURNING user_id`, email, username, passwordHash, role_id, time.Now().UTC())
 
 	user := User{
 		Email:        email,
@@ -57,7 +59,7 @@ func (us UserService) Authenticate(email, password string) (*User, error) {
 		Email: email,
 	}
 
-	row := us.DB.QueryRow(`SELECT id, password_hash FROM users WHERE email=$1`, email)
+	row := us.DB.QueryRow(`SELECT user_id, password FROM users WHERE email=$1`, email)
 	err := row.Scan(&user.UserID, &user.PasswordHash)
 	if err != nil {
 		return nil, fmt.Errorf("authenticate: %w", err)
