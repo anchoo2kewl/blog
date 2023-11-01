@@ -90,5 +90,10 @@ func main() {
 	r.Get("/users/logout", usersC.Logout)
 
 	sugar.Infof("server listening on %s", *listenAddr)
+
+	fileServer := http.FileServer(http.Dir("./css/"))
+
+	r.Handle("/css/*", http.StripPrefix("/css/", fileServer))
+
 	http.ListenAndServe(*listenAddr, r)
 }
