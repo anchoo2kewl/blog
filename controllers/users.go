@@ -15,7 +15,6 @@ func (u Users) New(w http.ResponseWriter, r *http.Request) {
 		IsSignupDisabled bool
 	}
 
-	fmt.Println("Here,,,,")
 	data.Email = r.FormValue("email")
 	data.LoggedIn = false
 	data.IsSignupDisabled = false
@@ -38,10 +37,40 @@ type Users struct {
 	Templates struct {
 		New      Template
 		SignIn   Template
+		Home     Template
 		LoggedIn Template
 	}
 	UserService    *models.UserService
 	SessionService *models.SessionService
+	PostService    *models.PostService
+}
+
+func (u Users) GetTopPosts() (*models.PostsList, error) {
+	return u.PostService.GetTopPosts()
+}
+
+func (u Users) Home(w http.ResponseWriter, r *http.Request) {
+
+	var data struct {
+		Email    string
+		LoggedIn bool
+		Posts    *models.PostsList
+	}
+
+	posts, _ := u.GetTopPosts()
+
+	user, err := u.isUserLoggedIn(r)
+	if err != nil {
+		data.LoggedIn = false
+		data.Posts = posts
+		u.Templates.Home.Execute(w, r, data)
+		return
+	}
+
+	data.Email = user.Email
+	data.LoggedIn = true
+	data.Posts = posts
+	u.Templates.Home.Execute(w, r, data)
 }
 
 func (u Users) SignIn(w http.ResponseWriter, r *http.Request) {
@@ -104,19 +133,24 @@ func (u Users) Create(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/users/me", http.StatusFound)
 }
 
-func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
-
-	fmt.Println("Works!!!!!")
-
+func (u Users) isUserLoggedIn(r *http.Request) (*models.User, error) {
 	token, err := readCookie(r, CookieSession)
 	email, err := readCookie(r, CookieUserEmail)
 
+	if err != nil {
+		return nil, err
+	}
+	return u.SessionService.User(token, email)
+}
+
+func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
+
+	user, err := u.isUserLoggedIn(r)
 	if err != nil {
 		fmt.Println(err)
 		http.Redirect(w, r, "/signin", http.StatusFound)
 		return
 	}
-	user, err := u.SessionService.User(token, email)
 
 	if err != nil {
 		fmt.Println(err)
@@ -127,9 +161,18 @@ func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {
 	var data struct {
 		Email    string
 		LoggedIn bool
+		Posts    *models.PostsList
+	}
+
+	posts, err := u.GetTopPosts()
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
 	}
 	data.Email = user.Email
 	data.LoggedIn = true
+	data.Posts = posts
 
 	u.Templates.LoggedIn.Execute(w, r, data)
 }

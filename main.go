@@ -44,8 +44,6 @@ func main() {
 	}
 	defer database.Conn.Close()
 
-	r.Get("/", controllers.StaticHandler(
-		views.Must(views.ParseFS(templates.FS, "home.gohtml", "tailwind.gohtml"))))
 	r.Get("/about", controllers.StaticHandler(
 		views.Must(views.ParseFS(templates.FS, "about.gohtml", "tailwind.gohtml"))))
 
@@ -57,10 +55,15 @@ func main() {
 		DB: DB,
 	}
 
+	postService := models.PostService{
+		DB: DB,
+	}
+
 	// Setup our controllers
 	usersC := controllers.Users{
 		UserService:    &userService,
 		SessionService: &sessionService,
+		PostService:    &postService,
 	}
 
 	usersC.Templates.New = views.Must(views.ParseFS(
@@ -85,6 +88,11 @@ func main() {
 
 	r.Get("/signin", usersC.SignIn)
 	r.Post("/signin", usersC.ProcessSignIn)
+
+	usersC.Templates.Home = views.Must(views.ParseFS(
+		templates.FS, "home.gohtml", "tailwind.gohtml"))
+
+	r.Get("/", usersC.Home)
 
 	r.Get("/users/me", usersC.CurrentUser)
 	r.Get("/users/logout", usersC.Logout)

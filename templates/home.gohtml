@@ -8,62 +8,37 @@
               <p class="text-lg leading-7 text-gray-500 dark:text-gray-400">My thoughts on software development</p>
             </div>
             <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-              <li class="py-12">
-                <article>
-                  <div class="space-y-2 xl:grid xl:grid-cols-4 xl:items-baseline xl:space-y-0">
-                    <dl>
-                      <dt class="sr-only">Published on</dt>
-                      <dd class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
-                        <time dateTime="2023-08-22T00:00:00.000Z">August 12, 2023</time>
-                      </dd>
-                    </dl>
-                    <div class="space-y-5 xl:col-span-3">
-                      <div class="space-y-6">
-                        <div>
-                          <h2 class="text-2xl font-bold leading-8 tracking-tight">
-                            <a class="text-gray-900 dark:text-gray-100" href="/blog/open-sourcing">dolor purus non enim praesent</a>
-                          </h2>
-                          <div class="flex flex-wrap">
-                            <a class="mr-3 text-sm font-medium uppercase text-primary-500 hover:text-primary-600 dark:hover:text-primary-400" href="/tags/open-source">open-source</a>
+            {{range .Posts.Posts}}
+                <li class="py-12">
+                  <article>
+                    <div class="space-y-2 xl:grid xl:grid-cols-4 xl:items-baseline xl:space-y-0">
+                      <dl>
+                        <dt class="sr-only">Published on</dt>
+                        <dd class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
+                          <time dateTime="2023-08-22T00:00:00.000Z">{{.CreatedAt}}</time>
+                        </dd>
+                      </dl>
+                      <div class="space-y-5 xl:col-span-3">
+                        <div class="space-y-6">
+                          <div>
+                            <h2 class="text-2xl font-bold leading-8 tracking-tight">
+                              <a class="text-gray-900 dark:text-gray-100" href="/blog/open-sourcing">{{.Title}}</a>
+                            </h2>
+                            <div class="flex flex-wrap">
+                              <a class="mr-3 text-sm font-medium uppercase text-primary-500 hover:text-primary-600 dark:hover:text-primary-400" href="/tags/open-source">open-source</a>
+                            </div>
                           </div>
+                          <div class="prose max-w-none text-gray-500 dark:text-gray-400">{{.Content}}</div>
                         </div>
-                        <div class="prose max-w-none text-gray-500 dark:text-gray-400">Lorem ipsum dolor sit amet, consectetur adipiscing elit, venenatis a condimentum vitae sapien pellentesque habitant morbi tristique. Leo a diam sollicitudin tempor id eu nisl. At volutpat diam ut venenatis tellus in. Convallis posuere morbi leo urna molestie. Sociis natoque penatibus et magnis dis. Et pharetra pharetra massa massa ultricies mi quis hendrerit. Volutpat diam ut venenatis tellus. Feugiat in fermentum posuere urna nec tincidunt. Fermentum et sollicitudin ac orci phasellus. Turpis massa sed elementum tempus egestas sed. Eleifend mi in nulla posuere sollicitudin aliquam ultrices. Arcu cursus vitae congue mauris. Porttitor eget dolor morbi non arcu risus quis.</div>
-                      </div>
-                      <div class="text-base font-medium leading-6">
-                        <a class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400" aria-label="Read &quot;Open Sourcing Libraries Made Me A Better Developer&quot;" href="/blog/open-sourcing">Read more →</a>
+                        <div class="text-base font-medium leading-6">
+                          <a class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400" aria-label="Read &quot;Open Sourcing Libraries Made Me A Better Developer&quot;" href="/blog/open-sourcing">Read more →
+                        </a>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </article>
-              </li>
-              <li class="py-12">
-                <article>
-                  <div class="space-y-2 xl:grid xl:grid-cols-4 xl:items-baseline xl:space-y-0">
-                    <dl>
-                      <dt class="sr-only">Published on</dt>
-                      <dd class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
-                        <time dateTime="2023-04-27T00:00:00.000Z">April 27, 2023</time>
-                      </dd>
-                    </dl>
-                    <div class="space-y-5 xl:col-span-3">
-                      <div class="space-y-6">
-                        <div>
-                          <h2 class="text-2xl font-bold leading-8 tracking-tight">
-                            <a class="text-gray-900 dark:text-gray-100" href="/blog/over-engineering">euismod elementum nisi quis eleifend</a>
-                          </h2>
-                          <div class="flex flex-wrap">
-                            <a class="mr-3 text-sm font-medium uppercase text-primary-500 hover:text-primary-600 dark:hover:text-primary-400" href="/tags/engineering">engineering</a>
-                          </div>
-                        </div>
-                        <div class="prose max-w-none text-gray-500 dark:text-gray-400">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Pharetra et ultrices ne evolutpat commodo sed egestas egestas. Tristique sollicitudin nibh sit amet commodo nulla facilisi. Eget sit amet tellus cras adipiscing enim. Lorem ipsum dolor sit amet. Vestibulum lectus mauris ultrices eros in cursus turpis massa tincidunt. Risus quis varius quam quisque id diam vel. Mi bibendum neque egestas congue quisque. Est velit egestas dui id ornare arcu odio ut sem. Sollicitudin ac orci phasellus egestas tellus rutrum tellus. Gravida dictum fusce ut p et molestie ac. Faucibus rbi tincidunt ornare massa egec feugiat nisl pruere lorem.</div>
-                      </div>
-                      <div class="text-base font-medium leading-6">
-                        <a class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400" aria-label="Read &quot;Your Greatest Mistake of Over-Engineering&quot;" href="/blog/over-engineering">Read more →</a>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              </li>
+                  </article>
+                </li>
+              {{end}}
             </ul>
           </div>
           <div class="flex items-center justify-center pt-4">
