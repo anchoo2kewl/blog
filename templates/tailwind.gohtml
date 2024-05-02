@@ -100,12 +100,18 @@
             <div class="mb-2 flex space-x-2 text-sm text-gray-500 dark:text-gray-400">
                 <div>Anshuman Biswas</div>
                 <div> • </div>
-                <div>© 2023</div>
+                <div>© <span id="year"></span></div>
                 <div> • </div>
                 <a href="/">anshumanbiswas.com</a>
             </div>
         </section>
     </footer>
+    <script type ="text/javascript">
+        get_year();
+        function get_year(){
+            document.getElementById("year").innerHTML = new Date().getFullYear();
+        };
+    </script>
 </body>
 </html>
 {{end}}
