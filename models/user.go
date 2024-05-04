@@ -22,7 +22,7 @@ type UserService struct {
 	DB *sql.DB
 }
 
-func (us *UserService) Create(email, username, password string) (*User, error) {
+func (us *UserService) Create(email, username, password string, role_id int) (*User, error) {
 	email = strings.ToLower(email)
 
 	hashedBytes, err := bcrypt.GenerateFromPassword(
@@ -30,8 +30,6 @@ func (us *UserService) Create(email, username, password string) (*User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("create user: %w", err)
 	}
-
-	role_id := 1 // This is assumed to be the commenter. Please verify.
 
 	passwordHash := string(hashedBytes)
 
@@ -79,4 +77,29 @@ func (ss *UserService) GenerateHashedToken(token string) (string, error) {
 	}
 
 	return string(hashedTokenBytes), nil
+}
+
+func (us *UserService) GetAllUsers() ([]*User, error) {
+	rows, err := us.DB.Query("SELECT user_id, email, username, registration_date, role_id FROM Users")
+	if err != nil {
+		return nil, fmt.Errorf("get all users: %w", err)
+	}
+	defer rows.Close()
+
+	var users []*User
+
+	for rows.Next() {
+		var user User
+		err := rows.Scan(&user.UserID, &user.Email, &user.Username, &user.RegistrationDate, &user.Role)
+		if err != nil {
+			return nil, fmt.Errorf("get all users: %w", err)
+		}
+		users = append(users, &user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("get all users: %w", err)
+	}
+
+	return users, nil
 }

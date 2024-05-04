@@ -31,7 +31,6 @@ brew install libpq
 # Create DB
 psql postgresql://$PG_USER:$PG_PASSWORD@$PG_HOST:$PG_PORT/$PG_USER\?sslmode=disable -c "create database $PG_DB"
 # Add to Path, and test:
-psql postgresql://$PG_USER:$PG_PASSWORD@$PG_HOST:$PG_PORT/$PG_DB\?sslmode=disable
 psql postgresql://$PG_USER:$PG_PASSWORD@$PG_HOST:$PG_PORT/$PG_DB\?sslmode=disable -l
 ```
 
@@ -53,6 +52,7 @@ Prepare the DB:
 psql postgresql://$PG_USER:$PG_PASSWORD@$PG_HOST:$PG_PORT/$PG_DB\?sslmode=disable -c "INSERT INTO ROLES (role_name) values ('Commenter')"
 #Check
 psql postgresql://$PG_USER:$PG_PASSWORD@$PG_HOST:$PG_PORT/$PG_DB\?sslmode=disable -c 'SELECT * FROM roles'
+# Or apply more commands from `db_test.sh` to load a test DB
 ```
 
 To run using docker:

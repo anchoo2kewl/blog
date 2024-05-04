@@ -12,7 +12,7 @@ type PostsList struct {
 
 type Post struct {
 	ID               int
-	userID           int
+	UserID           int // Added UserID field
 	CategoryID       int
 	Title            string
 	Content          string
@@ -46,7 +46,7 @@ func (pp *PostService) GetTopPosts() (*PostsList, error) {
 	for rows.Next() {
 
 		var post Post
-		err := rows.Scan(&post.ID, &post.userID, &post.CategoryID, &post.Title, &post.Content, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt)
+		err := rows.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt)
 		if err != nil {
 			panic(err)
 		}
@@ -62,7 +62,42 @@ func (pp *PostService) GetTopPosts() (*PostsList, error) {
 	}
 
 	if err != nil {
-		fmt.Errorf("Posts cannot be fetched! %w", err)
+		return nil, fmt.Errorf("create post: %w", err)
+	} else {
+		fmt.Println("Posts fetched successfully!")
 	}
+
 	return &list, nil
+}
+
+func (pp *PostService) Create(userID int, categoryID int, title, content string, isPublished bool, featuredImageURL string) (*Post, error) {
+	timefmt := time.Now()
+	query := `
+		INSERT INTO posts (user_id, category_id, title, content, publication_date, last_edit_date, is_published, featured_image_url, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+		RETURNING post_id
+	`
+	var postID int
+	println(userID, categoryID, title, content, isPublished, featuredImageURL)
+	err := pp.DB.QueryRow(query, userID, categoryID, title, content, timefmt,
+		timefmt, isPublished, featuredImageURL, timefmt).Scan(&postID)
+	if err != nil {
+		fmt.Printf("Error: %v", err)
+		return nil, fmt.Errorf("create post: %w", err)
+	}
+	fmt.Println("Post created successfully!")
+	fmt.Println(postID)
+
+	return &Post{
+		ID:               postID,
+		UserID:           userID,
+		CategoryID:       categoryID,
+		Title:            title,
+		Content:          content,
+		PublicationDate:  timefmt.Format("January 2, 2006"),
+		LastEditDate:     timefmt.Format("January 2, 2006"),
+		IsPublished:      isPublished,
+		FeaturedImageURL: featuredImageURL,
+		CreatedAt:        timefmt.Format("January 2, 2006"),
+	}, nil
 }
