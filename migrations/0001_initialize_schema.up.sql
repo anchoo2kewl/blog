@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS Posts (
     category_id INT REFERENCES Categories(category_id),
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
+    slug VARCHAR(255) UNIQUE,
     publication_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_edit_date TIMESTAMP,
     is_published BOOLEAN NOT NULL,

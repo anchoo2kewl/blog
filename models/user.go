@@ -13,6 +13,7 @@ type User struct {
 	UserID           int
 	Username         string
 	Email            string
+	Password         string
 	PasswordHash     string
 	RegistrationDate string
 	Role             int
@@ -32,6 +33,9 @@ func (us *UserService) Create(email, username, password string, role_id int) (*U
 	}
 
 	passwordHash := string(hashedBytes)
+
+	fmt.Println("Password: ", password)
+	fmt.Println("Password Hash: ", passwordHash)
 
 	row := us.DB.QueryRow(`
 		INSERT INTO Users (email, username, password, role_id, registration_date)

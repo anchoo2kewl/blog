@@ -218,7 +218,7 @@ func (u Users) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create user
-	user, err := u.UserService.Create(newUser.Email, newUser.Username, newUser.PasswordHash, newUser.Role)
+	user, err := u.UserService.Create(newUser.Email, newUser.Username, newUser.Password, newUser.Role)
 	if err != nil {
 		http.Error(w, "Failed to create user", http.StatusInternalServerError)
 		return

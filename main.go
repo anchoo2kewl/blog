@@ -193,7 +193,7 @@ func createPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a new post using the postService
-	post, _ := postService.Create(newPost.UserID, newPost.CategoryID, newPost.Title, newPost.Content, newPost.IsPublished, newPost.FeaturedImageURL)
+	post, _ := postService.Create(newPost.UserID, newPost.CategoryID, newPost.Title, newPost.Content, newPost.IsPublished, newPost.FeaturedImageURL, newPost.Slug)
 
 	// Handle errors and send appropriate response
 	// Send the created post as JSON response
