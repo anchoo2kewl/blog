@@ -69,11 +69,21 @@ func main() {
 		DB: DB,
 	}
 
+	// Initialize BlogService
+	blogService := models.BlogService{
+		DB: DB,
+	}
+
 	// Setup our controllers
 	usersC := controllers.Users{
 		UserService:    &userService,
 		SessionService: &sessionService,
 		PostService:    &postService,
+	}
+
+	// Initialize Blog controller
+	blogC := controllers.Blog{
+		BlogService: &blogService,
 	}
 
 	usersC.Templates.New = views.Must(views.ParseFS(
@@ -107,6 +117,12 @@ func main() {
 	r.Get("/users/me", usersC.CurrentUser)
 	r.Get("/users/logout", usersC.Logout)
 
+	blogC.Templates.Post = views.Must(views.ParseFS(
+		templates.FS, "blogpost.gohtml", "tailwind.gohtml"))
+
+	// Define a route for the blog post
+	r.Get("/blog/{slug}", blogC.GetBlogPost)
+
 	// REST API endpoints for users
 	r.Route("/api/users", func(r chi.Router) {
 		r.Use(AuthMiddleware(apiToken)) // Middleware to check token
@@ -119,6 +135,14 @@ func main() {
 		r.Get("/", getAllPosts)
 		r.Get("/{postID}", getPostByID)
 		r.Post("/", createPost)
+	})
+
+	// Define a custom 404 handler
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		// You can render a custom 404 page here
+		// For simplicity, let's just return a plain text response
+		http.ServeFile(w, r, "templates/NotFoundPage.gohtml")
 	})
 
 	sugar.Infof("server listening on %s", *listenAddr)
