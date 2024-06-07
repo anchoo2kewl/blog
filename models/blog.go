@@ -61,7 +61,7 @@ func replaceMoreTag(content string) string {
 	if idx := strings.Index(content, moreTag); idx != -1 {
 		beforeMoreTag := content[:idx]
 		afterMoreTag := content[idx+len(moreTag):]
-		return beforeMoreTag + "<br />" + afterMoreTag // Example: add <br /> for line break
+		return beforeMoreTag + afterMoreTag // Example: add <br /> for line break
 	}
 	return content
 }
