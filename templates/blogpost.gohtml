@@ -8,11 +8,12 @@
               <p class="text-lg leading-7 text-gray-500 dark:text-gray-400">{{.Post.CreatedAt}}</p>
             </div>
             <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-            <li class="py-12">
-              <article>
-                  {{.Post.Content}}
-              </article>
-            </li>
+              <li>
+                <article>
+                    <!-- Render content as HTML -->
+                    {{ .Post.ContentHTML }}
+                </article>
+              </li>
             </ul>
           </div>
           <div class="flex items-center justify-center pt-4">

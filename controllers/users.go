@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"anshumanbiswas.com/blog/models"
+	"anshumanbiswas.com/blog/utils"
 )
 
 func (u Users) New(w http.ResponseWriter, r *http.Request) {
@@ -135,13 +136,7 @@ func (u Users) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u Users) isUserLoggedIn(r *http.Request) (*models.User, error) {
-	token, err := readCookie(r, CookieSession)
-	email, err := readCookie(r, CookieUserEmail)
-
-	if err != nil {
-		return nil, err
-	}
-	return u.SessionService.User(token, email)
+	return utils.IsUserLoggedIn(r, u.SessionService)
 }
 
 func (u Users) CurrentUser(w http.ResponseWriter, r *http.Request) {

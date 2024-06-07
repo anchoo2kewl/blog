@@ -3,6 +3,8 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"html/template"
+	"strings"
 	"time"
 )
 
@@ -16,6 +18,7 @@ type Post struct {
 	CategoryID       int
 	Title            string
 	Content          string
+	ContentHTML      template.HTML
 	Slug             string
 	PublicationDate  string
 	LastEditDate     string
@@ -59,6 +62,8 @@ func (pp *PostService) GetTopPosts() (*PostsList, error) {
 
 		post.CreatedAt = t.Format("January 2, 2006")
 
+		post.Content = trimContent(post.Content)
+
 		list.Posts = append(list.Posts, post)
 	}
 
@@ -69,6 +74,15 @@ func (pp *PostService) GetTopPosts() (*PostsList, error) {
 	}
 
 	return &list, nil
+}
+
+// Function to trim content up to the <more--> tag
+func trimContent(content string) string {
+	const moreTag = "<more-->"
+	if idx := strings.Index(content, moreTag); idx != -1 {
+		return content[:idx]
+	}
+	return content
 }
 
 func (pp *PostService) Create(userID int, categoryID int, title, content string, isPublished bool, featuredImageURL string, slug string) (*Post, error) {

@@ -83,13 +83,14 @@ func main() {
 
 	// Initialize Blog controller
 	blogC := controllers.Blog{
-		BlogService: &blogService,
+		BlogService:    &blogService,
+		SessionService: &sessionService,
 	}
 
 	usersC.Templates.New = views.Must(views.ParseFS(
 		templates.FS, "signup.gohtml", "tailwind.gohtml"))
 
-	isSignupDisabled, err := strconv.ParseBool(os.Getenv("APP_DISABLE_SIGNUP"))
+	isSignupDisabled, _ := strconv.ParseBool(os.Getenv("APP_DISABLE_SIGNUP"))
 
 	if isSignupDisabled {
 		fmt.Println("Signups Disabled ...")

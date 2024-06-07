@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"anshumanbiswas.com/blog/models"
+	"anshumanbiswas.com/blog/utils"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -13,13 +14,15 @@ type Blog struct {
 	Templates struct {
 		Post Template
 	}
-	BlogService *models.BlogService
+	BlogService    *models.BlogService
+	SessionService *models.SessionService
 }
 
 func (b *Blog) GetBlogPost(w http.ResponseWriter, r *http.Request) {
 
 	var data struct {
 		LoggedIn bool
+		Email    string
 		Post     *models.Post
 	}
 
@@ -47,6 +50,11 @@ func (b *Blog) GetBlogPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user, _ := utils.IsUserLoggedIn(r, b.SessionService)
+	fmt.Print(user)
+	if user != nil {
+		data.LoggedIn = true
+	}
 	// Render the blog post template with the retrieved data
 	// Example: b.Templates.BlogPost.Execute(w, r, post)
 	b.Templates.Post.Execute(w, r, data)
