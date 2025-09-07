@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "test:go": "go test -v ./tests/go",
+    "test:playwright": "node tests/playwright/test_admin_nav_playwright.js",
+    "test": "npm run test:go && npm run test:playwright"
+  },
+  "dependencies": {
+    "playwright": "^1.55.0"
+  }
+}

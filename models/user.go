@@ -61,8 +61,8 @@ func (us UserService) Authenticate(email, password string) (*User, error) {
 		Email: email,
 	}
 
-	row := us.DB.QueryRow(`SELECT user_id, password FROM users WHERE email=$1`, email)
-	err := row.Scan(&user.UserID, &user.PasswordHash)
+	row := us.DB.QueryRow(`SELECT user_id, username, password, role_id FROM users WHERE email=$1`, email)
+	err := row.Scan(&user.UserID, &user.Username, &user.PasswordHash, &user.Role)
 	if err != nil {
 		return nil, fmt.Errorf("authenticate: %w", err)
 	}
@@ -106,4 +106,32 @@ func (us *UserService) GetAllUsers() ([]*User, error) {
 	}
 
 	return users, nil
+}
+
+func (us *UserService) UpdatePassword(userID int, newPassword string) error {
+	hashedBytes, err := bcrypt.GenerateFromPassword(
+		[]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("update password: %w", err)
+	}
+
+	passwordHash := string(hashedBytes)
+
+	_, err = us.DB.Exec("UPDATE Users SET password = $1 WHERE user_id = $2", passwordHash, userID)
+	if err != nil {
+		return fmt.Errorf("update password: %w", err)
+	}
+
+	return nil
+}
+
+func (us *UserService) UpdateEmail(userID int, newEmail string) error {
+	newEmail = strings.ToLower(newEmail)
+	
+	_, err := us.DB.Exec("UPDATE Users SET email = $1 WHERE user_id = $2", newEmail, userID)
+	if err != nil {
+		return fmt.Errorf("update email: %w", err)
+	}
+
+	return nil
 }

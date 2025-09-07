@@ -1,0 +1,252 @@
+{{template "modern-header" .}}
+
+<!-- Admin Dashboard -->
+<div class="admin-dashboard">
+    <!-- Dashboard Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 mb-8 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">Admin Dashboard</h1>
+                <p class="text-blue-100">Welcome back, {{.Username}}! Here's your blog overview.</p>
+            </div>
+            <div class="admin-badge bg-white/20 backdrop-blur">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0L15.09 8.26L24 9L17 14.74L19.18 24L12 19.77L4.82 24L7 14.74L0 9L8.91 8.26L12 0Z"/>
+                </svg>
+                Administrator
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Total Posts</p>
+                    <p class="text-2xl font-bold">{{if .Stats.TotalPosts}}{{.Stats.TotalPosts}}{{else}}0{{end}}</p>
+                </div>
+                <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="mt-4">
+                <span class="text-green-600 text-sm">{{if .Stats.PublishedPosts}}{{.Stats.PublishedPosts}}{{else}}0{{end}} published</span>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Total Users</p>
+                    <p class="text-2xl font-bold">{{if .Stats.TotalUsers}}{{.Stats.TotalUsers}}{{else}}0{{end}}</p>
+                </div>
+                <div class="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Categories</p>
+                    <p class="text-2xl font-bold">{{if .Stats.TotalCategories}}{{.Stats.TotalCategories}}{{else}}0{{end}}</p>
+                </div>
+                <div class="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Views</p>
+                    <p class="text-2xl font-bold">{{if .Stats.TotalViews}}{{.Stats.TotalViews}}{{else}}N/A{{end}}</p>
+                </div>
+                <div class="p-3 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 mb-8">
+        <h2 class="text-xl font-bold mb-4">Quick Actions</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="/admin/posts/new" class="btn btn-primary">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                New Post
+            </a>
+            
+            <a href="/admin/users" class="btn btn-secondary">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                </svg>
+                Manage Users
+            </a>
+            
+            <a href="/admin/categories" class="btn btn-secondary">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                </svg>
+                Categories
+            </a>
+            
+            <a href="/admin/settings" class="btn btn-secondary">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                Settings
+            </a>
+        </div>
+    </div>
+    
+    <!-- Recent Posts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold">Recent Posts</h2>
+                <a href="/admin/posts" class="text-blue-600 hover:text-blue-700 text-sm font-medium">View all</a>
+            </div>
+            
+            {{if .RecentPosts}}
+                <div class="space-y-4">
+                    {{range .RecentPosts}}
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div class="flex-1">
+                            <h3 class="font-medium">{{if gt (len .Title) 40}}{{slice .Title 0 40}}...{{else}}{{.Title}}{{end}}</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">{{.PublicationDate}}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            {{if .IsPublished}}
+                                <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full">Published</span>
+                            {{else}}
+                                <span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs rounded-full">Draft</span>
+                            {{end}}
+                            <a href="/admin/posts/{{.ID}}/edit" class="text-blue-600 hover:text-blue-700">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+            {{else}}
+                <div class="text-center py-8 text-gray-500">
+                    <svg class="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-1"></path>
+                    </svg>
+                    <p>No posts yet. Create your first post!</p>
+                </div>
+            {{end}}
+        </div>
+        
+        <!-- System Info -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <h2 class="text-xl font-bold mb-4">System Status</h2>
+            
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Blog Status</span>
+                    <span class="flex items-center gap-2 text-green-600">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        Online
+                    </span>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">User Signups</span>
+                    {{if .SignupDisabled}}
+                        <span class="flex items-center gap-2 text-red-600">
+                            <div class="w-2 h-2 bg-red-500 rounded-full"></div>
+                            Disabled
+                        </span>
+                    {{else}}
+                        <span class="flex items-center gap-2 text-green-600">
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                            Enabled
+                        </span>
+                    {{end}}
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Theme</span>
+                    <span class="text-blue-600 font-medium">Modern</span>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600 dark:text-gray-400">Version</span>
+                    <span class="text-gray-900 dark:text-gray-100 font-medium">{{if .Version}}{{.Version}}{{else}}1.0.0{{end}}</span>
+                </div>
+            </div>
+            
+            <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button 
+                    onclick="toggleSignups()"
+                    class="w-full btn {{if .SignupDisabled}}btn-primary{{else}}btn-secondary{{end}}"
+                    id="signup-toggle-btn"
+                >
+                    {{if .SignupDisabled}}Enable Signups{{else}}Disable Signups{{end}}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function toggleSignups() {
+        const btn = document.getElementById('signup-toggle-btn');
+        const originalText = btn.textContent;
+        
+        btn.disabled = true;
+        btn.textContent = 'Updating...';
+        
+        try {
+            const response = await fetch('/api/admin/toggle-signups', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer {{.APIToken}}'
+                }
+            });
+            
+            if (response.ok) {
+                location.reload();
+            } else {
+                throw new Error('Failed to toggle signups');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            btn.textContent = originalText;
+            btn.disabled = false;
+            alert('Failed to update signup settings. Please try again.');
+        }
+    }
+    
+    // Add some interactive effects
+    document.addEventListener('DOMContentLoaded', () => {
+        const statCards = document.querySelectorAll('.grid > div:has(.text-2xl)');
+        statCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 100}ms`;
+            card.classList.add('fade-in');
+        });
+    });
+</script>
+
+{{template "modern-footer" .}}

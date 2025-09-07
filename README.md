@@ -1,114 +1,115 @@
-# My Blog
+<div align="center">
 
-This code is aimed at replicating a simple blog. The design of this blog will be found on my [blog](https://anshumanbiswas.com).
+# Blog Platform (Go 1.25)
 
-Create an `.env` from the `.env.sample` file.
+Modern, fast, and secure blog platform written in Go. Includes API token management, user roles, embedded templates, and a minimal, clean UI.
 
-Run a Postgres Server before running the application:
+</div>
 
-```
-docker pull postgres
-docker volume create postgres-volume
+## Features
 
-# Change this to a more secure password
-export PG_PASSWORD=1234
+- Go 1.25 backend with chi router and clean controllers
+- Embedded HTML templates using the standard library (no runtime I/O)
+- Role-aware navigation and pages (Commenter, Viewer, Editor, Admin)
+- User management (signup/signin, profile, password/email updates)
+- API token management (create, revoke, delete)
+- Blog posts (top posts, view single post, user’s posts)
+- Tailored light/dark styling with a modern theme
+- Scripts to build, run, seed the DB, and test (unit + Playwright)
 
-export PG_PORT=5433
-export PG_USER=blog
-export PG_DB=blog
-export PG_HOST=127.0.0.1
-export APP_DISABLE_SIGNUP=true
+## Quickstart
 
-# Or just run this command
-export $(cat .env | xargs)
+```bash
+# 1) Copy environment
+cp .env.sample .env
 
-docker run --name pg -e POSTGRES_PASSWORD=$PG_PASSWORD -e POSTGRES_USER=$PG_USER -p $PG_PORT:5432 -v postgres-volume:/var/lib/postgresql/data -d postgres
-```
+# 2) Start DB + App
+./scripts/server start --force
 
-Other tools can be used, but for mac, installing a local PSQL:
-```
-brew install libpq
-# Create DB
-psql postgresql://$PG_USER:$PG_PASSWORD@$PG_HOST:$PG_PORT/$PG_USER\?sslmode=disable -c "create database $PG_DB"
-# Add to Path, and test:
-psql postgresql://$PG_USER:$PG_PASSWORD@$PG_HOST:$PG_PORT/$PG_DB\?sslmode=disable -l
-```
+# 3) Seed roles, users, and sample posts (optional)
+./scripts/server db-seed
 
-Install Migrate:
-
-```
-brew install golang-migrate
+# Visit the app
+open http://localhost:22222
 ```
 
-Then run the migration:
+For more details, see docs/deployments.md.
 
-```
-migrate -source file://migrations -database postgresql://$PG_USER:$PG_PASSWORD@$PG_HOST:$PG_PORT/$PG_DB\?sslmode=disable up
-```
+## Scripts
 
-Prepare the DB:
+Helpful commands from `./scripts/server`:
 
-```
-psql postgresql://$PG_USER:$PG_PASSWORD@$PG_HOST:$PG_PORT/$PG_DB\?sslmode=disable -c "INSERT INTO ROLES (role_name) values ('Commenter')"
-#Check
-psql postgresql://$PG_USER:$PG_PASSWORD@$PG_HOST:$PG_PORT/$PG_DB\?sslmode=disable -c 'SELECT * FROM roles'
-# Or apply more commands from `db_test.sh` to load a test DB
-```
+```bash
+# App lifecycle
+./scripts/server start|stop|restart|status
+./scripts/server start-blog|restart-blog|start-db
 
-To run using docker:
+# Database
+./scripts/server db "SELECT * FROM users LIMIT 5;"
+./scripts/server db-migrate|db-seed|db-users|db-posts
 
-```
-# For Mx Macs:
-docker buildx build --progress=plain --platform=linux/arm64/v8 -t biswas/blog:v0.1 .
+# Logs
+./scripts/server logs blog|db
 
-#For Linux on X86_64
-docker buildx build --progress=plain --platform=linux/amd64 -t biswas/blog:v0.1 .
-
-docker run -d -p 22222:22222  --env-file .env --name blog -v $(pwd):/go/src/blog biswas/blog:v0.1
+# Tests
+./scripts/server test-go
+./scripts/server test-playwright
+./scripts/server test-all
 ```
 
-or to run on port 8080:
+## Tech Stack
+
+- Language: Go 1.25+
+- HTTP: chi
+- Templates: html/template (embed.FS)
+- DB: Postgres, migrations via golang-migrate
+- Crypto: bcrypt for password/session hashing
+- E2E: Playwright
+
+## API Overview
+
+Authenticated via API tokens (Bearer) with role-based permissions:
+
+- GET /api/posts – List posts
+- GET /api/posts/{id} – Get a post
+- POST /api/posts – Create a post (Editor/Admin)
+- GET /api/users – List users (Admin)
+- POST /api/users – Create user (Admin)
+
+Create and manage API tokens under “API Access”.
+
+## Development
+
+```bash
+# Live reloading (Air)
+./scripts/server dev --force
+
+# Rebuild binary + restart (refresh embedded templates)
+./scripts/server restart-blog
+```
+
+Unit tests and E2E:
+
+```bash
+./scripts/server test-go
+./scripts/server test-playwright
+./scripts/server test-all
+```
+
+## Configuration
+
+Environment variables (via `.env`):
 
 ```
-docker run -d -p 8080:8080  --env-file .env --name blog -v $(pwd):/go/src/blog biswas/blog:v0.1 ./main --listen-addr :8080
+PG_USER, PG_PASSWORD, PG_DB, PG_HOST, PG_PORT
+API_TOKEN                # required for API endpoints
+APP_DISABLE_SIGNUP=true  # disable public signups
 ```
 
-To run locally for live reloading, install air:
+## Contributing
 
-```
-curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+Issues and PRs are welcome. Please include clear steps to reproduce and target minimal, focused changes where possible.
 
-~/go/bin/air -c .air.toml
-```
-Which runs the code on 22222, unless .air.toml file has been modified.
+## License
 
-or run without live-reloading:
-```
-go build -o tmp/blog
-tmp/blog --listen-addr :22222
-```
-
-
-### Debugging using vscode:
-
-# On Mac
-
-```
-brew install delve
-```
-
-```launch.json
-{
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Launch Package",
-            "type": "go",
-            "request": "launch",
-            "mode": "debug",
-            "envFile": "${workspaceFolder}/.env",
-            "program": "${workspaceFolder}"
-        }
-    ]
-}
-```
+MIT

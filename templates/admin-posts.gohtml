@@ -1,0 +1,278 @@
+{{template "modern-header" .}}
+
+<!-- Admin Posts Management -->
+<section class="admin-posts-section">
+    <div class="admin-header mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Manage All Posts</h1>
+        <div class="flex items-center justify-between">
+            <p class="text-gray-600 dark:text-gray-400">
+                Manage all blog posts across the system
+            </p>
+            <a href="/admin/posts/new" class="btn btn-primary">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                New Post
+            </a>
+        </div>
+    </div>
+
+    <!-- Posts List -->
+    <div class="posts-grid">
+        {{if .Posts.Posts}}
+            {{range .Posts.Posts}}
+            <article class="post-card">
+                <div class="post-header">
+                    <h3 class="post-title">
+                        <a href="/blog/{{.Slug}}" class="post-link">{{.Title}}</a>
+                    </h3>
+                    <div class="post-meta">
+                        <span class="post-date">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <time class="relative-time" datetime="{{.CreatedAt}}">{{.PublicationDate}}</time>
+                        </span>
+                        <span class="post-status {{if .IsPublished}}published{{else}}draft{{end}}">
+                            {{if .IsPublished}}
+                                <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                Published
+                            {{else}}
+                                <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                </svg>
+                                Draft
+                            {{end}}
+                        </span>
+                        <span class="post-author">User ID: {{.UserID}}</span>
+                    </div>
+                </div>
+
+                <div class="post-content">
+                    <p class="post-excerpt">
+                        {{if gt (len .Content) 150}}
+                            {{slice .Content 0 150}}...
+                        {{else}}
+                            {{.Content}}
+                        {{end}}
+                    </p>
+                </div>
+
+                <div class="post-actions">
+                    <a href="/blog/{{.Slug}}" class="action-btn view">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                        View
+                    </a>
+                    <a href="/admin/posts/{{.ID}}/edit" class="action-btn edit">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Edit
+                    </a>
+                    <button class="action-btn delete" onclick="deletePost({{.ID}})">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Delete
+                    </button>
+                </div>
+            </article>
+            {{end}}
+        {{else}}
+            <div class="no-posts">
+                <div class="no-posts-content">
+                    <svg class="w-16 h-16 mx-auto text-gray-400 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-1m-10 4h8m-8 2h8m-8 2h8"></path>
+                    </svg>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">No posts found</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">
+                        There are no posts in the system yet.
+                    </p>
+                    <a href="/admin/posts/new" class="btn btn-primary">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Create First Post
+                    </a>
+                </div>
+            </div>
+        {{end}}
+    </div>
+</section>
+
+<style>
+.admin-posts-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 2rem;
+}
+
+.post-card {
+    background: rgb(var(--background));
+    border: 1px solid rgb(var(--border));
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.post-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(var(--ring), 0.15);
+    border-color: rgb(var(--ring));
+}
+
+.dark .post-card {
+    background: rgba(31, 41, 55, 0.8);
+    border-color: rgba(75, 85, 99, 0.3);
+}
+
+.post-header {
+    margin-bottom: 1rem;
+}
+
+.post-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.post-link {
+    color: rgb(var(--foreground));
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.post-link:hover {
+    color: rgb(var(--ring));
+}
+
+.post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: rgb(var(--muted-foreground));
+}
+
+.post-date,
+.post-status,
+.post-author {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.post-status.published {
+    color: #10b981;
+}
+
+.post-status.draft {
+    color: #f59e0b;
+}
+
+.post-content {
+    margin-bottom: 1.5rem;
+}
+
+.post-excerpt {
+    color: rgb(var(--muted-foreground));
+    line-height: 1.6;
+}
+
+.post-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: calc(var(--radius) / 2);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.action-btn.view {
+    background: rgb(var(--muted));
+    color: rgb(var(--foreground));
+}
+
+.action-btn.view:hover {
+    background: rgb(var(--ring));
+    color: white;
+}
+
+.action-btn.edit {
+    background: #3b82f6;
+    color: white;
+}
+
+.action-btn.edit:hover {
+    background: #2563eb;
+}
+
+.action-btn.delete {
+    background: #ef4444;
+    color: white;
+}
+
+.action-btn.delete:hover {
+    background: #dc2626;
+}
+
+.no-posts {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+@media (max-width: 768px) {
+    .posts-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .post-actions {
+        flex-direction: column;
+    }
+    
+    .action-btn {
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+function deletePost(postId) {
+    if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+        // TODO: Implement delete functionality
+        alert('Delete functionality not implemented yet');
+    }
+}
+
+// Initialize relative time and reading time calculations
+document.addEventListener('DOMContentLoaded', () => {
+    // Convert dates to relative time
+    convertToRelativeTime();
+});
+</script>
+
+{{template "modern-footer" .}}

@@ -55,12 +55,21 @@ func (pp *PostService) GetTopPosts() (*PostsList, error) {
 			panic(err)
 		}
 
+		// Parse and format CreatedAt
 		t, err := time.Parse(time.RFC3339, post.CreatedAt)
 		if err != nil {
 			fmt.Println(err)
 		}
-
-		post.CreatedAt = t.Format("January 2, 2006")
+		post.CreatedAt = t.Format(time.RFC3339) // Keep original for JavaScript
+		post.PublicationDate = t.Format("January 2, 2006") // Readable fallback
+		
+		// Parse and format PublicationDate if it's different from CreatedAt
+		if post.PublicationDate != "" && post.PublicationDate != post.CreatedAt {
+			pubDate, pubErr := time.Parse(time.RFC3339, post.PublicationDate)
+			if pubErr == nil {
+				post.PublicationDate = pubDate.Format("January 2, 2006")
+			}
+		}
 
 		post.Content = trimContent(post.Content)
 
@@ -71,6 +80,94 @@ func (pp *PostService) GetTopPosts() (*PostsList, error) {
 		return nil, fmt.Errorf("create post: %w", err)
 	} else {
 		fmt.Println("Posts fetched successfully!")
+	}
+
+	return &list, nil
+}
+
+func (pp *PostService) GetAllPosts() (*PostsList, error) {
+	list := PostsList{}
+
+	query := `SELECT * FROM posts ORDER BY created_at DESC`
+	rows, err := pp.DB.Query(query)
+	if err != nil {
+		return &list, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var post Post
+		err := rows.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+
+		// Parse and format CreatedAt
+		t, err := time.Parse(time.RFC3339, post.CreatedAt)
+		if err != nil {
+			fmt.Println(err)
+		}
+		post.CreatedAt = t.Format(time.RFC3339)
+		post.PublicationDate = t.Format("January 2, 2006")
+		
+		// Parse and format PublicationDate if it's different from CreatedAt
+		if post.PublicationDate != "" && post.PublicationDate != post.CreatedAt {
+			pubDate, pubErr := time.Parse(time.RFC3339, post.PublicationDate)
+			if pubErr == nil {
+				post.PublicationDate = pubDate.Format("January 2, 2006")
+			}
+		}
+
+		post.Content = trimContent(post.Content)
+		list.Posts = append(list.Posts, post)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("get all posts: %w", err)
+	}
+
+	return &list, nil
+}
+
+func (pp *PostService) GetPostsByUser(userID int) (*PostsList, error) {
+	list := PostsList{}
+
+	query := `SELECT * FROM posts WHERE user_id = $1 ORDER BY created_at DESC`
+	rows, err := pp.DB.Query(query, userID)
+	if err != nil {
+		return &list, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var post Post
+		err := rows.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+
+		// Parse and format CreatedAt
+		t, err := time.Parse(time.RFC3339, post.CreatedAt)
+		if err != nil {
+			fmt.Println(err)
+		}
+		post.CreatedAt = t.Format(time.RFC3339)
+		post.PublicationDate = t.Format("January 2, 2006")
+		
+		// Parse and format PublicationDate if it's different from CreatedAt
+		if post.PublicationDate != "" && post.PublicationDate != post.CreatedAt {
+			pubDate, pubErr := time.Parse(time.RFC3339, post.PublicationDate)
+			if pubErr == nil {
+				post.PublicationDate = pubDate.Format("January 2, 2006")
+			}
+		}
+
+		post.Content = trimContent(post.Content)
+		list.Posts = append(list.Posts, post)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("get posts by user: %w", err)
 	}
 
 	return &list, nil

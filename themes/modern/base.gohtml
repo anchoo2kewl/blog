@@ -1,0 +1,265 @@
+{{define "modern-header"}}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Anshuman Biswas - Software Engineering & Cloud Architecture Blog" />
+    <meta name="author" content="Anshuman Biswas" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon.svg" />
+    
+    <!-- Styles -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/modern-theme.css?v=2025-v2" />
+    
+    <!-- Dark mode script -->
+    <script>
+        // Check for saved theme preference or default to system preference
+        const savedTheme = localStorage.getItem('theme') || 
+                          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    
+    <title>Blog - Anshuman Biswas</title>
+</head>
+<body class="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <!-- Logo -->
+            <a href="/" class="logo-container">
+                <img src="/static/logo.svg" alt="Biswas Blog Logo" class="logo-icon logo-pulse" />
+                <span class="logo-text">
+                    Anshuman <span class="highlight">B</span>iswas
+                </span>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <ul class="nav-links">
+                <li><a href="/" class="nav-link ">Home</a></li>
+                <li><a href="/about" class="nav-link ">About</a></li>
+                {{if .LoggedIn}}
+                    {{if .IsAdmin}}
+                        <li><a href="/admin" class="nav-link ">Admin</a></li>
+                    {{end}}
+                    {{if .IsAdmin}}
+                        <li>
+                            <span class="admin-badge">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0L15.09 8.26L24 9L17 14.74L19.18 24L12 19.77L4.82 24L7 14.74L0 9L8.91 8.26L12 0Z"/>
+                                </svg>
+                                Admin
+                            </span>
+                        </li>
+                    {{end}}
+                    <li><a href="/users/me" class="nav-link">Profile</a></li>
+                    <li><a href="/logout" class="nav-link">Sign Out</a></li>
+                {{else}}
+                    <li><a href="/signin" class="nav-link ">Sign In</a></li>
+                    {{if not .SignupDisabled}}
+                        <li><a href="/signup" class="nav-link ">Sign Up</a></li>
+                    {{end}}
+                {{end}}
+                
+                <!-- Theme Toggle -->
+                <li>
+                    <button id="theme-toggle" class="nav-link" aria-label="Toggle theme">
+                        <svg id="sun-icon" class="w-5 h-5 hidden dark:block" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <svg id="moon-icon" class="w-5 h-5 block dark:hidden" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                        </svg>
+                    </button>
+                </li>
+                
+                <!-- Search -->
+                <li>
+                    <button id="search-toggle" class="nav-link" aria-label="Search">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </button>
+                </li>
+            </ul>
+            
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-button" id="mobile-menu-btn" aria-label="Toggle menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            
+            <!-- Mobile Menu -->
+            <div class="mobile-menu" id="mobile-menu">
+                <ul class="mobile-nav-links">
+                    <li><a href="/" class="nav-link ">Home</a></li>
+                    <li><a href="/about" class="nav-link ">About</a></li>
+                    {{if .LoggedIn}}
+                        {{if .IsAdmin}}
+                            <li><a href="/admin" class="nav-link ">Admin Panel</a></li>
+                        {{end}}
+                        <li><a href="/users/me" class="nav-link">Profile ({{.Username}})</a></li>
+                        <li><a href="/logout" class="nav-link">Sign Out</a></li>
+                    {{else}}
+                        <li><a href="/signin" class="nav-link ">Sign In</a></li>
+                        {{if not .SignupDisabled}}
+                            <li><a href="/signup" class="nav-link ">Sign Up</a></li>
+                        {{end}}
+                    {{end}}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="main-container">
+{{end}}
+
+{{define "modern-footer"}}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="mailto:anshuman@biswas.me" class="footer-link">Contact</a>
+                <a href="https://github.com/anchoo2kewl" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
+                <a href="https://linkedin.com/in/anshuman-biswas-phd-613b0145" target="_blank" rel="noopener noreferrer" class="footer-link">LinkedIn</a>
+                <a href="/rss" class="footer-link">RSS</a>
+            </div>
+            <p class="footer-text">
+                © <span id="current-year"></span> Anshuman Biswas • Built with Go & ❤️
+            </p>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script>
+        // Update year
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        
+        themeToggle.addEventListener('click', () => {
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+        
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('open');
+        });
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mobileMenuBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+                mobileMenu.classList.remove('open');
+            }
+        });
+        
+        // Search toggle (placeholder - can be enhanced)
+        document.getElementById('search-toggle').addEventListener('click', () => {
+            // Implement search functionality
+            console.log('Search clicked');
+        });
+        
+        // Add fade-in animation to content
+        document.addEventListener('DOMContentLoaded', () => {
+            const content = document.querySelector('.main-container');
+            if (content) {
+                content.classList.add('fade-in');
+            }
+            
+            // Convert dates to relative time
+            convertToRelativeTime();
+            
+            // Calculate reading times
+            calculateReadingTimes();
+        });
+        
+        // Function to convert ISO dates to relative time
+        function convertToRelativeTime() {
+            const timeElements = document.querySelectorAll('.relative-time');
+            timeElements.forEach(element => {
+                const isoDate = element.getAttribute('datetime');
+                if (isoDate) {
+                    const relativeTime = getRelativeTime(new Date(isoDate));
+                    element.textContent = relativeTime;
+                }
+            });
+        }
+        
+        // Function to get relative time string
+        function getRelativeTime(date) {
+            const now = new Date();
+            const diffInSeconds = Math.floor((now - date) / 1000);
+            
+            if (diffInSeconds < 60) {
+                return 'just now';
+            } else if (diffInSeconds < 3600) {
+                const minutes = Math.floor(diffInSeconds / 60);
+                return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+            } else if (diffInSeconds < 86400) {
+                const hours = Math.floor(diffInSeconds / 3600);
+                return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+            } else if (diffInSeconds < 2592000) {
+                const days = Math.floor(diffInSeconds / 86400);
+                return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+            } else if (diffInSeconds < 31536000) {
+                const months = Math.floor(diffInSeconds / 2592000);
+                return `${months} ${months === 1 ? 'month' : 'months'} ago`;
+            } else {
+                const years = Math.floor(diffInSeconds / 31536000);
+                return `${years} ${years === 1 ? 'year' : 'years'} ago`;
+            }
+        }
+        
+        // Function to calculate reading times
+        function calculateReadingTimes() {
+            const readTimeElements = document.querySelectorAll('.read-time');
+            readTimeElements.forEach(element => {
+                const content = element.getAttribute('data-content');
+                if (content) {
+                    const readingTime = calculateReadingTime(content);
+                    element.textContent = readingTime;
+                }
+            });
+        }
+        
+        // Function to calculate reading time based on content
+        function calculateReadingTime(content) {
+            // Remove HTML tags and count words
+            const plainText = content.replace(/<[^>]*>/g, '');
+            const wordCount = plainText.trim().split(/\s+/).length;
+            
+            // Average reading speed is 200-250 words per minute
+            // Using 200 for conservative estimate
+            const wordsPerMinute = 200;
+            const minutes = Math.ceil(wordCount / wordsPerMinute);
+            
+            return `${minutes} min read`;
+        }
+    </script>
+</body>
+</html>
+{{end}}

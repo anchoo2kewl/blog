@@ -1,61 +1,71 @@
-{{template "header" .}}
-<div class="py-12 flex justify-center">
-  <div class="px-8 py-8 bg-white rounded shadow">
-    <h1 class="pt-4 pb-8 text-center text-3xl font-bold text-gray-900">
-      Welcome back!
-    </h1>
-    <form action="/signin" method="post">
-      <div class="hidden">
-		{{csrfField}}
-	  </div>
-      <div class="py-2">
-        <label for="email" class="text-sm font-semibold text-gray-800">
+{{template "modern-header" .}}
+
+<div class="max-w-md mx-auto mt-16 mb-16">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        Welcome Back
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">
+        Sign in to your account
+      </p>
+    </div>
+    
+    <form action="/signin" method="post" class="space-y-6">
+      <div>
+        <label for="email" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
           Email Address
         </label>
         <input
           name="email"
           id="email"
           type="email"
-          placeholder="Email address"
+          placeholder="Enter your email"
           required
           autocomplete="email"
-          class="w-full px-3 py-2 border border-gray-300 placeholder-gray-500
-            text-gray-800 rounded"
+          class="form-input"
           value="{{.Email}}"
           {{if not .Email}}autofocus{{end}}
         />
       </div>
-      <div class="py-2">
-        <label for="password" class="text-sm font-semibold text-gray-800">
+      
+      <div>
+        <label for="password" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
           Password
         </label>
         <input
           name="password"
           id="password"
           type="password"
-          placeholder="Password"
+          placeholder="Enter your password"
           required
-          class="w-full px-3 py-2 border border-gray-300 placeholder-gray-500
-            text-gray-800 rounded"
+          class="form-input"
           {{if .Email}}autofocus{{end}}
         />
       </div>
-      <div class="py-4">
-        <button class="w-full py-4 px-2 bg-indigo-600 hover:bg-indigo-700
-          text-white rounded font-bold text-lg">
-          Sign in
+      
+      <div>
+        <button type="submit" class="btn btn-primary w-full">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+          </svg>
+          Sign In
         </button>
       </div>
-      <div class="py-2 w-full flex justify-between">
-        <p class="text-xs text-gray-500">
+      
+      <div class="flex items-center justify-between text-sm">
+        {{if not .SignupDisabled}}
+        <p class="text-gray-600 dark:text-gray-400">
           Need an account?
-          <a href="/signup" class="underline">Sign up</a>
+          <a href="/signup" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold">Sign up</a>
         </p>
-        <p class="text-xs text-gray-500">
-          <a href="/reset-pw" class="underline">Forgot your password?</a>
+        {{end}}
+        <p class="text-gray-600 dark:text-gray-400">
+          <a href="/reset-pw" class="text-blue-600 dark:text-blue-400 hover:underline">Forgot password?</a>
         </p>
       </div>
     </form>
   </div>
 </div>
-{{template "footer" .}}
+
+{{template "modern-footer" .}}

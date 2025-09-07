@@ -1,63 +1,125 @@
-{{template "header" .}}
+{{template "modern-header" .}}
 
-<section class="mx-auto max-w-3xl px-4 sm:px-6 xl:max-w-5xl xl:px-0">
-        <main class="mb-auto">
-          <div class="divide-y divide-gray-200 dark:divide-gray-700">
-            <div class="space-y-2 pb-8 pt-6 md:space-y-5">
-              <h1 class="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">Latest</h1>
-              <p class="text-lg leading-7 text-gray-500 dark:text-gray-400">My thoughts on software development</p>
-            </div>
-            <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-            {{range .Posts.Posts}}
-                <li class="py-12">
-                  <article>
-                    <div class="space-y-2 xl:grid xl:grid-cols-4 xl:items-baseline xl:space-y-0">
-                      <dl>
-                        <dt class="sr-only">Published on</dt>
-                        <dd class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
-                          <time dateTime="2023-08-22T00:00:00.000Z">{{.CreatedAt}}</time>
-                        </dd>
-                      </dl>
-                      <div class="space-y-5 xl:col-span-3">
-                        <div class="space-y-6">
-                          <div>
-                            <h2 class="text-2xl font-bold leading-8 tracking-tight">
-                              <a class="text-gray-900 dark:text-gray-100" href="/blog/{{.Slug}}">{{.Title}}</a>
-                            </h2>
-                            <div class="flex flex-wrap">
-                              <a class="mr-3 text-sm font-medium uppercase text-primary-500 hover:text-primary-600 dark:hover:text-primary-400" href="/tags/open-source">open-source</a>
-                            </div>
-                          </div>
-                          <div class="prose max-w-none text-gray-500 dark:text-gray-400">{{.Content}}</div>
-                        </div>
-                        <div class="text-base font-medium leading-6">
-                          <a class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400" aria-label="Read &quot;Open Sourcing Libraries Made Me A Better Developer&quot;" href="/blog/{{.Slug}}">Read more →
-                        </a>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-                </li>
-              {{end}}
-            </ul>
-          </div>
-          <div class="flex items-center justify-center pt-4">
-            <div>
-              <div class="pb-1 text-lg font-semibold text-gray-800 dark:text-gray-100">Subscribe to the newsletter</div>
-              <form class="flex flex-col sm:flex-row">
-                <div>
-                  <label for="email-input">
-                    <span class="sr-only">Email address</span>
-                    <input autoComplete="email" class="focus:ring-primary-600 w-72 rounded-md px-4 focus:border-transparent focus:outline-none focus:ring-2 dark:bg-black" id="email-input" placeholder="Enter your email" required="" type="email" name="email" />
-                  </label>
-                </div>
-                <div class="mt-2 flex w-full rounded-md shadow-sm sm:mt-0 sm:ml-3">
-                  <button class="bg-primary-500 w-full rounded-md py-2 px-4 font-medium text-white sm:py-0 hover:bg-primary-700 dark:hover:bg-primary-400 focus:ring-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:ring-offset-black" type="submit">Sign up</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </main>
-    </section>
+<!-- Hero Section -->
+<section class="hero">
+    <h1>Engineering Insights</h1>
+    <p>
+        Deep dives into software architecture, cloud infrastructure, and scalable system design. 
+        Technical perspectives on modern development and emerging technologies.
+    </p>
+</section>
 
-{{template "footer" .}}
+<!-- Blog Posts -->
+<section class="blog-posts">
+    {{if .Posts.Posts}}
+        {{range .Posts.Posts}}
+        <article class="blog-post">
+            <div class="blog-post-meta">
+                <div class="blog-post-date">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <time class="relative-time" datetime="{{.CreatedAt}}">{{.PublicationDate}}</time>
+                </div>
+                <div class="reading-time text-sm text-gray-500">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="read-time" data-content="{{.Content}}">5 min read</span>
+                </div>
+                {{if .FeaturedImageURL}}
+                <div class="text-sm text-gray-500">
+                    Featured
+                </div>
+                {{end}}
+            </div>
+            
+            <h2 class="blog-post-title">
+                <a href="/blog/{{.Slug}}">{{.Title}}</a>
+            </h2>
+            
+            <div class="blog-post-excerpt">
+                {{if gt (len .Content) 200}}
+                    {{slice .Content 0 200}}...
+                {{else}}
+                    {{.Content}}
+                {{end}}
+            </div>
+            
+            <div class="flex items-center justify-between">
+                <a href="/blog/{{.Slug}}" class="read-more">
+                    Read more
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+                
+                <div class="flex items-center gap-4 text-sm text-gray-500">
+                    {{if .IsPublished}}
+                        <span class="flex items-center gap-1">
+                            <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            Published
+                        </span>
+                    {{else}}
+                        <span class="flex items-center gap-1">
+                            <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                            </svg>
+                            Draft
+                        </span>
+                    {{end}}
+                </div>
+            </div>
+        </article>
+        {{end}}
+    {{else}}
+        <div class="text-center py-12">
+            <div class="mb-4">
+                <svg class="w-16 h-16 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-1m-10 4h8m-8 2h8m-8 2h8"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">No posts yet</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">
+                The blog is ready for your first post!
+            </p>
+            {{if .LoggedIn}}
+                <a href="/admin/posts/new" class="btn btn-primary">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Create First Post
+                </a>
+            {{end}}
+        </div>
+    {{end}}
+</section>
+
+<!-- Newsletter Signup -->
+{{if not .LoggedIn}}
+<section class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-8 text-center">
+    <h3 class="text-2xl font-bold mb-4 gradient-text">Stay Updated</h3>
+    <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+        Get notified when new posts are published. No spam, unsubscribe anytime.
+    </p>
+    <form class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto" action="/subscribe" method="POST">
+        <input 
+            type="email" 
+            name="email" 
+            placeholder="Enter your email" 
+            class="form-input flex-1"
+            required
+        />
+        <button type="submit" class="btn btn-primary">
+            Subscribe
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+            </svg>
+        </button>
+    </form>
+</section>
+{{end}}
+
+{{template "modern-footer" .}}

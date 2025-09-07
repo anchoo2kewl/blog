@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"anshumanbiswas.com/blog/controllers"
+	authmw "anshumanbiswas.com/blog/middleware"
 	"anshumanbiswas.com/blog/models"
 	"anshumanbiswas.com/blog/templates"
 	"anshumanbiswas.com/blog/views"
@@ -54,9 +55,6 @@ func main() {
 	}
 	defer database.Conn.Close()
 
-	r.Get("/about", controllers.StaticHandler(
-		views.Must(views.ParseFS(templates.FS, "about.gohtml", "tailwind.gohtml"))))
-
 	userService := models.UserService{
 		DB: DB,
 	}
@@ -64,6 +62,16 @@ func main() {
 	sessionService := models.SessionService{
 		DB: DB,
 	}
+
+	apiTokenService := models.APITokenService{
+		DB: DB,
+	}
+
+	r.Get("/about", controllers.StaticHandler(
+		views.Must(views.ParseFS(templates.FS, "about.gohtml", "tailwind.gohtml")), &sessionService))
+	
+	r.Get("/admin/formatting-guide", controllers.StaticHandler(
+		views.Must(views.ParseFS(templates.FS, "admin-formatting-guide.gohtml", "tailwind.gohtml")), &sessionService))
 
 	postService := models.PostService{
 		DB: DB,
@@ -76,9 +84,10 @@ func main() {
 
 	// Setup our controllers
 	usersC := controllers.Users{
-		UserService:    &userService,
-		SessionService: &sessionService,
-		PostService:    &postService,
+		UserService:     &userService,
+		SessionService:  &sessionService,
+		PostService:     &postService,
+		APITokenService: &apiTokenService,
 	}
 
 	// Initialize Blog controller
@@ -113,10 +122,35 @@ func main() {
 	usersC.Templates.Home = views.Must(views.ParseFS(
 		templates.FS, "home.gohtml", "tailwind.gohtml"))
 
+	usersC.Templates.Profile = views.Must(views.ParseFS(
+		templates.FS, "profile.gohtml", "tailwind.gohtml"))
+
+	usersC.Templates.AdminPosts = views.Must(views.ParseFS(
+		templates.FS, "admin-posts.gohtml", "tailwind.gohtml"))
+
+	usersC.Templates.UserPosts = views.Must(views.ParseFS(
+		templates.FS, "user-posts.gohtml", "tailwind.gohtml"))
+
+	usersC.Templates.APIAccess = views.Must(views.ParseFS(
+		templates.FS, "api-access.gohtml", "tailwind.gohtml"))
+
 	r.Get("/", usersC.Home)
+	r.Get("/admin/posts", usersC.AdminPosts)
+	r.Get("/my-posts", usersC.UserPosts)
+	r.Get("/api-access", usersC.APIAccess)
 
 	r.Get("/users/me", usersC.CurrentUser)
+	r.Post("/users/password", usersC.UpdatePassword)
+	r.Post("/users/email", usersC.UpdateEmail)
+	r.Post("/users/api-tokens", usersC.CreateAPIToken)
+	r.Post("/users/api-tokens/revoke", usersC.RevokeAPIToken)
+	r.Post("/users/api-tokens/delete", usersC.DeleteAPIToken)
 	r.Get("/users/logout", usersC.Logout)
+	
+	// Logout redirect route for convenience
+	r.Get("/logout", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/users/logout", http.StatusFound)
+	})
 
 	blogC.Templates.Post = views.Must(views.ParseFS(
 		templates.FS, "blogpost.gohtml", "tailwind.gohtml"))
@@ -126,13 +160,13 @@ func main() {
 
 	// REST API endpoints for users
 	r.Route("/api/users", func(r chi.Router) {
-		r.Use(AuthMiddleware(apiToken)) // Middleware to check token
+		r.Use(authmw.APIAuthMiddleware(apiToken, &apiTokenService))
 		r.Get("/", usersC.ListUsers)
 		r.Post("/", usersC.CreateUser)
 	})
 
 	r.Route("/api/posts", func(r chi.Router) {
-		r.Use(AuthMiddleware(apiToken)) // Middleware to check token
+		r.Use(authmw.APIAuthMiddleware(apiToken, &apiTokenService))
 		r.Get("/", getAllPosts)
 		r.Get("/{postID}", getPostByID)
 		r.Post("/", createPost)
@@ -148,9 +182,23 @@ func main() {
 
 	sugar.Infof("server listening on %s", *listenAddr)
 
-	fileServer := http.FileServer(http.Dir("./css/"))
+	// Serve favicon at root level for both GET and HEAD requests
+	r.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet && r.Method != http.MethodHead {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		w.Header().Set("Content-Type", "image/svg+xml")
+		http.ServeFile(w, r, "./static/favicon.svg")
+	})
 
-	r.Handle("/css/*", http.StripPrefix("/css/", fileServer))
+	// Serve static files from ./static/ directory
+	staticFileServer := http.FileServer(http.Dir("./static/"))
+	r.Handle("/static/*", http.StripPrefix("/static/", staticFileServer))
+
+	// Keep legacy CSS route for backward compatibility
+	cssFileServer := http.FileServer(http.Dir("./css/"))
+	r.Handle("/css/*", http.StripPrefix("/css/", cssFileServer))
 
 	http.ListenAndServe(*listenAddr, r)
 }

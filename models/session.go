@@ -91,26 +91,29 @@ func (ss *SessionService) User(token string, email string) (*User, error) {
 
 	email = strings.ToLower(email)
 
-	user := User{
-		Email: email,
-	}
-
+	user := User{}
 	session := Session{
 		Token: token,
 	}
 
-	row := ss.DB.QueryRow(`SELECT s.user_id, s.token_hash from users as u INNER JOIN sessions as s
-							on u.user_id = s.user_id where u.email like $1`, email)
+	row := ss.DB.QueryRow(`
+		SELECT s.id, s.token_hash, u.user_id, u.username, u.role_id
+		FROM users AS u
+		INNER JOIN sessions AS s ON u.user_id = s.user_id
+		WHERE u.email LIKE $1`, email)
 
-	err := row.Scan(&session.ID, &session.TokenHash)
+	var dbUserID int
+	err := row.Scan(&session.ID, &session.TokenHash, &dbUserID, &user.Username, &user.Role)
 	if err != nil {
 		return nil, fmt.Errorf("session, email incorrect: %w", err)
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(session.TokenHash), []byte(token))
-	if err != nil {
+	if err = bcrypt.CompareHashAndPassword([]byte(session.TokenHash), []byte(token)); err != nil {
 		return nil, fmt.Errorf("authenticate session: %w", err)
 	}
+
+	user.Email = email
+	user.UserID = dbUserID
 	return &user, nil
 }
 
@@ -118,7 +121,7 @@ func (ss *SessionService) Logout(email string) {
 
 	email = strings.ToLower(email)
 
-	ss.DB.QueryRow(`DELETE FROM sessions WHERE user_id in (select id from users where email like $1)`, email)
+	ss.DB.QueryRow(`DELETE FROM sessions WHERE user_id IN (SELECT user_id FROM users WHERE email LIKE $1)`, email)
 
 }
 

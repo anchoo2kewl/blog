@@ -1,0 +1,190 @@
+{{template "modern-header" .}}
+
+<article class="max-w-4xl mx-auto">
+    <!-- Article Header -->
+    <header class="mb-8">
+        <!-- Breadcrumb -->
+        <nav class="flex items-center space-x-2 text-sm text-gray-500 mb-6">
+            <a href="/" class="hover:text-gray-700 dark:hover:text-gray-300">Home</a>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+            <span class="text-gray-700 dark:text-gray-300">{{.Post.Title}}</span>
+        </nav>
+        
+        <!-- Featured Image -->
+        {{if .Post.FeaturedImageURL}}
+        <div class="mb-8 rounded-2xl overflow-hidden">
+            <img 
+                src="{{.Post.FeaturedImageURL}}" 
+                alt="{{.Post.Title}}"
+                class="w-full h-64 md:h-96 object-cover"
+            />
+        </div>
+        {{end}}
+        
+        <!-- Title -->
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+            {{.Post.Title}}
+        </h1>
+        
+        <!-- Meta Information -->
+        <div class="flex flex-wrap items-center gap-6 text-gray-600 dark:text-gray-400 pb-8 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <time datetime="{{.Post.CreatedAt}}">{{.Post.PublicationDate}}</time>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>{{if .ReadTime}}{{.ReadTime}}{{else}}5{{end}} min read</span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                <span>Anshuman Biswas</span>
+            </div>
+            
+            {{if .Post.LastEditDate}}
+                {{if ne .Post.PublicationDate .Post.LastEditDate}}
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    <span>Updated {{.Post.LastEditDate}}</span>
+                </div>
+                {{end}}
+            {{end}}
+            
+            {{if .IsAdmin}}
+            <div class="flex items-center gap-2 ml-auto">
+                <a href="/admin/posts/{{.Post.ID}}/edit" class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    Edit
+                </a>
+            </div>
+            {{end}}
+        </div>
+    </header>
+    
+    <!-- Article Content -->
+    <div class="prose prose-lg dark:prose-invert max-w-none mb-12">
+        {{if .Post.ContentHTML}}
+            {{.Post.ContentHTML}}
+        {{else}}
+            {{.Post.Content}}
+        {{end}}
+    </div>
+    
+    <!-- Social Share -->
+    <div class="border-t border-gray-200 dark:border-gray-700 pt-8 mb-12">
+        <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">Share this post</h3>
+            <div class="flex items-center gap-4">
+                <a 
+                    href="https://twitter.com/intent/tweet?url={{.FullURL}}&text={{.Post.Title}}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 transition-colors"
+                    aria-label="Share on Twitter"
+                >
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                    </svg>
+                </a>
+                
+                <a 
+                    href="https://www.linkedin.com/sharing/share-offsite/?url={{.FullURL}}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 transition-colors"
+                    aria-label="Share on LinkedIn"
+                >
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                    </svg>
+                </a>
+                
+                <button 
+                    onclick="navigator.clipboard.writeText('{{.FullURL}}'); this.innerHTML='✓ Copied!'; setTimeout(() => this.innerHTML='Copy Link', 2000)"
+                    class="px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-sm font-medium transition-colors"
+                >
+                    Copy Link
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="border-t border-gray-200 dark:border-gray-700 pt-8">
+        <div class="flex justify-between items-center">
+            {{if .PrevPost}}
+            <a href="/blog/{{.PrevPost.Slug}}" class="group flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors max-w-sm">
+                <svg class="w-6 h-6 text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                <div>
+                    <div class="text-sm text-gray-500 mb-1">Previous</div>
+                    <div class="font-semibold group-hover:text-blue-600 transition-colors">{{if gt (len .PrevPost.Title) 50}}{{slice .PrevPost.Title 0 50}}...{{else}}{{.PrevPost.Title}}{{end}}</div>
+                </div>
+            </a>
+            {{else}}
+            <div></div>
+            {{end}}
+            
+            {{if .NextPost}}
+            <a href="/blog/{{.NextPost.Slug}}" class="group flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors max-w-sm text-right">
+                <div>
+                    <div class="text-sm text-gray-500 mb-1">Next</div>
+                    <div class="font-semibold group-hover:text-blue-600 transition-colors">{{if gt (len .NextPost.Title) 50}}{{slice .NextPost.Title 0 50}}...{{else}}{{.NextPost.Title}}{{end}}</div>
+                </div>
+                <svg class="w-6 h-6 text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+            {{else}}
+            <div></div>
+            {{end}}
+        </div>
+    </nav>
+</article>
+
+<!-- Back to Top -->
+<button 
+    id="back-to-top"
+    class="fixed bottom-8 right-8 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-all duration-300 opacity-0 invisible"
+    aria-label="Back to top"
+>
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+    </svg>
+</button>
+
+<script>
+    // Back to top button
+    const backToTopBtn = document.getElementById('back-to-top');
+    
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+            backToTopBtn.classList.remove('opacity-0', 'invisible');
+            backToTopBtn.classList.add('opacity-100', 'visible');
+        } else {
+            backToTopBtn.classList.add('opacity-0', 'invisible');
+            backToTopBtn.classList.remove('opacity-100', 'visible');
+        }
+    });
+    
+    backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+</script>
+
+{{template "modern-footer" .}}
