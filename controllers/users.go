@@ -11,6 +11,7 @@ import (
     "strings"
     "crypto/rand"
     "path/filepath"
+    "regexp"
 
     "anshumanbiswas.com/blog/models"
     "anshumanbiswas.com/blog/utils"
@@ -129,6 +130,11 @@ func (u Users) UploadImage(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    // Optional per-slug folder
+    slug := r.URL.Query().Get("slug")
+    slug = strings.ToLower(slug)
+    slug = regexp.MustCompile(`[^a-z0-9-]`).ReplaceAllString(slug, "-")
+
     // Random filename to avoid collisions
     rb := make([]byte, 16)
     if _, err := rand.Read(rb); err != nil {
@@ -138,8 +144,10 @@ func (u Users) UploadImage(w http.ResponseWriter, r *http.Request) {
     name := hex.EncodeToString(rb) + ext
 
     // Ensure upload directory exists
-    _ = os.MkdirAll("static/uploads", 0o755)
-    fpath := filepath.Join("static", "uploads", name)
+    base := filepath.Join("static", "uploads")
+    if slug != "" { base = filepath.Join(base, slug) }
+    _ = os.MkdirAll(base, 0o755)
+    fpath := filepath.Join(base, name)
     out, err := os.Create(fpath)
     if err != nil {
         http.Error(w, "Failed to save file", http.StatusInternalServerError)
@@ -151,7 +159,9 @@ func (u Users) UploadImage(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    resp := map[string]string{"url": "/static/uploads/" + name}
+    url := "/static/uploads/" + name
+    if slug != "" { url = "/static/uploads/" + slug + "/" + name }
+    resp := map[string]string{"url": url}
     w.Header().Set("Content-Type", "application/json")
     _ = json.NewEncoder(w).Encode(resp)
 }

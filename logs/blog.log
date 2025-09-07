@@ -1,302 +1,19 @@
-{"level":"info","ts":1757276670.004298,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
-{"level":"info","ts":1757276670.018569,"caller":"blog/db.go:34","msg":"Database connection established!"}
+{"level":"info","ts":1757279162.935404,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757279162.955255,"caller":"blog/db.go:34","msg":"Database connection established!"}
 Signups Disabled ...
-{"level":"info","ts":1757276670.0203662,"caller":"blog/main.go:203","msg":"server listening on :22222"}
+{"level":"info","ts":1757279162.958842,"caller":"blog/main.go:203","msg":"server listening on :22222"}
 Posts fetched successfully!
 DEBUG HOME: User logged in: anshuman, Email: anshuman@biswas.me, Role: 2, IsAdmin: true
-2025/09/07 16:25:58 "GET http://localhost:22222/ HTTP/1.1" from [::1]:53938 - 200 28083B in 57.921458ms
-2025/09/07 16:25:58 "GET http://localhost:22222/static/css/modern-theme.css?v=15 HTTP/1.1" from [::1]:53938 - 304 0B in 131.709µs
+2025/09/07 17:06:09 "GET http://localhost:22222/ HTTP/1.1" from [::1]:65327 - 200 30947B in 85.666625ms
+2025/09/07 17:06:09 "GET http://localhost:22222/static/css/modern-theme.css?v=15 HTTP/1.1" from [::1]:65327 - 304 0B in 94.666µs
 Posts fetched successfully!
 DEBUG HOME: User logged in: anshuman, Email: anshuman@biswas.me, Role: 2, IsAdmin: true
-2025/09/07 16:26:00 "GET http://localhost:22222/ HTTP/1.1" from [::1]:53938 - 200 28083B in 79.577917ms
+2025/09/07 17:06:10 "GET http://localhost:22222/ HTTP/1.1" from [::1]:65327 - 200 30947B in 92.939375ms
 Posts fetched successfully!
 DEBUG HOME: User logged in: anshuman, Email: anshuman@biswas.me, Role: 2, IsAdmin: true
-2025/09/07 16:26:03 "GET http://localhost:22222/ HTTP/1.1" from [::1]:53938 - 200 28083B in 60.681208ms
-Slug: fictitious-blog-post
-Fetching blog post with slug: fictitious-blog-post
-Posts fetched successfully!
-Blog Post: {1 2 1 Fictitious Blog Post <div>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard</div><div>&lt;more--&gt;</div><div><span style="color: rgb(17, 24, 39);"> </span>dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining e<font color="#b80000">ssentially unchanged. It was popu</font></div><div><br></div>```python
-class DatabaseConnection:
-    def __init__(self, host, port, database):
-        self.host = host
-        self.port = port
-        self.database = database
-        self.connection = None
-    
-    async def connect(self):
-        """Establish database connection"""
-        self.connection = await asyncpg.connect(
-            host=self.host,
-            port=self.port,
-            database=self.database
-        )
-        
-    async def execute_query(self, query, *args):
-        """Execute a query with parameters"""
-        return await self.connection.fetch(query, *args)
-``` <div>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard</div><div></div><div><span style="color: rgb(17, 24, 39);"> </span>dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining e<font color="#b80000">ssentially unchanged. It was popu</font></div><div><br></div><pre><code class="language-python">class DatabaseConnection:
-    def __init__(self, host, port, database):
-        self.host = host
-        self.port = port
-        self.database = database
-        self.connection = None
-    
-    async def connect(self):
-        &#34;&#34;&#34;Establish database connection&#34;&#34;&#34;
-        self.connection = await asyncpg.connect(
-            host=self.host,
-            port=self.port,
-            database=self.database
-        )
-        
-    async def execute_query(self, query, *args):
-        &#34;&#34;&#34;Execute a query with parameters&#34;&#34;&#34;
-        return await self.connection.fetch(query, *args)
-</code></pre> fictitious-blog-post September 6, 2025 September 7, 2025 true image.jpg September 6, 2025}
-Post: &{1 2 1 Fictitious Blog Post <div>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard</div><div>&lt;more--&gt;</div><div><span style="color: rgb(17, 24, 39);"> </span>dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining e<font color="#b80000">ssentially unchanged. It was popu</font></div><div><br></div>```python
-class DatabaseConnection:
-    def __init__(self, host, port, database):
-        self.host = host
-        self.port = port
-        self.database = database
-        self.connection = None
-    
-    async def connect(self):
-        """Establish database connection"""
-        self.connection = await asyncpg.connect(
-            host=self.host,
-            port=self.port,
-            database=self.database
-        )
-        
-    async def execute_query(self, query, *args):
-        """Execute a query with parameters"""
-        return await self.connection.fetch(query, *args)
-``` <div>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard</div><div></div><div><span style="color: rgb(17, 24, 39);"> </span>dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining e<font color="#b80000">ssentially unchanged. It was popu</font></div><div><br></div><pre><code class="language-python">class DatabaseConnection:
-    def __init__(self, host, port, database):
-        self.host = host
-        self.port = port
-        self.database = database
-        self.connection = None
-    
-    async def connect(self):
-        &#34;&#34;&#34;Establish database connection&#34;&#34;&#34;
-        self.connection = await asyncpg.connect(
-            host=self.host,
-            port=self.port,
-            database=self.database
-        )
-        
-    async def execute_query(self, query, *args):
-        &#34;&#34;&#34;Execute a query with parameters&#34;&#34;&#34;
-        return await self.connection.fetch(query, *args)
-</code></pre> fictitious-blog-post September 6, 2025 September 7, 2025 true image.jpg September 6, 2025}
-&{1 anshuman anshuman@biswas.me    2}2025/09/07 16:26:07 "GET http://localhost:22222/blog/fictitious-blog-post HTTP/1.1" from [::1]:53938 - 200 38828B in 76.436125ms
-2025/09/07 16:26:07 "GET http://localhost:22222/static/placeholder-featured.svg HTTP/1.1" from [::1]:53938 - 200 878B in 2.408167ms
-2025/09/07 16:27:00 "GET http://localhost:22222/admin/posts/1/edit HTTP/1.1" from [::1]:53938 - 200 32721B in 51.750291ms
-2025/09/07 16:27:34 "POST http://localhost:22222/admin/uploads HTTP/1.1" from [::1]:53938 - 200 63B in 73.918916ms
-2025/09/07 16:27:36 "POST http://localhost:22222/admin/posts/1 HTTP/1.1" from [::1]:53938 - 302 0B in 74.710334ms
-2025/09/07 16:27:36 "GET http://localhost:22222/admin/posts HTTP/1.1" from [::1]:53938 - 200 33683B in 53.000625ms
-Slug: fictitious-blog-post
-Fetching blog post with slug: fictitious-blog-post
-Posts fetched successfully!
-Blog Post: {1 2 1 Fictitious Blog Post <div>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard</div><div>&lt;more--&gt;</div><div><span style="color: rgb(17, 24, 39);"> </span>dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining e<font color="#b80000">ssentially unchanged. It was popu</font></div><div><br></div>```python
-class DatabaseConnection:
-    def __init__(self, host, port, database):
-        self.host = host
-        self.port = port
-        self.database = database
-        self.connection = None
-    
-    async def connect(self):
-        """Establish database connection"""
-        self.connection = await asyncpg.connect(
-            host=self.host,
-            port=self.port,
-            database=self.database
-        )
-        
-    async def execute_query(self, query, *args):
-        """Execute a query with parameters"""
-        return await self.connection.fetch(query, *args)
-``` <div>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard</div><div></div><div><span style="color: rgb(17, 24, 39);"> </span>dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining e<font color="#b80000">ssentially unchanged. It was popu</font></div><div><br></div><pre><code class="language-python">class DatabaseConnection:
-    def __init__(self, host, port, database):
-        self.host = host
-        self.port = port
-        self.database = database
-        self.connection = None
-    
-    async def connect(self):
-        &#34;&#34;&#34;Establish database connection&#34;&#34;&#34;
-        self.connection = await asyncpg.connect(
-            host=self.host,
-            port=self.port,
-            database=self.database
-        )
-        
-    async def execute_query(self, query, *args):
-        &#34;&#34;&#34;Execute a query with parameters&#34;&#34;&#34;
-        return await self.connection.fetch(query, *args)
-</code></pre> fictitious-blog-post September 6, 2025 September 7, 2025 true /static/uploads/f58550ee0be7f3d1495cfe00288d144b.jpg September 6, 2025}
-Post: &{1 2 1 Fictitious Blog Post <div>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard</div><div>&lt;more--&gt;</div><div><span style="color: rgb(17, 24, 39);"> </span>dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining e<font color="#b80000">ssentially unchanged. It was popu</font></div><div><br></div>```python
-class DatabaseConnection:
-    def __init__(self, host, port, database):
-        self.host = host
-        self.port = port
-        self.database = database
-        self.connection = None
-    
-    async def connect(self):
-        """Establish database connection"""
-        self.connection = await asyncpg.connect(
-            host=self.host,
-            port=self.port,
-            database=self.database
-        )
-        
-    async def execute_query(self, query, *args):
-        """Execute a query with parameters"""
-        return await self.connection.fetch(query, *args)
-``` <div>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard</div><div></div><div><span style="color: rgb(17, 24, 39);"> </span>dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining e<font color="#b80000">ssentially unchanged. It was popu</font></div><div><br></div><pre><code class="language-python">class DatabaseConnection:
-    def __init__(self, host, port, database):
-        self.host = host
-        self.port = port
-        self.database = database
-        self.connection = None
-    
-    async def connect(self):
-        &#34;&#34;&#34;Establish database connection&#34;&#34;&#34;
-        self.connection = await asyncpg.connect(
-            host=self.host,
-            port=self.port,
-            database=self.database
-        )
-        
-    async def execute_query(self, query, *args):
-        &#34;&#34;&#34;Execute a query with parameters&#34;&#34;&#34;
-        return await self.connection.fetch(query, *args)
-</code></pre> fictitious-blog-post September 6, 2025 September 7, 2025 true /static/uploads/f58550ee0be7f3d1495cfe00288d144b.jpg September 6, 2025}
-&{1 anshuman anshuman@biswas.me    2}2025/09/07 16:27:38 "GET http://localhost:22222/blog/fictitious-blog-post HTTP/1.1" from [::1]:53938 - 200 38848B in 69.694375ms
-2025/09/07 16:27:38 "GET http://localhost:22222/static/uploads/f58550ee0be7f3d1495cfe00288d144b.jpg HTTP/1.1" from [::1]:53938 - 200 151776B in 174.167µs
-2025/09/07 16:27:44 "GET http://localhost:22222/admin/posts/1/edit HTTP/1.1" from [::1]:53938 - 200 32764B in 64.842834ms
-Posts fetched successfully!
-DEBUG HOME: User logged in: anshuman, Email: anshuman@biswas.me, Role: 2, IsAdmin: true
-2025/09/07 16:27:56 "GET http://localhost:22222/ HTTP/1.1" from [::1]:53938 - 200 28083B in 59.156625ms
-Posts fetched successfully!
-DEBUG HOME: User logged in: anshuman, Email: anshuman@biswas.me, Role: 2, IsAdmin: true
-2025/09/07 16:35:26 "GET http://localhost:22222/ HTTP/1.1" from [::1]:56638 - 200 30947B in 67.3445ms
-2025/09/07 16:35:26 "GET http://localhost:22222/static/css/modern-theme.css?v=15 HTTP/1.1" from [::1]:56638 - 304 0B in 189.167µs
+2025/09/07 17:06:11 "GET http://localhost:22222/ HTTP/1.1" from [::1]:65327 - 200 30947B in 85.406208ms
 Slug: formatting-showcase
 Fetching blog post with slug: formatting-showcase
-Posts fetched successfully!
-Blog Post: {5 2 1 Formatting Showcase Welcome to the formatting showcase! This paragraph demonstrates **bold**, *italic*, and `inline code`, plus a [link](https://example.com).
-
-<more-->
-
-## Headings (H2)
-### Subheading (H3)
-
-> A blockquote with emphasis.
-
-- Unordered item A
-- Unordered item B
-  - Nested item B1
-
-1. Ordered item 1
-2. Ordered item 2
-   1. Nested 2.1
-
-| Feature | Status | Priority |
-|--------:|:------:|:--------|
-| Lists   | ✅     | High     |
-| Tables  | ✅     | High     |
-
-```python
-class DatabaseConnection:
-    def __init__(self, host, port, database):
-        self.host = host
-        self.port = port
-        self.database = database
-        self.connection = None
-
-    async def connect(self):
-        """Establish database connection"""
-        self.connection = await asyncpg.connect(
-            host=self.host,
-            port=self.port,
-            database=self.database
-        )
-```
-
-```css
-pre code{ font-variant-ligatures: none; }
-.token.keyword{ color:#93C5FD; }
-```
-
-```go
-package main
-import "fmt"
-func main(){ fmt.Println("Hello, formatting!") }
-```
-
-Inline image:
-<img src="/static/placeholder-featured.svg" alt="Placeholder" style="max-width:480px" />
-
----
-
-That concludes the demo. Happy writing! Welcome to the formatting showcase! This paragraph demonstrates **bold**, *italic*, and `inline code`, plus a [link](https://example.com).
-
-
-
-## Headings (H2)
-### Subheading (H3)
-
-> A blockquote with emphasis.
-
-- Unordered item A
-- Unordered item B
-  - Nested item B1
-
-1. Ordered item 1
-2. Ordered item 2
-   1. Nested 2.1
-
-| Feature | Status | Priority |
-|--------:|:------:|:--------|
-| Lists   | ✅     | High     |
-| Tables  | ✅     | High     |
-
-<pre><code class="language-python">class DatabaseConnection:
-    def __init__(self, host, port, database):
-        self.host = host
-        self.port = port
-        self.database = database
-        self.connection = None
-
-    async def connect(self):
-        &#34;&#34;&#34;Establish database connection&#34;&#34;&#34;
-        self.connection = await asyncpg.connect(
-            host=self.host,
-            port=self.port,
-            database=self.database
-        )
-</code></pre>
-
-<pre><code class="language-css">pre code{ font-variant-ligatures: none; }
-.token.keyword{ color:#93C5FD; }
-</code></pre>
-
-<pre><code class="language-go">package main
-import &#34;fmt&#34;
-func main(){ fmt.Println(&#34;Hello, formatting!&#34;) }
-</code></pre>
-
-Inline image:
-<img src="/static/placeholder-featured.svg" alt="Placeholder" style="max-width:480px" />
-
----
-
-That concludes the demo. Happy writing! formatting-showcase September 7, 2025 September 7, 2025 true /static/placeholder-featured.svg September 7, 2025}
 Post: &{5 2 1 Formatting Showcase Welcome to the formatting showcase! This paragraph demonstrates **bold**, *italic*, and `inline code`, plus a [link](https://example.com).
 
 <more-->
@@ -352,9 +69,121 @@ Inline image:
 
 ---
 
-That concludes the demo. Happy writing! Welcome to the formatting showcase! This paragraph demonstrates **bold**, *italic*, and `inline code`, plus a [link](https://example.com).
+That concludes the demo. Happy writing! <p>Welcome to the formatting showcase! This paragraph demonstrates <strong>bold</strong>, <em>italic</em>, and <code>inline code</code>, plus a <a href="https://example.com">link</a>.</p>
 
+<h2 id="headings-h2">Headings (H2)</h2>
 
+<h3 id="subheading-h3">Subheading (H3)</h3>
+
+<blockquote class="p-4 my-4 border-s-4 border-gray-300 bg-gray-50 dark:border-gray-500 dark:bg-gray-800">
+<p>A blockquote with emphasis.</p>
+</blockquote>
+
+<ul class="list-disc pl-4">
+<li>Unordered item A</li>
+<li>Unordered item B
+
+<ul>
+<li>Nested item B1</li>
+</ul></li>
+</ul>
+
+<ol>
+<li>Ordered item 1</li>
+<li>Ordered item 2
+
+<ol>
+<li>Nested 2.1</li>
+</ol></li>
+</ol>
+
+<table>
+<thead>
+<tr>
+<th align="right">Feature</th>
+<th align="center">Status</th>
+<th align="left">Priority</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="right">Lists</td>
+<td align="center">✅</td>
+<td align="left">High</td>
+</tr>
+
+<tr>
+<td align="right">Tables</td>
+<td align="center">✅</td>
+<td align="left">High</td>
+</tr>
+</tbody>
+</table>
+
+<pre><code class="language-python">class DatabaseConnection:
+    def __init__(self, host, port, database):
+        self.host = host
+        self.port = port
+        self.database = database
+        self.connection = None
+
+    async def connect(self):
+        &quot;&quot;&quot;Establish database connection&quot;&quot;&quot;
+        self.connection = await asyncpg.connect(
+            host=self.host,
+            port=self.port,
+            database=self.database
+        )
+</code></pre>
+
+<pre><code class="language-css">pre code{ font-variant-ligatures: none; }
+.token.keyword{ color:#93C5FD; }
+</code></pre>
+
+<pre><code class="language-go">package main
+import &quot;fmt&quot;
+func main(){ fmt.Println(&quot;Hello, formatting!&quot;) }
+</code></pre>
+
+<p>Inline image:
+<img src="/static/placeholder-featured.svg" alt="Placeholder" style="max-width:480px" /></p>
+
+<hr>
+
+<p>That concludes the demo. Happy writing!</p>
+ formatting-showcase September 7, 2025 September 7, 2025 true /static/placeholder-featured.svg September 7, 2025}
+&{1 anshuman anshuman@biswas.me    2}2025/09/07 17:06:28 "GET http://localhost:22222/blog/formatting-showcase HTTP/1.1" from [::1]:65327 - 200 39041B in 94.264667ms
+Posts fetched successfully!
+DEBUG HOME: User logged in: anshuman, Email: anshuman@biswas.me, Role: 2, IsAdmin: true
+2025/09/07 17:06:46 "GET http://localhost:22222/ HTTP/1.1" from [::1]:65327 - 200 30947B in 87.167834ms
+2025/09/07 17:06:47 "GET http://localhost:22222/about HTTP/1.1" from [::1]:65327 - 200 26863B in 90.190708ms
+Posts fetched successfully!
+DEBUG HOME: User logged in: anshuman, Email: anshuman@biswas.me, Role: 2, IsAdmin: true
+2025/09/07 17:06:50 "GET http://localhost:22222/ HTTP/1.1" from [::1]:65327 - 200 30947B in 87.012916ms
+2025/09/07 17:06:51 "GET http://localhost:22222/about HTTP/1.1" from [::1]:65327 - 200 26863B in 89.191833ms
+2025/09/07 17:06:54 "GET http://localhost:22222/admin/posts HTTP/1.1" from [::1]:65327 - 200 37293B in 92.362792ms
+2025/09/07 17:06:59 "GET http://localhost:22222/users/me HTTP/1.1" from [::1]:65327 - 200 26455B in 87.655458ms
+Posts fetched successfully!
+DEBUG HOME: User logged in: anshuman, Email: anshuman@biswas.me, Role: 2, IsAdmin: true
+2025/09/07 17:07:05 "GET http://localhost:22222/ HTTP/1.1" from [::1]:65327 - 200 30947B in 90.680625ms
+2025/09/07 17:07:10 "GET http://localhost:22222/about HTTP/1.1" from [::1]:65327 - 200 26863B in 88.02125ms
+Posts fetched successfully!
+DEBUG HOME: User logged in: anshuman, Email: anshuman@biswas.me, Role: 2, IsAdmin: true
+2025/09/07 17:07:11 "GET http://localhost:22222/ HTTP/1.1" from [::1]:65327 - 200 30947B in 94.496042ms
+2025/09/07 17:07:13 "GET http://localhost:22222/about HTTP/1.1" from [::1]:65327 - 200 26863B in 86.693667ms
+Posts fetched successfully!
+DEBUG HOME: User logged in: anshuman, Email: anshuman@biswas.me, Role: 2, IsAdmin: true
+2025/09/07 17:07:31 "GET http://localhost:22222/ HTTP/1.1" from [::1]:65327 - 200 30947B in 92.588417ms
+2025/09/07 17:07:37 "GET http://localhost:22222/api-access HTTP/1.1" from [::1]:65327 - 200 39118B in 91.26525ms
+Posts fetched successfully!
+DEBUG HOME: User logged in: anshuman, Email: anshuman@biswas.me, Role: 2, IsAdmin: true
+2025/09/07 17:07:42 "GET http://localhost:22222/ HTTP/1.1" from [::1]:65327 - 200 30947B in 90.345709ms
+Slug: formatting-showcase
+Fetching blog post with slug: formatting-showcase
+Post: &{5 2 1 Formatting Showcase Welcome to the formatting showcase! This paragraph demonstrates **bold**, *italic*, and `inline code`, plus a [link](https://example.com).
+
+<more-->
 
 ## Headings (H2)
 ### Subheading (H3)
@@ -374,6 +203,91 @@ That concludes the demo. Happy writing! Welcome to the formatting showcase! This
 | Lists   | ✅     | High     |
 | Tables  | ✅     | High     |
 
+```python
+class DatabaseConnection:
+    def __init__(self, host, port, database):
+        self.host = host
+        self.port = port
+        self.database = database
+        self.connection = None
+
+    async def connect(self):
+        """Establish database connection"""
+        self.connection = await asyncpg.connect(
+            host=self.host,
+            port=self.port,
+            database=self.database
+        )
+```
+
+```css
+pre code{ font-variant-ligatures: none; }
+.token.keyword{ color:#93C5FD; }
+```
+
+```go
+package main
+import "fmt"
+func main(){ fmt.Println("Hello, formatting!") }
+```
+
+Inline image:
+<img src="/static/placeholder-featured.svg" alt="Placeholder" style="max-width:480px" />
+
+---
+
+That concludes the demo. Happy writing! <p>Welcome to the formatting showcase! This paragraph demonstrates <strong>bold</strong>, <em>italic</em>, and <code>inline code</code>, plus a <a href="https://example.com">link</a>.</p>
+
+<h2 id="headings-h2">Headings (H2)</h2>
+
+<h3 id="subheading-h3">Subheading (H3)</h3>
+
+<blockquote class="p-4 my-4 border-s-4 border-gray-300 bg-gray-50 dark:border-gray-500 dark:bg-gray-800">
+<p>A blockquote with emphasis.</p>
+</blockquote>
+
+<ul class="list-disc pl-4">
+<li>Unordered item A</li>
+<li>Unordered item B
+
+<ul>
+<li>Nested item B1</li>
+</ul></li>
+</ul>
+
+<ol>
+<li>Ordered item 1</li>
+<li>Ordered item 2
+
+<ol>
+<li>Nested 2.1</li>
+</ol></li>
+</ol>
+
+<table>
+<thead>
+<tr>
+<th align="right">Feature</th>
+<th align="center">Status</th>
+<th align="left">Priority</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="right">Lists</td>
+<td align="center">✅</td>
+<td align="left">High</td>
+</tr>
+
+<tr>
+<td align="right">Tables</td>
+<td align="center">✅</td>
+<td align="left">High</td>
+</tr>
+</tbody>
+</table>
+
 <pre><code class="language-python">class DatabaseConnection:
     def __init__(self, host, port, database):
         self.host = host
@@ -382,7 +296,7 @@ That concludes the demo. Happy writing! Welcome to the formatting showcase! This
         self.connection = None
 
     async def connect(self):
-        &#34;&#34;&#34;Establish database connection&#34;&#34;&#34;
+        &quot;&quot;&quot;Establish database connection&quot;&quot;&quot;
         self.connection = await asyncpg.connect(
             host=self.host,
             port=self.port,
@@ -395,15 +309,15 @@ That concludes the demo. Happy writing! Welcome to the formatting showcase! This
 </code></pre>
 
 <pre><code class="language-go">package main
-import &#34;fmt&#34;
-func main(){ fmt.Println(&#34;Hello, formatting!&#34;) }
+import &quot;fmt&quot;
+func main(){ fmt.Println(&quot;Hello, formatting!&quot;) }
 </code></pre>
 
-Inline image:
-<img src="/static/placeholder-featured.svg" alt="Placeholder" style="max-width:480px" />
+<p>Inline image:
+<img src="/static/placeholder-featured.svg" alt="Placeholder" style="max-width:480px" /></p>
 
----
+<hr>
 
-That concludes the demo. Happy writing! formatting-showcase September 7, 2025 September 7, 2025 true /static/placeholder-featured.svg September 7, 2025}
-&{1 anshuman anshuman@biswas.me    2}2025/09/07 16:35:30 "GET http://localhost:22222/blog/formatting-showcase HTTP/1.1" from [::1]:56638 - 200 38473B in 72.137667ms
-2025/09/07 16:38:28 "GET http://localhost:22222/admin/posts/5/edit HTTP/1.1" from [::1]:56638 - 200 32828B in 61.920583ms
+<p>That concludes the demo. Happy writing!</p>
+ formatting-showcase September 7, 2025 September 7, 2025 true /static/placeholder-featured.svg September 7, 2025}
+&{1 anshuman anshuman@biswas.me    2}2025/09/07 17:07:50 "GET http://localhost:22222/blog/formatting-showcase HTTP/1.1" from [::1]:65327 - 200 39041B in 91.995584ms

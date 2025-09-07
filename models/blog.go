@@ -9,33 +9,30 @@ import (
     "strings"
     "time"
 
-	"github.com/russross/blackfriday/v2"
+    "github.com/russross/blackfriday/v2"
 )
 
 type BlogService struct {
-	DB *sql.DB
+    DB *sql.DB
 }
 
 func (bs *BlogService) GetBlogPostBySlug(slug string) (*Post, error) {
+    post := Post{}
+    fmt.Println("Fetching blog post with slug:", slug)
 
-	post := Post{}
+    query := `SELECT * FROM posts WHERE slug = $1 LIMIT 1`
+    rows, err := bs.DB.Query(query, slug)
+    if err != nil {
+        return &post, nil
+    }
 
-	fmt.Println("Fetching blog post with slug:", slug)
+    for rows.Next() {
+        err := rows.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt)
+        if err != nil {
+            panic(err)
+        }
 
-	query := `SELECT * FROM posts WHERE slug = $1 LIMIT 1`
-	rows, err := bs.DB.Query(query, slug)
-	if err != nil {
-		return &post, nil
-	}
-
-	for rows.Next() {
-
-		err := rows.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt)
-		if err != nil {
-			panic(err)
-		}
-
-        // Format dates for display
+        // Display-friendly dates
         if post.CreatedAt != "" {
             if t, err := time.Parse(time.RFC3339, post.CreatedAt); err == nil {
                 post.CreatedAt = t.Format("January 2, 2006")
@@ -54,24 +51,17 @@ func (bs *BlogService) GetBlogPostBySlug(slug string) (*Post, error) {
             }
         }
 
-        // Remove read-more marker then render Markdown.
-        // We render Markdown unconditionally—blackfriday passes raw HTML through
-        // and converts Markdown primitives (headings, lists, fences) correctly.
+        // Markdown render (blackfriday passes raw HTML through)
         content := replaceMoreTag(post.Content)
         htmlOut := renderMarkdown(content)
         htmlOut = replaceBlockquoteTag(replacelistTag(htmlOut))
         post.ContentHTML = template.HTML(htmlOut)
-	}
+    }
 
-	if err != nil {
-		return nil, fmt.Errorf("Post could not be fetched: %w", err)
-	} else {
-		fmt.Println("Posts fetched successfully!")
-	}
-
-	fmt.Println("Blog Post:", post)
-
-	return &post, nil
+    if err != nil {
+        return nil, fmt.Errorf("Post could not be fetched: %w", err)
+    }
+    return &post, nil
 }
 
 func replaceMoreTag(content string) string {
@@ -88,60 +78,60 @@ func replaceMoreTag(content string) string {
 }
 
 func replacelistTag(content string) string {
-	// replace <ul> tag with <ul class="list-disc pl-4">
-	const listTag = "<ul>"
-	const listClass = "list-disc pl-4"
-	if idx := strings.Index(content, listTag); idx != -1 {
-		beforeListTag := content[:idx]
-		afterListTag := content[idx+len(listTag):]
-		return beforeListTag + "<ul class=\"" + listClass + "\">" + afterListTag
-	}
-	// replace <ol> tag with <ol class="list-decimal pl-4">
-	const olTag = "<ol>"
-	const olClass = "list-decimal pl-4"
-	if idx := strings.Index(content, olTag); idx != -1 {
-		beforeOlTag := content[:idx]
-		afterOlTag := content[idx+len(olTag):]
-		return beforeOlTag + "<ol class=\"" + olClass + "\">" + afterOlTag
-	}
-	// replace <li> tag with <li class="mb-2">
-	const liTag = "<li>"
-	const liClass = "mb-2"
-	if idx := strings.Index(content, liTag); idx != -1 {
-		beforeLiTag := content[:idx]
-		afterLiTag := content[idx+len(liTag):]
-		return beforeLiTag + "<li class=\"" + liClass + "\">" + afterLiTag
-	}
-	return content
+    const listTag = "<ul>"
+    const listClass = "list-disc pl-4"
+    if idx := strings.Index(content, listTag); idx != -1 {
+        before := content[:idx]
+        after := content[idx+len(listTag):]
+        return before + "<ul class=\"" + listClass + "\">" + after
+    }
+    const olTag = "<ol>"
+    const olClass = "list-decimal pl-4"
+    if idx := strings.Index(content, olTag); idx != -1 {
+        before := content[:idx]
+        after := content[idx+len(olTag):]
+        return before + "<ol class=\"" + olClass + "\">" + after
+    }
+    const liTag = "<li>"
+    const liClass = "mb-2"
+    if idx := strings.Index(content, liTag); idx != -1 {
+        before := content[:idx]
+        after := content[idx+len(liTag):]
+        return before + "<li class=\"" + liClass + "\">" + after
+    }
+    return content
 }
 
 func replaceBlockquoteTag(content string) string {
-	// replace <blockquote> tag with <blockquote class="border-l-4 border-primary-500 pl-4 mb-4">
-	const blockquoteTag = "<blockquote>"
-	const blockquoteClass = "p-4 my-4 border-s-4 border-gray-300 bg-gray-50 dark:border-gray-500 dark:bg-gray-800"
-	if idx := strings.Index(content, blockquoteTag); idx != -1 {
-		beforeBlockquoteTag := content[:idx]
-		afterBlockquoteTag := content[idx+len(blockquoteTag):]
-		return beforeBlockquoteTag + "<blockquote class=\"" + blockquoteClass + "\">" + afterBlockquoteTag
-	}
-	return content
+    const blockquoteTag = "<blockquote>"
+    const blockquoteClass = "p-4 my-4 border-s-4 border-gray-300 bg-gray-50 dark:border-gray-500 dark:bg-gray-800"
+    if idx := strings.Index(content, blockquoteTag); idx != -1 {
+        before := content[:idx]
+        after := content[idx+len(blockquoteTag):]
+        return before + "<blockquote class=\"" + blockquoteClass + "\">" + after
+    }
+    return content
 }
 
-// Function to render markdown content
+// Markdown renderer with common extensions enabled
 func renderMarkdown(content string) string {
-    output := blackfriday.Run([]byte(content))
-    // fmt.Println(string(output))
-    return string(output)
+    exts := blackfriday.CommonExtensions | blackfriday.AutoHeadingIDs | blackfriday.FencedCode | blackfriday.Tables | blackfriday.Strikethrough
+    renderer := blackfriday.NewHTMLRenderer(blackfriday.HTMLRendererParameters{})
+    out := blackfriday.Run([]byte(content), blackfriday.WithExtensions(exts), blackfriday.WithRenderer(renderer))
+    return string(out)
 }
 
-// convertFences converts ```lang\ncode``` fences into HTML blocks for Prism
+// Convert ```lang\ncode``` fences (if present pre-HTML) to HTML blocks for Prism
 func convertFences(s string) string {
     re := regexp.MustCompile("(?s)```([a-zA-Z0-9_-]*)\\s*(.*?)```")
     return re.ReplaceAllStringFunc(s, func(m string) string {
         sm := re.FindStringSubmatch(m)
-        if len(sm) < 3 { return m }
+        if len(sm) < 3 {
+            return m
+        }
         lang := strings.TrimSpace(sm[1])
         code := sm[2]
         return fmt.Sprintf(`<pre><code class="language-%s">%s</code></pre>`, lang, html.EscapeString(code))
     })
 }
+
