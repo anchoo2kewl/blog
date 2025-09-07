@@ -69,9 +69,21 @@ func main() {
 
 	r.Get("/about", controllers.StaticHandler(
 		views.Must(views.ParseFS(templates.FS, "about.gohtml", "tailwind.gohtml")), &sessionService))
+
+	// Public docs routes to the formatting guide
+	r.Get("/docs/formatting-guide", controllers.StaticHandler(
+		views.Must(views.ParseFS(templates.FS, "admin-formatting-guide.gohtml", "tailwind.gohtml")), &sessionService))
+	r.Get("/docs/complete-formatting-guide", controllers.StaticHandler(
+		views.Must(views.ParseFS(templates.FS, "admin-formatting-guide.gohtml", "tailwind.gohtml")), &sessionService))
 	
 	r.Get("/admin/formatting-guide", controllers.StaticHandler(
 		views.Must(views.ParseFS(templates.FS, "admin-formatting-guide.gohtml", "tailwind.gohtml")), &sessionService))
+	
+	r.Get("/docs/formatting-guide", controllers.StaticHandler(
+		views.Must(views.ParseFS(templates.FS, "admin-formatting-guide.gohtml", "tailwind.gohtml")), &sessionService))
+	
+	r.Get("/docs/complete-formatting-guide", controllers.StaticHandler(
+		views.Must(views.ParseFS(templates.FS, "complete-formatting-guide.gohtml", "tailwind.gohtml")), &sessionService))
 
 	postService := models.PostService{
 		DB: DB,
@@ -134,8 +146,16 @@ func main() {
 	usersC.Templates.APIAccess = views.Must(views.ParseFS(
 		templates.FS, "api-access.gohtml", "tailwind.gohtml"))
 
+	usersC.Templates.PostEditor = views.Must(views.ParseFS(
+		templates.FS, "post-editor.gohtml", "tailwind.gohtml"))
+
 	r.Get("/", usersC.Home)
 	r.Get("/admin/posts", usersC.AdminPosts)
+	r.Get("/admin/posts/new", usersC.NewPost)
+	r.Post("/admin/posts", usersC.CreatePost)
+	r.Get("/admin/posts/{postID}/edit", usersC.EditPost)
+	r.Post("/admin/posts/{postID}", usersC.UpdatePost)
+	r.Post("/admin/uploads", usersC.UploadImage)
 	r.Get("/my-posts", usersC.UserPosts)
 	r.Get("/api-access", usersC.APIAccess)
 

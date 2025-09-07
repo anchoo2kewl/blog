@@ -48,7 +48,7 @@ func StaticHandler(tpl Template, sessionService *models.SessionService) http.Han
 		case "/about":
 			data.Description = "About Anshuman Biswas - Software Engineering Leader"
 			data.CurrentPage = "about"
-		case "/admin/formatting-guide":
+		case "/admin/formatting-guide", "/docs/formatting-guide":
 			data.Description = "Content Formatting Guide - Anshuman Biswas Blog"
 			data.CurrentPage = "admin"
 		default:

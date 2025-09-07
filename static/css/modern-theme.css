@@ -283,13 +283,24 @@ html:not(.dark) body {
 /* Distinct styling for Admin tab */
 .admin-link {
   color: #ffffff !important;
-  background: linear-gradient(135deg, var(--accent-emerald), var(--accent-cyan));
-  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.25);
+  background: linear-gradient(135deg, #10b981, #06b6d4);
+  box-shadow: 0 6px 18px rgba(6, 182, 212, 0.35);
+  border: 1px solid rgba(6, 182, 212, 0.5);
+  font-weight: 700;
+}
+.admin-link.active {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #10b981, #06b6d4) !important;
+  border-color: rgba(6, 182, 212, 0.65) !important;
 }
 .admin-link:hover {
   color: #ffffff !important;
   background: linear-gradient(135deg, var(--accent-cyan), var(--accent-emerald));
 }
+
+/* Theme toggle visibility */
+html:not(.dark) #theme-toggle svg { color: #111827 !important; stroke: #111827 !important; }
+.dark #theme-toggle svg { color: #f8fafc !important; stroke: #f8fafc !important; }
 
 /* API Access page theming - Override formatting guide conflicts */
 .api-access-page * {
@@ -1088,6 +1099,30 @@ html:not(.dark) .blog-post-excerpt {
   font-size: 0.875rem;
 }
 
+/* ---- Code Blocks (Prism) Typography ---- */
+pre[class*="language-"], code[class*="language-"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-variant-ligatures: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+pre[class*="language-"] {
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+}
+.dark pre[class*="language-"] {
+  background: #0b1220 !important;
+}
+.dark pre[class*="language-"] code { line-height: 1.6; tab-size: 2; }
+.dark code[class*="language-"] { line-height: 1.6; }
+.dark code[class*="language-"] { background: transparent !important; }
+/* Token colors tuned for dark */
+.dark .token.comment { color: #9CA3AF; font-style: italic; }
+.dark .token.string { color: #A7F3D0; }
+.dark .token.keyword { color: #93C5FD; }
+.dark .token.function { color: #FDE68A; }
+.dark .token.number, .dark .token.boolean { color: #FCA5A5; }
+
 /* Responsive design */
 @media (max-width: 768px) {
   .nav-links {
@@ -1417,4 +1452,80 @@ html:not(.dark) .bg-gradient-to-r.from-blue-500.to-purple-600 {
 
 html:not(.dark) .bg-gradient-to-r.from-green-500.to-teal-600 {
   background: linear-gradient(to right, #22c55e, #0891b2) !important;
+}
+
+/* Fix "View Complete Formatting Guide" button for light mode */
+html:not(.dark) .bg-gradient-to-r.from-blue-600.to-purple-600 {
+  background: linear-gradient(to right, #2563eb, #7c3aed) !important;
+  color: white !important;
+}
+
+/* Fix code blocks for light mode in complete formatting guide */
+html:not(.dark) pre {
+  background-color: #f8fafc !important;
+  color: #1e293b !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+html:not(.dark) code:not(pre code) {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+/* Syntax highlighting for light mode */
+html:not(.dark) .token.comment,
+html:not(.dark) .token.prolog,
+html:not(.dark) .token.doctype,
+html:not(.dark) .token.cdata {
+  color: #6b7280 !important;
+}
+
+html:not(.dark) .token.punctuation {
+  color: #374151 !important;
+}
+
+html:not(.dark) .token.property,
+html:not(.dark) .token.tag,
+html:not(.dark) .token.boolean,
+html:not(.dark) .token.number,
+html:not(.dark) .token.constant,
+html:not(.dark) .token.symbol,
+html:not(.dark) .token.deleted {
+  color: #dc2626 !important;
+}
+
+html:not(.dark) .token.selector,
+html:not(.dark) .token.attr-name,
+html:not(.dark) .token.string,
+html:not(.dark) .token.char,
+html:not(.dark) .token.builtin,
+html:not(.dark) .token.inserted {
+  color: #16a34a !important;
+}
+
+html:not(.dark) .token.operator,
+html:not(.dark) .token.entity,
+html:not(.dark) .token.url,
+html:not(.dark) .language-css .token.string,
+html:not(.dark) .style .token.string {
+  color: #0891b2 !important;
+}
+
+html:not(.dark) .token.atrule,
+html:not(.dark) .token.attr-value,
+html:not(.dark) .token.keyword {
+  color: #7c3aed !important;
+}
+
+html:not(.dark) .token.function,
+html:not(.dark) .token.class-name {
+  color: #2563eb !important;
+}
+
+html:not(.dark) .token.regex,
+html:not(.dark) .token.important,
+html:not(.dark) .token.variable {
+  color: #ea580c !important;
 }

@@ -91,6 +91,8 @@ show_help() {
     echo "  toggle-signup          Enable/disable user signups"
     echo "  api-test               Test API endpoints"
     echo ""
+    echo -e "${YELLOW}Content Commands:${NC}"
+    echo "  demo-post [title]      Create a formatting showcase post directly in DB"
     echo -e "${YELLOW}Utility Commands:${NC}"
     echo "  health                 Check health of all services"
     echo "  clean                  Clean logs and temporary files"
@@ -450,6 +452,96 @@ run_migrations() {
     
     migrate -source file://migrations -database "postgresql://$PG_USER:$PG_PASSWORD@$PG_HOST:$PG_PORT/$PG_DB?sslmode=disable" up
     print_success "Migrations completed"
+}
+
+# Create a rich demo post directly in DB using SQL dollar-quoting
+create_demo_post() {
+    load_env
+    if ! docker ps --format "table {{.Names}}" | grep -q "^${DOCKER_CONTAINER_NAME}$"; then
+        print_error "Database not running. Start with: $0 start-db"
+        return 1
+    fi
+
+    local title="${1:-Formatting Showcase}"
+    local user_id="${2:-2}"
+    local category_id="${3:-1}"
+
+    # slugify title
+    local slug=$(echo "$title" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g')
+
+    # Multi-line content covering most formatting options
+    local content=$(cat << 'EOF'
+Welcome to the formatting showcase! This paragraph demonstrates **bold**, *italic*, and `inline code`, plus a [link](https://example.com).
+
+<more-->
+
+## Headings (H2)
+### Subheading (H3)
+
+> A blockquote with emphasis.
+
+- Unordered item A
+- Unordered item B
+  - Nested item B1
+
+1. Ordered item 1
+2. Ordered item 2
+   1. Nested 2.1
+
+| Feature | Status | Priority |
+|--------:|:------:|:--------|
+| Lists   | ✅     | High     |
+| Tables  | ✅     | High     |
+
+```python
+class DatabaseConnection:
+    def __init__(self, host, port, database):
+        self.host = host
+        self.port = port
+        self.database = database
+        self.connection = None
+
+    async def connect(self):
+        """Establish database connection"""
+        self.connection = await asyncpg.connect(
+            host=self.host,
+            port=self.port,
+            database=self.database
+        )
+```
+
+```css
+pre code{ font-variant-ligatures: none; }
+.token.keyword{ color:#93C5FD; }
+```
+
+```go
+package main
+import "fmt"
+func main(){ fmt.Println("Hello, formatting!") }
+```
+
+Inline image:
+<img src="/static/placeholder-featured.svg" alt="Placeholder" style="max-width:480px" />
+
+---
+
+That concludes the demo. Happy writing!
+EOF
+)
+
+    # Escape single quotes for SQL literal
+    local esc_content=$(printf "%s" "$content" | sed "s/'/''/g")
+
+    print_header "Creating demo post: $title"
+    docker exec -i $DOCKER_CONTAINER_NAME psql -U $PG_USER -d $PG_DB -v ON_ERROR_STOP=1 <<SQL
+INSERT INTO posts (user_id, category_id, title, content, slug, publication_date, last_edit_date, is_published, featured_image_url, created_at)
+VALUES ($user_id, $category_id, '$title',
+'$esc_content',
+'$slug', NOW(), NOW(), true, '/static/placeholder-featured.svg', NOW());
+SQL
+
+print_success "Demo post created: $title (/$slug)"
 }
 
 reset_database() {
@@ -909,6 +1001,10 @@ case ${1:-help} in
         ;;
     api-test)
         test_api
+        ;;
+    demo-post)
+        shift
+        create_demo_post "$@"
         ;;
     health)
         check_health

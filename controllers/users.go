@@ -1,14 +1,21 @@
 package controllers
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"os"
-	"strconv"
+    "encoding/json"
+    "encoding/hex"
+    "fmt"
+    "io"
+    "net/http"
+    "os"
+    "strconv"
+    "strings"
+    "crypto/rand"
+    "path/filepath"
 
-	"anshumanbiswas.com/blog/models"
-	"anshumanbiswas.com/blog/utils"
+    "anshumanbiswas.com/blog/models"
+    "anshumanbiswas.com/blog/utils"
+    "github.com/go-chi/chi/v5"
+    "html/template"
 )
 
 func (u Users) New(w http.ResponseWriter, r *http.Request) {
@@ -60,20 +67,93 @@ func (u Users) Disabled(w http.ResponseWriter, r *http.Request) {
 }
 
 type Users struct {
-	Templates struct {
-		New       Template
-		SignIn    Template
-		Home      Template
-		LoggedIn  Template
-		Profile   Template
-		AdminPosts Template
-		UserPosts Template
-		APIAccess Template
-	}
+    Templates struct {
+        New       Template
+        SignIn    Template
+        Home      Template
+        LoggedIn  Template
+        Profile   Template
+        AdminPosts Template
+        UserPosts Template
+        APIAccess Template
+        PostEditor Template
+    }
 	UserService      *models.UserService
 	SessionService   *models.SessionService
 	PostService      *models.PostService
-	APITokenService  *models.APITokenService
+    APITokenService  *models.APITokenService
+}
+
+// UploadImage handles image uploads (cover or inline). Returns JSON {url}
+func (u Users) UploadImage(w http.ResponseWriter, r *http.Request) {
+    user, err := u.isUserLoggedIn(r)
+    if err != nil {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
+    if !models.CanEditPosts(user.Role) && !models.IsAdmin(user.Role) {
+        http.Error(w, "Forbidden", http.StatusForbidden)
+        return
+    }
+
+    if err := r.ParseMultipartForm(20 << 20); err != nil { // 20MB
+        http.Error(w, "Invalid form", http.StatusBadRequest)
+        return
+    }
+    file, header, err := r.FormFile("file")
+    if err != nil {
+        http.Error(w, "File required", http.StatusBadRequest)
+        return
+    }
+    defer file.Close()
+
+    // Validate type
+    buff := make([]byte, 512)
+    n, _ := file.Read(buff)
+    filetype := http.DetectContentType(buff[:n])
+    allowed := map[string]string{"image/jpeg": ".jpg", "image/png": ".png", "image/gif": ".gif", "image/webp": ".webp"}
+    ext, ok := allowed[filetype]
+    if !ok {
+        // fallback to extension from filename if content-type sniff fails
+        ext = strings.ToLower(filepath.Ext(header.Filename))
+        ok = ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".webp"
+        if !ok {
+            http.Error(w, "Unsupported file type", http.StatusBadRequest)
+            return
+        }
+        if ext == ".jpeg" { ext = ".jpg" }
+    }
+    // rewind
+    if _, err := file.Seek(0, io.SeekStart); err != nil {
+        http.Error(w, "Unable to read file", http.StatusInternalServerError)
+        return
+    }
+
+    // Random filename to avoid collisions
+    rb := make([]byte, 16)
+    if _, err := rand.Read(rb); err != nil {
+        http.Error(w, "Internal error", http.StatusInternalServerError)
+        return
+    }
+    name := hex.EncodeToString(rb) + ext
+
+    // Ensure upload directory exists
+    _ = os.MkdirAll("static/uploads", 0o755)
+    fpath := filepath.Join("static", "uploads", name)
+    out, err := os.Create(fpath)
+    if err != nil {
+        http.Error(w, "Failed to save file", http.StatusInternalServerError)
+        return
+    }
+    defer out.Close()
+    if _, err := io.Copy(out, file); err != nil {
+        http.Error(w, "Failed to save file", http.StatusInternalServerError)
+        return
+    }
+
+    resp := map[string]string{"url": "/static/uploads/" + name}
+    w.Header().Set("Content-Type", "application/json")
+    _ = json.NewEncoder(w).Encode(resp)
 }
 
 func (u Users) GetTopPosts() (*models.PostsList, error) {
@@ -446,6 +526,163 @@ func (u Users) UserPosts(w http.ResponseWriter, r *http.Request) {
     data.UserPermissions = models.GetPermissions(user.Role)
 
 	u.Templates.UserPosts.Execute(w, r, data)
+}
+
+// NewPost renders the editor for creating a post
+func (u Users) NewPost(w http.ResponseWriter, r *http.Request) {
+    user, err := u.isUserLoggedIn(r)
+    if err != nil {
+        http.Redirect(w, r, "/signin", http.StatusFound)
+        return
+    }
+    // Permission: editor or admin
+    if !models.CanEditPosts(user.Role) && !models.IsAdmin(user.Role) {
+        http.Error(w, "Forbidden", http.StatusForbidden)
+        return
+    }
+
+    var data struct {
+        Email           string
+        LoggedIn        bool
+        Username        string
+        IsAdmin         bool
+        SignupDisabled  bool
+        Description     string
+        CurrentPage     string
+        UserPermissions models.UserPermissions
+        Mode            string
+        Post            *models.Post
+    }
+    data.Email = user.Email
+    data.Username = user.Username
+    data.LoggedIn = true
+    data.IsAdmin = models.IsAdmin(user.Role)
+    data.SignupDisabled, _ = strconv.ParseBool(os.Getenv("APP_DISABLE_SIGNUP"))
+    data.Description = "Create Post - Anshuman Biswas Blog"
+    data.CurrentPage = "admin-posts"
+    data.UserPermissions = models.GetPermissions(user.Role)
+    data.Mode = "new"
+    data.Post = &models.Post{}
+    u.Templates.PostEditor.Execute(w, r, data)
+}
+
+// CreatePost handles post creation
+func (u Users) CreatePost(w http.ResponseWriter, r *http.Request) {
+    user, err := u.isUserLoggedIn(r)
+    if err != nil {
+        http.Redirect(w, r, "/signin", http.StatusFound)
+        return
+    }
+    if !models.CanEditPosts(user.Role) && !models.IsAdmin(user.Role) {
+        http.Error(w, "Forbidden", http.StatusForbidden)
+        return
+    }
+
+    title := r.FormValue("title")
+    content := r.FormValue("content")
+    featured := r.FormValue("featured_image_url")
+    slug := r.FormValue("slug")
+    isPublished := r.FormValue("is_published") == "on"
+    categoryID, _ := strconv.Atoi(r.FormValue("category_id"))
+    if categoryID == 0 { categoryID = 1 }
+
+    if slug == "" {
+        // Basic slug from title
+        slug = strings.ToLower(title)
+        slug = strings.ReplaceAll(slug, " ", "-")
+        slug = strings.ReplaceAll(slug, "--", "-")
+    }
+
+    post, err := u.PostService.Create(user.UserID, categoryID, title, content, isPublished, featured, slug)
+    if err != nil {
+        http.Error(w, "Failed to create post", http.StatusInternalServerError)
+        return
+    }
+    http.Redirect(w, r, "/admin/posts", http.StatusFound)
+    _ = post
+}
+
+// EditPost renders the editor for an existing post
+func (u Users) EditPost(w http.ResponseWriter, r *http.Request) {
+    user, err := u.isUserLoggedIn(r)
+    if err != nil {
+        http.Redirect(w, r, "/signin", http.StatusFound)
+        return
+    }
+    if !models.CanEditPosts(user.Role) && !models.IsAdmin(user.Role) {
+        http.Error(w, "Forbidden", http.StatusForbidden)
+        return
+    }
+
+    // Load the post
+    idStr := chi.URLParam(r, "postID")
+    id, _ := strconv.Atoi(idStr)
+    post, err := u.PostService.GetByID(id)
+    if err != nil {
+        http.Error(w, "Post not found", http.StatusNotFound)
+        return
+    }
+    // Ensure ContentHTML for prefill
+    post.ContentHTML = template.HTML(post.Content)
+
+    var data struct {
+        Email           string
+        LoggedIn        bool
+        Username        string
+        IsAdmin         bool
+        SignupDisabled  bool
+        Description     string
+        CurrentPage     string
+        UserPermissions models.UserPermissions
+        Mode            string
+        Post            *models.Post
+    }
+    data.Email = user.Email
+    data.Username = user.Username
+    data.LoggedIn = true
+    data.IsAdmin = models.IsAdmin(user.Role)
+    data.SignupDisabled, _ = strconv.ParseBool(os.Getenv("APP_DISABLE_SIGNUP"))
+    data.Description = "Edit Post - Anshuman Biswas Blog"
+    data.CurrentPage = "admin-posts"
+    data.UserPermissions = models.GetPermissions(user.Role)
+    data.Mode = "edit"
+    data.Post = post
+    u.Templates.PostEditor.Execute(w, r, data)
+}
+
+// UpdatePost persists edits to an existing post
+func (u Users) UpdatePost(w http.ResponseWriter, r *http.Request) {
+    user, err := u.isUserLoggedIn(r)
+    if err != nil {
+        http.Redirect(w, r, "/signin", http.StatusFound)
+        return
+    }
+    if !models.CanEditPosts(user.Role) && !models.IsAdmin(user.Role) {
+        http.Error(w, "Forbidden", http.StatusForbidden)
+        return
+    }
+
+    idStr := chi.URLParam(r, "postID")
+    id, _ := strconv.Atoi(idStr)
+    title := r.FormValue("title")
+    content := r.FormValue("content")
+    featured := r.FormValue("featured_image_url")
+    slug := r.FormValue("slug")
+    isPublished := r.FormValue("is_published") == "on"
+    categoryID, _ := strconv.Atoi(r.FormValue("category_id"))
+    if categoryID == 0 { categoryID = 1 }
+
+    if slug == "" {
+        slug = strings.ToLower(title)
+        slug = strings.ReplaceAll(slug, " ", "-")
+        slug = strings.ReplaceAll(slug, "--", "-")
+    }
+
+    if err := u.PostService.Update(id, categoryID, title, content, isPublished, featured, slug); err != nil {
+        http.Error(w, "Failed to update post", http.StatusInternalServerError)
+        return
+    }
+    http.Redirect(w, r, "/admin/posts", http.StatusFound)
 }
 
 // APIAccess shows the API access management page

@@ -1,11 +1,12 @@
 package models
 
 import (
-	"database/sql"
-	"fmt"
-	"html/template"
-	"strings"
-	"time"
+    "database/sql"
+    "fmt"
+    "html/template"
+    "regexp"
+    "strings"
+    "time"
 )
 
 type PostsList struct {
@@ -28,7 +29,7 @@ type Post struct {
 }
 
 type PostService struct {
-	DB *sql.DB
+    DB *sql.DB
 }
 
 // Create will create a new session for the user provided. The session token
@@ -175,11 +176,49 @@ func (pp *PostService) GetPostsByUser(userID int) (*PostsList, error) {
 
 // Function to trim content up to the <more--> tag
 func trimContent(content string) string {
-	const moreTag = "<more-->"
-	if idx := strings.Index(content, moreTag); idx != -1 {
-		return content[:idx]
-	}
-	return content
+    // Prefer everything before read-more marker; support escaped version too
+    if idx := strings.Index(content, "<more-->"); idx != -1 {
+        content = content[:idx]
+    } else if idx := strings.Index(content, "&lt;more--&gt;"); idx != -1 {
+        content = content[:idx]
+    }
+    // Remove fenced code blocks ```...```
+    fence := regexp.MustCompile("(?s)```.*?```")
+    content = fence.ReplaceAllString(content, " ")
+    // Remove stray backticks
+    content = strings.ReplaceAll(content, "```", " ")
+    content = strings.ReplaceAll(content, "`", "")
+    // Strip HTML tags
+    content = stripHTML(content)
+    // Collapse whitespace
+    words := strings.Fields(content)
+    if len(words) == 0 {
+        return ""
+    }
+    // If there was no read-more, fall back to first N words
+    N := 40
+    if len(words) > N {
+        words = words[:N]
+    }
+    return strings.Join(words, " ")
+}
+
+func stripHTML(s string) string {
+    var b strings.Builder
+    in := false
+    for _, r := range s {
+        switch r {
+        case '<':
+            in = true
+        case '>':
+            in = false
+        default:
+            if !in {
+                b.WriteRune(r)
+            }
+        }
+    }
+    return b.String()
 }
 
 func (pp *PostService) Create(userID int, categoryID int, title, content string, isPublished bool, featuredImageURL string, slug string) (*Post, error) {
@@ -213,4 +252,19 @@ func (pp *PostService) Create(userID int, categoryID int, title, content string,
 		FeaturedImageURL: featuredImageURL,
 		CreatedAt:        timefmt.Format("January 2, 2006"),
 	}, nil
+}
+
+func (pp *PostService) GetByID(id int) (*Post, error) {
+    var post Post
+    row := pp.DB.QueryRow(`SELECT post_id, user_id, category_id, title, content, slug, publication_date, last_edit_date, is_published, featured_image_url, created_at FROM posts WHERE post_id=$1`, id)
+    if err := row.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt); err != nil {
+        return nil, err
+    }
+    return &post, nil
+}
+
+func (pp *PostService) Update(id int, categoryID int, title, content string, isPublished bool, featuredImageURL, slug string) error {
+    _, err := pp.DB.Exec(`UPDATE posts SET category_id=$1, title=$2, content=$3, slug=$4, last_edit_date=$5, is_published=$6, featured_image_url=$7 WHERE post_id=$8`,
+        categoryID, title, content, slug, time.Now(), isPublished, featuredImageURL, id)
+    return err
 }

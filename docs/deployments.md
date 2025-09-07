@@ -127,3 +127,34 @@ docker run -d -p 8080:8080 --env-file .env --name blog biswas/blog:v0.1 ./main -
 ./scripts/server logs blog|db
 ```
 
+
+### One‑shot: Create a Formatting Demo Post
+
+To verify end‑to‑end rendering (headings, lists, tables, quotes, code fences, read‑more marker, inline images), use the `demo-post` helper. It writes directly to the database via SQL.
+
+```
+# Create a rich demo post by title (default user_id=2, category_id=1)
+./scripts/server demo-post "Formatting Showcase"
+
+# Optional: specify user and category IDs
+./scripts/server demo-post "Formatting Showcase" 2 1
+```
+
+It generates a slug from the title and includes:
+
+- Read‑more marker (`<more-->`) to control excerpts
+- H2/H3 headings and paragraphs with bold/italic/inline code
+- Unordered/ordered lists (with nesting)
+- Markdown table
+- Code fences (Python, CSS, Go) highlighted by Prism
+- Inline image (`/static/placeholder-featured.svg`)
+
+Open the new post at:
+
+```
+http://localhost:22222/blog/formatting-showcase
+```
+
+Notes:
+- Listing excerpts: If `<more-->` exists, excerpts show only the text before it; otherwise, the first 40 cleaned words are shown.
+- The marker never appears in preview or the final post.

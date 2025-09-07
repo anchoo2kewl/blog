@@ -74,16 +74,13 @@
         <button class="format-tab" data-tab="advanced">
           <span class="font-medium">Advanced</span>
         </button>
-        <button class="format-tab" data-tab="examples">
-          <span class="font-medium">Live Examples</span>
-        </button>
       </nav>
     </div>
 
     <!-- Tab Content -->
     <div class="p-8">
-      <!-- Basics Tab -->
-      <div id="tab-basics" class="format-tab-content active">
+  <!-- Basics Tab -->
+  <div id="tab-basics" class="format-tab-content active">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Text Formatting Basics</h2>
         
         <div class="space-y-8">
@@ -153,6 +150,14 @@
           
           <!-- Tables Section -->
           <div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Read More Marker</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-3">Insert the <code>&lt;more--&gt;</code> marker to control the excerpt shown on listing pages. Everything before the marker is used as the preview. The marker is hidden in preview and on the final post.</p>
+            <div class="bg-gray-900 rounded-lg p-4 text-green-400 font-mono text-sm mb-8">
+<pre>Intro paragraph users will see.
+&lt;more--&gt;
+Rest of the article...</pre>
+            </div>
+
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Tables</h3>
             <div class="grid md:grid-cols-2 gap-8">
               <div>
@@ -204,6 +209,11 @@
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Code & Syntax Highlighting</h2>
         
         <div class="space-y-8">
+          <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3">Inline & Uploaded Images</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-2">Use the editor toolbar to insert a link image or upload and insert an image at the cursor. Uploaded images are stored under <code>/static/uploads</code> with randomized filenames.</p>
+          </div>
+
           <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
             <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3">Supported Languages</h3>
             <div class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 text-sm">
@@ -533,21 +543,24 @@ graph TD
         </div>
       </div>
 
-      <!-- Examples Tab -->
-      <div id="tab-examples" class="format-tab-content">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Live Examples</h2>
-        <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-          <p class="text-blue-800 dark:text-blue-200 mb-4">
-            For comprehensive examples of all formatting features in action, check out our test blog post:
-          </p>
-          <a href="/blog/complete-formatting-guide" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-colors duration-200">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253z"></path>
-            </svg>
-            View Complete Formatting Guide
-          </a>
-        </div>
-      </div>
+    </div>
+  </div>
+
+  <!-- Live Examples Section -->
+  <div class="mt-16 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl p-8 border border-blue-200 dark:border-blue-800">
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">See It In Action</h2>
+    
+    <div class="text-center">
+      <p class="text-blue-800 dark:text-blue-200 mb-6 text-lg">
+        Want to see how all these formatting features look when rendered? Check out our live examples page with side-by-side comparisons.
+      </p>
+      <a href="/docs/complete-formatting-guide" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-colors duration-200 text-lg">
+        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+        </svg>
+        View Live Examples
+      </a>
     </div>
   </div>
 
@@ -605,7 +618,15 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Add active class to clicked tab and corresponding content
             tab.classList.add('active');
-            document.getElementById(`tab-${targetTab}`).classList.add('active');
+            const targetContent = document.getElementById(`tab-${targetTab}`);
+            targetContent.classList.add('active');
+            
+            // Smooth scroll to the content
+            targetContent.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start',
+                inline: 'nearest'
+            });
         });
     });
 });

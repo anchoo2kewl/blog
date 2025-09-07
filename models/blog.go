@@ -1,11 +1,13 @@
 package models
 
 import (
-	"database/sql"
-	"fmt"
-	"html/template"
-	"strings"
-	"time"
+    "database/sql"
+    "fmt"
+    "html"
+    "html/template"
+    "regexp"
+    "strings"
+    "time"
 
 	"github.com/russross/blackfriday/v2"
 )
@@ -33,16 +35,32 @@ func (bs *BlogService) GetBlogPostBySlug(slug string) (*Post, error) {
 			panic(err)
 		}
 
-		t, err := time.Parse(time.RFC3339, post.CreatedAt)
-		if err != nil {
-			fmt.Println(err)
-		}
+        // Format dates for display
+        if post.CreatedAt != "" {
+            if t, err := time.Parse(time.RFC3339, post.CreatedAt); err == nil {
+                post.CreatedAt = t.Format("January 2, 2006")
+            }
+        }
+        if post.PublicationDate != "" {
+            if pt, err := time.Parse(time.RFC3339, post.PublicationDate); err == nil {
+                post.PublicationDate = pt.Format("January 2, 2006")
+            }
+        } else {
+            post.PublicationDate = post.CreatedAt
+        }
+        if post.LastEditDate != "" {
+            if lt, err := time.Parse(time.RFC3339, post.LastEditDate); err == nil {
+                post.LastEditDate = lt.Format("January 2, 2006")
+            }
+        }
 
-		post.CreatedAt = t.Format("January 2, 2006")
-
-		markdownContent := replaceBlockquoteTag(replacelistTag(renderMarkdown(replaceMoreTag(post.Content))))
-		fmt.Println("Markdown Content:", markdownContent)
-		post.ContentHTML = template.HTML(markdownContent)
+        // Remove read-more marker then render Markdown.
+        // We render Markdown unconditionally—blackfriday passes raw HTML through
+        // and converts Markdown primitives (headings, lists, fences) correctly.
+        content := replaceMoreTag(post.Content)
+        htmlOut := renderMarkdown(content)
+        htmlOut = replaceBlockquoteTag(replacelistTag(htmlOut))
+        post.ContentHTML = template.HTML(htmlOut)
 	}
 
 	if err != nil {
@@ -57,13 +75,16 @@ func (bs *BlogService) GetBlogPostBySlug(slug string) (*Post, error) {
 }
 
 func replaceMoreTag(content string) string {
-	const moreTag = "<more-->"
-	if idx := strings.Index(content, moreTag); idx != -1 {
-		beforeMoreTag := content[:idx]
-		afterMoreTag := content[idx+len(moreTag):]
-		return beforeMoreTag + afterMoreTag // Example: add <br /> for line break
-	}
-	return content
+    // Remove both literal and escaped markers
+    candidates := []string{"<more-->", "&lt;more--&gt;"}
+    for _, mk := range candidates {
+        if idx := strings.Index(content, mk); idx != -1 {
+            before := content[:idx]
+            after := content[idx+len(mk):]
+            content = before + after
+        }
+    }
+    return content
 }
 
 func replacelistTag(content string) string {
@@ -108,7 +129,19 @@ func replaceBlockquoteTag(content string) string {
 
 // Function to render markdown content
 func renderMarkdown(content string) string {
-	output := blackfriday.Run([]byte(content))
-	// fmt.Println(string(output))
-	return string(output)
+    output := blackfriday.Run([]byte(content))
+    // fmt.Println(string(output))
+    return string(output)
+}
+
+// convertFences converts ```lang\ncode``` fences into HTML blocks for Prism
+func convertFences(s string) string {
+    re := regexp.MustCompile("(?s)```([a-zA-Z0-9_-]*)\\s*(.*?)```")
+    return re.ReplaceAllStringFunc(s, func(m string) string {
+        sm := re.FindStringSubmatch(m)
+        if len(sm) < 3 { return m }
+        lang := strings.TrimSpace(sm[1])
+        code := sm[2]
+        return fmt.Sprintf(`<pre><code class="language-%s">%s</code></pre>`, lang, html.EscapeString(code))
+    })
 }

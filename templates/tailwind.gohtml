@@ -16,7 +16,23 @@
     
     <!-- Styles -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/static/css/modern-theme.css?v=13" />
+    <link rel="stylesheet" href="/static/css/modern-theme.css?v=15" />
+    
+    <!-- Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" media="(prefers-color-scheme: dark)" />
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-go.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
     
     <!-- Dark mode script -->
     <script>
@@ -65,10 +81,10 @@
                             <a href="/api-access" class="dropdown-item">API Access</a>
                             {{if .UserPermissions.CanEditPosts}}
                                 <a href="/my-posts" class="dropdown-item">My Posts</a>
-                                <a href="/admin/formatting-guide" class="dropdown-item">Formatting Guide</a>
+                                <a href="/docs/formatting-guide" class="dropdown-item">Formatting Guide</a>
                             {{else}}
                                 {{if .IsAdmin}}
-                                    <a href="/admin/formatting-guide" class="dropdown-item">Formatting Guide</a>
+                                    <a href="/docs/formatting-guide" class="dropdown-item">Formatting Guide</a>
                                 {{end}}
                             {{end}}
                         </div>
@@ -129,10 +145,10 @@
                         <li><a href="/api-access" class="nav-link {{if eq .CurrentPage "api-access"}}active{{end}}">API Access</a></li>
                         {{if .UserPermissions.CanEditPosts}}
                             <li><a href="/my-posts" class="nav-link {{if eq .CurrentPage "my-posts"}}active{{end}}">My Posts</a></li>
-                            <li><a href="/admin/formatting-guide" class="nav-link">Formatting Guide</a></li>
+                            <li><a href="/docs/formatting-guide" class="nav-link">Formatting Guide</a></li>
                         {{else}}
                             {{if .IsAdmin}}
-                                <li><a href="/admin/formatting-guide" class="nav-link">Formatting Guide</a></li>
+                                <li><a href="/docs/formatting-guide" class="nav-link">Formatting Guide</a></li>
                             {{end}}
                         {{end}}
                         <li><a href="/logout" class="nav-link">Sign Out</a></li>
@@ -364,6 +380,11 @@
             
             // Calculate reading times
             calculateReadingTimes();
+
+            // Ensure Prism highlights on initial load for saved pages
+            if (window.Prism && document.getElementById('article-content')) {
+                Prism.highlightAllUnder(document.getElementById('article-content'));
+            }
         });
         
         // Function to convert ISO dates to relative time
@@ -428,6 +449,14 @@
             
             return `${minutes} min read`;
         }
+    </script>
+    
+    <!-- Syntax Highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        // Configure Prism autoloader for the languages we support
+        Prism.plugins.autoloader.languages_path = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/';
     </script>
 </body>
 </html>

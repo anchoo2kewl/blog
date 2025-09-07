@@ -2,13 +2,13 @@
 package controllers
 
 import (
-	"fmt"
-	"net/http"
-	"strings"
-
-	"anshumanbiswas.com/blog/models"
-	"anshumanbiswas.com/blog/utils"
-	"github.com/go-chi/chi/v5"
+    "fmt"
+    "net/http"
+    "strings"
+ 
+    "anshumanbiswas.com/blog/models"
+    "anshumanbiswas.com/blog/utils"
+    "github.com/go-chi/chi/v5"
 )
 
 type Blog struct {
@@ -42,7 +42,7 @@ func (b *Blog) GetBlogPost(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Slug:", slug)
 	// Fetch the blog post using the BlogService
-	post, err := b.BlogService.GetBlogPostBySlug(slug)
+    post, err := b.BlogService.GetBlogPostBySlug(slug)
 	if err != nil {
 		// Handle error (e.g., render a 404 page)
 		http.NotFound(w, r)
@@ -78,7 +78,7 @@ func (b *Blog) GetBlogPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Fix featured image URL if it's relative
+    // Fix featured image URL if it's relative
 	if post.FeaturedImageURL != "" && !strings.HasPrefix(post.FeaturedImageURL, "http") {
 		// Make it a proper static URL
 		if post.FeaturedImageURL == "image.jpg" {
@@ -87,7 +87,8 @@ func (b *Blog) GetBlogPost(w http.ResponseWriter, r *http.Request) {
 			post.FeaturedImageURL = "/static/" + post.FeaturedImageURL
 		}
 	}
-	
+    // ContentHTML is already prepared by BlogService (Markdown -> HTML, list/blockquote tweaks)
+
 	user, _ := utils.IsUserLoggedIn(r, b.SessionService)
 	fmt.Print(user)
 	if user != nil {
