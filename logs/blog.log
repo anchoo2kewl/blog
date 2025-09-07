@@ -1,16 +1,12 @@
-{"level":"info","ts":1757268736.741877,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
-{"level":"info","ts":1757268736.7606452,"caller":"blog/db.go:34","msg":"Database connection established!"}
+{"level":"info","ts":1757269330.6051269,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757269330.62371,"caller":"blog/db.go:34","msg":"Database connection established!"}
 Signups Disabled ...
-{"level":"info","ts":1757268736.7636118,"caller":"blog/main.go:183","msg":"server listening on :22222"}
-2025/09/07 14:12:18 "GET http://localhost:22222/about HTTP/1.1" from [::1]:62184 - 200 22114B in 3.456458ms
-2025/09/07 14:12:18 "GET http://localhost:22222/static/css/modern-theme.css?v=12 HTTP/1.1" from [::1]:62184 - 200 34448B in 4.983833ms
-2025/09/07 14:12:18 "GET http://localhost:22222/favicon.ico HTTP/1.1" from [::1]:62184 - 200 1944B in 709.209µs
-2025/09/07 14:12:18 "GET http://localhost:22222/static/favicon.svg HTTP/1.1" from [::1]:62184 - 200 1944B in 186.125µs
-2025/09/07 14:16:54 "GET http://localhost:22222/about HTTP/1.1" from [::1]:62184 - 200 22114B in 664.292µs
-2025/09/07 14:16:54 "GET http://localhost:22222/static/css/modern-theme.css?v=12 HTTP/1.1" from [::1]:62184 - 200 34795B in 437.584µs
-2025/09/07 14:16:56 "GET http://localhost:22222/signin HTTP/1.1" from [::1]:62184 - 200 16459B in 994.667µs
-2025/09/07 14:16:57 "GET http://localhost:22222/about HTTP/1.1" from [::1]:62184 - 200 22114B in 1.361084ms
+{"level":"info","ts":1757269330.6277099,"caller":"blog/main.go:183","msg":"server listening on :22222"}
+2025/09/07 14:22:11 "GET http://localhost:22222/about HTTP/1.1" from [::1]:65386 - 200 22232B in 1.979833ms
+2025/09/07 14:22:11 "GET http://localhost:22222/static/css/modern-theme.css?v=13 HTTP/1.1" from [::1]:65386 - 200 34795B in 6.502416ms
+2025/09/07 14:22:11 "GET http://localhost:22222/favicon.ico HTTP/1.1" from [::1]:65386 - 200 1944B in 596.25µs
+2025/09/07 14:22:11 "GET http://localhost:22222/static/favicon.svg HTTP/1.1" from [::1]:65386 - 200 1944B in 232.5µs
 Posts fetched successfully!
 DEBUG HOME: User not logged in, error: http: named cookie not present
 DEBUG HOME: Session token from cookie: NO_COOKIE
-2025/09/07 14:16:58 "GET http://localhost:22222/ HTTP/1.1" from [::1]:62184 - 200 25829B in 6.721333ms
+2025/09/07 14:22:23 "GET http://localhost:22222/ HTTP/1.1" from [::1]:65386 - 200 25947B in 5.3905ms
