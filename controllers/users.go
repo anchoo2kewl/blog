@@ -738,6 +738,7 @@ func (u Users) APIAccess(w http.ResponseWriter, r *http.Request) {
 		Message         string
 		Tokens          []*models.APIToken
 		UserPermissions models.UserPermissions
+		Request         *http.Request
 	}
 
 	data.Email = user.Email
@@ -750,6 +751,7 @@ func (u Users) APIAccess(w http.ResponseWriter, r *http.Request) {
 	data.Message = r.URL.Query().Get("message")
 	data.Tokens = tokens
 	data.UserPermissions = models.GetPermissions(user.Role)
+	data.Request = r
 
 	u.Templates.APIAccess.Execute(w, r, data)
 }
