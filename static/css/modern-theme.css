@@ -690,6 +690,38 @@ html:not(.dark) .dropdown-item:hover {
   color: #6366f1;
 }
 
+/* Dropdown divider */
+.dropdown-divider {
+  margin: 0.25rem 0;
+  border-top: 1px solid rgb(var(--border));
+}
+
+html:not(.dark) .dropdown-divider {
+  border-color: #e5e7eb;
+}
+
+/* Admin dropdown item */
+.admin-item {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  color: rgb(var(--primary));
+}
+
+html:not(.dark) .admin-item {
+  color: #059669;
+}
+
+.admin-item:hover {
+  background: rgb(var(--accent)) !important;
+  color: rgb(var(--accent-foreground)) !important;
+}
+
+html:not(.dark) .admin-item:hover {
+  background: #ecfdf5 !important;
+  color: #059669 !important;
+}
+
 @keyframes admin-pulse {
   0%, 100% {
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
@@ -737,7 +769,7 @@ html:not(.dark) .dropdown-item:hover {
   border: 1px solid rgb(var(--border));
   border-radius: 0.5rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  min-width: 12rem;
+  min-width: 14rem;
   z-index: 50;
   opacity: 0;
   visibility: hidden;

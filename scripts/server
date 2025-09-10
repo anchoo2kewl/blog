@@ -87,7 +87,10 @@ show_help() {
     echo ""
     echo -e "${YELLOW}API Commands:${NC}"
     echo "  add-user <email> <username> <password> [role_name] Add new user (role: admin, editor, commenter, viewer)"
-    echo "  add-post <title> <content> [user_id] [category_id] Add new post"
+    echo "  add-post <title> <content> [user_id] [category_ids] [featured_image] Create new post with multiple categories"
+    echo "  add-category <name>    Create a new category"
+    echo "  assign-categories <post_id> <category_ids> Assign multiple categories to a post"
+    echo "  upload-image <file_path> [alt_text] Upload image and return URL"
     echo "  toggle-signup          Enable/disable user signups"
     echo "  api-test               Test API endpoints"
     echo ""
@@ -110,8 +113,11 @@ show_help() {
     echo -e "${YELLOW}Examples:${NC}"
     echo "  $0 start --force                                    # Force start all services"
     echo "  $0 dev --force                                      # Start in dev mode"
-    echo "  $0 add-user user@example.com john password123 2     # Add user with role 2"
-    echo "  $0 add-post \"My Post\" \"Content here\" 1 1         # Add post by user 1"
+    echo "  $0 add-user user@example.com john password123 admin # Add admin user"
+    echo "  $0 add-category \"Machine Learning\"                # Create new category"
+    echo "  $0 add-post \"My Post\" \"Content\" 1 \"2,3,4\"       # Add post with categories 2,3,4"
+    echo "  $0 assign-categories 5 \"1,2,3\"                   # Assign categories 1,2,3 to post 5"
+    echo "  $0 upload-image ./image.jpg \"Alt text\"             # Upload image"
     echo "  $0 db \"SELECT * FROM users LIMIT 5;\"             # Execute SQL query"
     echo "  $0 logs blog                                        # Show blog logs"
     echo "  $0 tail db 100                                      # Tail database logs"
@@ -708,6 +714,134 @@ add_post() {
         -H "Authorization: Bearer $API_TOKEN" \
         -d "{\"userID\":$user_id,\"categoryID\":$category_id,\"title\":\"$title\",\"slug\":\"$slug\",\"content\":\"$content\",\"isPublished\":true}" \
         "http://localhost:$BLOG_PORT/api/posts" | jq '.' || echo ""
+}
+
+# Enhanced category management functions
+add_category() {
+    local name="$1"
+    
+    if [ -z "$name" ]; then
+        print_error "Usage: add_category <name>"
+        return 1
+    fi
+    
+    load_env
+    
+    if ! port_in_use $BLOG_PORT; then
+        print_error "Blog not running. Start with: $0 start-blog"
+        return 1
+    fi
+    
+    print_status "Creating category: $name"
+    
+    local response=$(curl -s -X POST \
+        -H "Content-Type: application/json" \
+        -H "Authorization: Bearer $API_TOKEN" \
+        -d "{\"name\":\"$name\"}" \
+        "http://localhost:$BLOG_PORT/api/categories")
+    
+    if echo "$response" | jq . >/dev/null 2>&1; then
+        print_success "Category created successfully"
+        echo "$response" | jq .
+    else
+        print_error "Failed to create category"
+        echo "Response: $response"
+        return 1
+    fi
+}
+
+assign_categories() {
+    local post_id="$1"
+    local category_ids="$2" # Comma-separated like "1,2,3"
+    
+    if [ -z "$post_id" ] || [ -z "$category_ids" ]; then
+        print_error "Usage: assign_categories <post_id> <category_ids>"
+        print_error "  category_ids should be comma-separated: 1,2,3"
+        return 1
+    fi
+    
+    load_env
+    
+    if ! docker ps --format "table {{.Names}}" | grep -q "^${DOCKER_CONTAINER_NAME}$"; then
+        print_error "Database not running. Start with: $0 start-db"
+        return 1
+    fi
+    
+    print_status "Assigning categories [$category_ids] to post $post_id"
+    
+    # First, clear existing categories for this post
+    docker exec $DOCKER_CONTAINER_NAME psql -U $PG_USER -d $PG_DB -c \
+        "DELETE FROM post_categories WHERE post_id = $post_id;"
+    
+    # Split category_ids and insert each one
+    IFS=',' read -ra CATEGORIES <<< "$category_ids"
+    for category_id in "${CATEGORIES[@]}"; do
+        category_id=$(echo "$category_id" | xargs) # Trim whitespace
+        print_status "  Assigning category $category_id..."
+        docker exec $DOCKER_CONTAINER_NAME psql -U $PG_USER -d $PG_DB -c \
+            "INSERT INTO post_categories (post_id, category_id) VALUES ($post_id, $category_id) ON CONFLICT DO NOTHING;"
+    done
+    
+    print_success "Categories assigned successfully"
+    
+    # Show the result
+    print_status "Post categories:"
+    docker exec $DOCKER_CONTAINER_NAME psql -U $PG_USER -d $PG_DB -c \
+        "SELECT pc.post_id, p.title, c.category_name FROM post_categories pc JOIN posts p ON pc.post_id = p.post_id JOIN categories c ON pc.category_id = c.category_id WHERE pc.post_id = $post_id;"
+}
+
+# Image upload function
+upload_image() {
+    local file_path="$1"
+    local alt_text="${2:-Uploaded image}"
+    
+    if [ -z "$file_path" ]; then
+        print_error "Usage: upload_image <file_path> [alt_text]"
+        return 1
+    fi
+    
+    if [ ! -f "$file_path" ]; then
+        print_error "File not found: $file_path"
+        return 1
+    fi
+    
+    load_env
+    
+    if ! port_in_use $BLOG_PORT; then
+        print_error "Blog not running. Start with: $0 start-blog"
+        return 1
+    fi
+    
+    print_status "Uploading image: $(basename "$file_path")"
+    
+    # Upload via the admin uploads endpoint
+    local response=$(curl -s -X POST \
+        -H "Authorization: Bearer $API_TOKEN" \
+        -F "file=@$file_path" \
+        -F "alt=$alt_text" \
+        "http://localhost:$BLOG_PORT/admin/uploads")
+    
+    # Check if upload was successful
+    if echo "$response" | grep -q "success\|uploaded\|/static/"; then
+        # Extract URL from response (assuming JSON response with url field)
+        local upload_url
+        if echo "$response" | jq . >/dev/null 2>&1; then
+            upload_url=$(echo "$response" | jq -r '.url // .path // .filename')
+        else
+            # Fallback: extract URL pattern from response
+            upload_url=$(echo "$response" | grep -o '/static/uploads/[^"]*' | head -1)
+        fi
+        
+        if [ -n "$upload_url" ]; then
+            print_success "Image uploaded successfully: $upload_url"
+            echo "$upload_url"
+            return 0
+        fi
+    fi
+    
+    print_error "Failed to upload image"
+    echo "Response: $response"
+    return 1
 }
 
 toggle_signup() {
@@ -1325,7 +1459,16 @@ case ${1:-help} in
         add_user "$2" "$3" "$4" "$5"
         ;;
     add-post)
-        add_post "$2" "$3" "$4" "$5"
+        add_post "$2" "$3" "$4" "$5" "$6"
+        ;;
+    add-category)
+        add_category "$2"
+        ;;
+    assign-categories)
+        assign_categories "$2" "$3"
+        ;;
+    upload-image)
+        upload_image "$2" "$3"
         ;;
     toggle-signup)
         toggle_signup

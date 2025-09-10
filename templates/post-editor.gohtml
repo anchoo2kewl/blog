@@ -69,7 +69,29 @@
             <button type="button" id="upload-cover-btn" class="btn btn-secondary">Upload Cover</button>
           </div>
         </div>
-        <input type="number" name="category_id" placeholder="Category ID" class="form-input w-full" value="{{if .Post.CategoryID}}{{.Post.CategoryID}}{{else}}1{{end}}" />
+        <!-- Category Selection -->
+        <div class="space-y-3">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Categories <span class="text-red-500">*</span>
+            </label>
+            <div class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md p-3 max-h-48 overflow-y-auto">
+                {{if .Categories}}
+                    {{range .Categories}}
+                    <label class="flex items-center space-x-2 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded px-2 cursor-pointer">
+                        <input type="checkbox" 
+                               name="categories" 
+                               value="{{.ID}}"
+                               class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                               {{$catID := .ID}}{{range $.SelectedCategories}}{{if eq . $catID}}checked{{end}}{{end}}>
+                        <span class="text-sm text-gray-700 dark:text-gray-300">{{.Name}}</span>
+                    </label>
+                    {{end}}
+                {{else}}
+                    <p class="text-sm text-gray-500 dark:text-gray-400">No categories available. <a href="/admin/categories" class="text-blue-600 hover:text-blue-800">Create categories</a> first.</p>
+                {{end}}
+            </div>
+            <input type="hidden" name="category_id" value="{{if .Post.CategoryID}}{{.Post.CategoryID}}{{else}}1{{end}}" />
+        </div>
         <label class="flex items-center gap-2"><input type="checkbox" name="is_published" {{if .Post.IsPublished}}checked{{end}} /> Published</label>
         <button type="submit" class="btn btn-primary w-full">{{if eq .Mode "edit"}}Update Post{{else}}Create Post{{end}}</button>
       </div>

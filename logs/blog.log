@@ -1,5 +1,7 @@
-{"level":"info","ts":1757518511.749503,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
-{"level":"info","ts":1757518511.7651799,"caller":"blog/db.go:34","msg":"Database connection established!"}
+{"level":"info","ts":1757524775.0867991,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757524775.1033878,"caller":"blog/db.go:34","msg":"Database connection established!"}
 Signups Disabled ...
-{"level":"info","ts":1757518511.768397,"caller":"blog/main.go:210","msg":"server listening on :22222"}
-2025/09/10 11:35:22 "GET http://localhost:22222/api/users/api-tokens HTTP/1.1" from [::1]:64364 - 401 25B in 158.709µs
+{"level":"info","ts":1757524775.1061718,"caller":"blog/main.go:240","msg":"server listening on :22222"}
+2025/09/10 13:19:47 "GET http://localhost:22222/admin/categories HTTP/1.1" from [::1]:55200 - 200 72653B in 78.92925ms
+2025/09/10 13:19:47 "GET http://localhost:22222/static/css/modern-theme.css?v=15 HTTP/1.1" from [::1]:55200 - 304 0B in 122.292µs
+2025/09/10 13:21:05 "POST http://localhost:22222/api/categories HTTP/1.1" from [::1]:55200 - 201 68B in 4.914833ms

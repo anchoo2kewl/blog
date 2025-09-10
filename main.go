@@ -94,18 +94,30 @@ func main() {
 		DB: DB,
 	}
 
+	// Initialize CategoryService
+	categoryService := models.CategoryService{
+		DB: DB,
+	}
+
 	// Setup our controllers
 	usersC := controllers.Users{
 		UserService:     &userService,
 		SessionService:  &sessionService,
 		PostService:     &postService,
 		APITokenService: &apiTokenService,
+		CategoryService: &categoryService,
 	}
 
 	// Initialize Blog controller
 	blogC := controllers.Blog{
 		BlogService:    &blogService,
 		SessionService: &sessionService,
+	}
+
+	// Initialize Categories controller
+	categoriesC := controllers.Categories{
+		CategoryService: &categoryService,
+		SessionService:  &sessionService,
 	}
 
 	usersC.Templates.New = views.Must(views.ParseFS(
@@ -149,6 +161,9 @@ func main() {
 	usersC.Templates.PostEditor = views.Must(views.ParseFS(
 		templates.FS, "post-editor.gohtml", "tailwind.gohtml"))
 
+	categoriesC.Templates.Manage = views.Must(views.ParseFS(
+		templates.FS, "admin-categories.gohtml", "tailwind.gohtml"))
+
 	r.Get("/", usersC.Home)
 	r.Get("/admin/posts", usersC.AdminPosts)
 	r.Get("/admin/posts/new", usersC.NewPost)
@@ -159,6 +174,12 @@ func main() {
 	r.Post("/admin/preview", usersC.PreviewRender)
 	r.Get("/my-posts", usersC.UserPosts)
 	r.Get("/api-access", usersC.APIAccess)
+	
+	// Category Management Routes
+	r.Get("/admin/categories", categoriesC.Manage)
+	r.Post("/admin/categories", categoriesC.CreateCategoryForm)
+	r.Post("/admin/categories/{id}", categoriesC.UpdateCategoryForm)
+	r.Post("/admin/categories/{id}/delete", categoriesC.DeleteCategoryForm)
 
 	r.Get("/users/me", usersC.CurrentUser)
 	r.Post("/users/password", usersC.UpdatePassword)
@@ -197,6 +218,15 @@ func main() {
 		r.Get("/", getAllPosts)
 		r.Get("/{postID}", getPostByID)
 		r.Post("/", createPost)
+	})
+
+	r.Route("/api/categories", func(r chi.Router) {
+		r.Use(authmw.APIAuthMiddleware(apiToken, &apiTokenService))
+		r.Get("/", categoriesC.ListCategories)
+		r.Post("/", categoriesC.CreateCategory)
+		r.Get("/{id}", categoriesC.GetCategory)
+		r.Put("/{id}", categoriesC.UpdateCategory)
+		r.Delete("/{id}", categoriesC.DeleteCategory)
 	})
 
 	// Define a custom 404 handler

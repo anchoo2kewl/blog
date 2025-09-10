@@ -84,6 +84,7 @@ type Users struct {
 	SessionService   *models.SessionService
 	PostService      *models.PostService
     APITokenService  *models.APITokenService
+    CategoryService  *models.CategoryService
 }
 
 // UploadImage handles image uploads (cover or inline). Returns JSON {url}
@@ -569,6 +570,13 @@ func (u Users) NewPost(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    // Load all categories for the form
+    categories, err := u.CategoryService.GetAll()
+    if err != nil {
+        log.Printf("Error loading categories: %v", err)
+        categories = []models.Category{} // fallback to empty slice
+    }
+
     var data struct {
         Email           string
         LoggedIn        bool
@@ -580,6 +588,8 @@ func (u Users) NewPost(w http.ResponseWriter, r *http.Request) {
         UserPermissions models.UserPermissions
         Mode            string
         Post            *models.Post
+        Categories      []models.Category
+        SelectedCategories []int
     }
     data.Email = user.Email
     data.Username = user.Username
@@ -591,6 +601,8 @@ func (u Users) NewPost(w http.ResponseWriter, r *http.Request) {
     data.UserPermissions = models.GetPermissions(user.Role)
     data.Mode = "new"
     data.Post = &models.Post{}
+    data.Categories = categories
+    data.SelectedCategories = []int{} // empty for new posts
     u.Templates.PostEditor.Execute(w, r, data)
 }
 
@@ -611,6 +623,23 @@ func (u Users) CreatePost(w http.ResponseWriter, r *http.Request) {
     featured := r.FormValue("featured_image_url")
     slug := r.FormValue("slug")
     isPublished := r.FormValue("is_published") == "on"
+    
+    // Parse multiple categories
+    categoryIDStrings := r.Form["categories"] // Get all category values
+    var categoryIDs []int
+    for _, idStr := range categoryIDStrings {
+        if id, err := strconv.Atoi(idStr); err == nil {
+            categoryIDs = append(categoryIDs, id)
+        }
+    }
+    
+    // Ensure at least one category is selected
+    if len(categoryIDs) == 0 {
+        http.Error(w, "At least one category must be selected", http.StatusBadRequest)
+        return
+    }
+    
+    // Legacy category handling (keep for backward compatibility)
     categoryID, _ := strconv.Atoi(r.FormValue("category_id"))
     if categoryID == 0 { categoryID = 1 }
 
@@ -626,8 +655,14 @@ func (u Users) CreatePost(w http.ResponseWriter, r *http.Request) {
         http.Error(w, "Failed to create post", http.StatusInternalServerError)
         return
     }
+    
+    // Assign categories to the post
+    if err := u.CategoryService.AssignCategoriesToPost(post.ID, categoryIDs); err != nil {
+        log.Printf("Error assigning categories to post: %v", err)
+        // Don't fail the entire request, just log the error
+    }
+    
     http.Redirect(w, r, "/admin/posts", http.StatusFound)
-    _ = post
 }
 
 // EditPost renders the editor for an existing post
@@ -653,6 +688,26 @@ func (u Users) EditPost(w http.ResponseWriter, r *http.Request) {
     // Ensure ContentHTML for prefill
     post.ContentHTML = template.HTML(post.Content)
 
+    // Load all categories for the form
+    categories, err := u.CategoryService.GetAll()
+    if err != nil {
+        log.Printf("Error loading categories: %v", err)
+        categories = []models.Category{} // fallback to empty slice
+    }
+
+    // Load existing categories for this post
+    postCategories, err := u.CategoryService.GetCategoriesByPostID(id)
+    if err != nil {
+        log.Printf("Error loading post categories: %v", err)
+        postCategories = []models.Category{} // fallback to empty slice
+    }
+
+    // Convert to selected category IDs
+    selectedCategories := make([]int, len(postCategories))
+    for i, cat := range postCategories {
+        selectedCategories[i] = cat.ID
+    }
+
     var data struct {
         Email           string
         LoggedIn        bool
@@ -664,6 +719,8 @@ func (u Users) EditPost(w http.ResponseWriter, r *http.Request) {
         UserPermissions models.UserPermissions
         Mode            string
         Post            *models.Post
+        Categories      []models.Category
+        SelectedCategories []int
     }
     data.Email = user.Email
     data.Username = user.Username
@@ -675,6 +732,8 @@ func (u Users) EditPost(w http.ResponseWriter, r *http.Request) {
     data.UserPermissions = models.GetPermissions(user.Role)
     data.Mode = "edit"
     data.Post = post
+    data.Categories = categories
+    data.SelectedCategories = selectedCategories
     u.Templates.PostEditor.Execute(w, r, data)
 }
 
@@ -697,6 +756,23 @@ func (u Users) UpdatePost(w http.ResponseWriter, r *http.Request) {
     featured := r.FormValue("featured_image_url")
     slug := r.FormValue("slug")
     isPublished := r.FormValue("is_published") == "on"
+    
+    // Parse multiple categories
+    categoryIDStrings := r.Form["categories"] // Get all category values
+    var categoryIDs []int
+    for _, idStr := range categoryIDStrings {
+        if catID, err := strconv.Atoi(idStr); err == nil {
+            categoryIDs = append(categoryIDs, catID)
+        }
+    }
+    
+    // Ensure at least one category is selected
+    if len(categoryIDs) == 0 {
+        http.Error(w, "At least one category must be selected", http.StatusBadRequest)
+        return
+    }
+    
+    // Legacy category handling (keep for backward compatibility)
     categoryID, _ := strconv.Atoi(r.FormValue("category_id"))
     if categoryID == 0 { categoryID = 1 }
 
@@ -710,6 +786,13 @@ func (u Users) UpdatePost(w http.ResponseWriter, r *http.Request) {
         http.Error(w, "Failed to update post", http.StatusInternalServerError)
         return
     }
+    
+    // Update categories for the post
+    if err := u.CategoryService.AssignCategoriesToPost(id, categoryIDs); err != nil {
+        log.Printf("Error updating categories for post: %v", err)
+        // Don't fail the entire request, just log the error
+    }
+    
     http.Redirect(w, r, "/admin/posts", http.StatusFound)
 }
 

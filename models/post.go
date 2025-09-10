@@ -18,7 +18,7 @@ type PostsList struct {
 type Post struct {
 	ID               int
 	UserID           int // Added UserID field
-	CategoryID       int
+	CategoryID       int // Legacy field, kept for backward compatibility
 	Title            string
 	Content          string
 	ContentHTML      template.HTML
@@ -28,6 +28,7 @@ type Post struct {
 	IsPublished      bool
 	FeaturedImageURL string
 	CreatedAt        string
+	Categories       []Category `json:"categories,omitempty"` // New many-to-many categories
 }
 
 type PostService struct {
