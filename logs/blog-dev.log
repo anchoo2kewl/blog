@@ -1352,89 +1352,84 @@ Signups Disabled ...
 Signups Disabled ...
 {"level":"info","ts":1757276644.3486028,"caller":"blog/main.go:203","msg":"server listening on :22222"}
 [16:24:04] Process Exit with Code 0
-"level":"info","ts":1757268914.30757,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
-{"level":"info","ts":1757268914.321175,"caller":"blog/db.go:34","msg":"Database connection established!"}
+[17:09:54] templates/blogpost.gohtml has changed
+[17:09:54] building...
+[17:09:55] running...
+{"level":"info","ts":1757279395.641403,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757279395.6562712,"caller":"blog/db.go:34","msg":"Database connection established!"}
 Signups Disabled ...
-{"level":"info","ts":1757268914.32191,"caller":"blog/main.go:183","msg":"server listening on :22222"}
-[14:21:54] templates/tailwind.gohtml has changed
-[14:21:54] building...
-[14:21:55] running...
-{"level":"info","ts":1757269315.6278431,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
-{"level":"info","ts":1757269315.6389499,"caller":"blog/db.go:34","msg":"Database connection established!"}
+{"level":"info","ts":1757279395.657851,"caller":"blog/main.go:203","msg":"server listening on :22222"}
+[17:09:55] Process Exit with Code 0
+[17:11:30] templates/post-editor.gohtml has changed
+[17:11:30] building...
+[17:11:31] running...
+{"level":"info","ts":1757279491.606404,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757279491.616571,"caller":"blog/db.go:34","msg":"Database connection established!"}
 Signups Disabled ...
-{"level":"info","ts":1757269315.6403599,"caller":"blog/main.go:183","msg":"server listening on :22222"}
-[14:21:55] Process Exit with Code 0
-[14:29:48] static/css/modern-theme.css has changed
-[14:29:48] building...
-# anshumanbiswas.com/blog/controllers
-controllers/users.go:512:16: undefined: strings
-controllers/users.go:513:16: undefined: strings
-controllers/users.go:514:16: undefined: strings
-controllers/users.go:539:14: undefined: chi
-controllers/users.go:584:14: undefined: chi
-controllers/users.go:595:16: undefined: strings
-controllers/users.go:596:16: undefined: strings
-controllers/users.go:597:16: undefined: strings
-[14:29:48] failed to build, error: exit status 1
-[14:29:48] running...
-{"level":"info","ts":1757269788.57903,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
-{"level":"info","ts":1757269788.589609,"caller":"blog/db.go:34","msg":"Database connection established!"}
+{"level":"info","ts":1757279491.618151,"caller":"blog/main.go:203","msg":"server listening on :22222"}
+[17:11:31] Process Exit with Code 0
+[17:22:42] templates/post-editor.gohtml has changed
+[17:22:42] building...
+[17:22:43] running...
+{"level":"info","ts":1757280163.606741,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757280163.616386,"caller":"blog/db.go:34","msg":"Database connection established!"}
 Signups Disabled ...
-{"level":"info","ts":1757269788.590778,"caller":"blog/main.go:183","msg":"server listening on :22222"}
-[14:29:48] Process Exit with Code 0
-[14:29:57] templates/tailwind.gohtml has changed
-[14:29:57] building...
-# anshumanbiswas.com/blog/controllers
-controllers/users.go:512:16: undefined: strings
-controllers/users.go:513:16: undefined: strings
-controllers/users.go:514:16: undefined: strings
-controllers/users.go:539:14: undefined: chi
-controllers/users.go:584:14: undefined: chi
-controllers/users.go:595:16: undefined: strings
-controllers/users.go:596:16: undefined: strings
-controllers/users.go:597:16: undefined: strings
-[14:29:58] failed to build, error: exit status 1
-[14:29:58] running...
-{"level":"info","ts":1757269798.450916,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
-{"level":"info","ts":1757269798.459384,"caller":"blog/db.go:34","msg":"Database connection established!"}
+{"level":"info","ts":1757280163.617898,"caller":"blog/main.go:204","msg":"server listening on :22222"}
+[17:22:43] Process Exit with Code 0
+[17:23:03] templates/admin-formatting-guide.gohtml has changed
+[17:23:03] building...
+[17:23:04] running...
+{"level":"info","ts":1757280184.571508,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757280184.5889568,"caller":"blog/db.go:34","msg":"Database connection established!"}
 Signups Disabled ...
-{"level":"info","ts":1757269798.460212,"caller":"blog/main.go:183","msg":"server listening on :22222"}
-[14:31:02] templates/post-editor.gohtml has changed
-[14:31:02] building...
-# anshumanbiswas.com/blog/controllers
-controllers/users.go:512:16: undefined: strings
-controllers/users.go:513:16: undefined: strings
-controllers/users.go:514:16: undefined: strings
-controllers/users.go:539:14: undefined: chi
-controllers/users.go:584:14: undefined: chi
-controllers/users.go:595:16: undefined: strings
-controllers/users.go:596:16: undefined: strings
-controllers/users.go:597:16: undefined: strings
-[14:31:03] failed to build, error: exit status 1
-[14:31:03] running...
-{"level":"info","ts":1757269863.1685429,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
-{"level":"info","ts":1757269863.177553,"caller":"blog/db.go:34","msg":"Database connection established!"}
+{"level":"info","ts":1757280184.590295,"caller":"blog/main.go:204","msg":"server listening on :22222"}
+[17:23:04] Process Exit with Code 0
+[18:00:05] templates/blogpost.gohtml has changed
+[18:00:05] building...
+# anshumanbiswas.com/blog/models
+models/blog.go:119:42: syntax error: unexpected literal `` in argument list; possibly missing comma or )
+models/blog.go:119:45: invalid character U+005C '\'
+models/blog.go:119:51: invalid character U+003F '?'
+[18:00:05] failed to build, error: exit status 1
+[18:00:05] running...
+{"level":"info","ts":1757282405.902848,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757282405.9155688,"caller":"blog/db.go:34","msg":"Database connection established!"}
 Signups Disabled ...
-{"level":"info","ts":1757269863.17839,"caller":"blog/main.go:183","msg":"server listening on :22222"}
-[14:31:03] Process Exit with Code 0
-[14:31:10] templates/admin-formatting-guide.gohtml has changed
-[14:31:10] building...
-# anshumanbiswas.com/blog/controllers
-controllers/users.go:512:16: undefined: strings
-controllers/users.go:513:16: undefined: strings
-controllers/users.go:514:16: undefined: strings
-controllers/users.go:539:14: undefined: chi
-controllers/users.go:584:14: undefined: chi
-controllers/users.go:595:16: undefined: strings
-controllers/users.go:596:16: undefined: strings
-controllers/users.go:597:16: undefined: strings
-[14:31:10] failed to build, error: exit status 1
-[14:31:10] running...
-{"level":"info","ts":1757269870.739763,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
-{"level":"info","ts":1757269870.749397,"caller":"blog/db.go:34","msg":"Database connection established!"}
+{"level":"info","ts":1757282405.917372,"caller":"blog/main.go:204","msg":"server listening on :22222"}
+[18:00:05] Process Exit with Code 0
+[18:05:44] templates/blogpost.gohtml has changed
+[18:05:44] building...
+[18:05:45] running...
+{"level":"info","ts":1757282745.479811,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757282745.491286,"caller":"blog/db.go:34","msg":"Database connection established!"}
 Signups Disabled ...
-{"level":"info","ts":1757269870.750915,"caller":"blog/main.go:183","msg":"server listening on :22222"}
-[14:31:10] Process Exit with Code 0
+{"level":"info","ts":1757282745.493,"caller":"blog/main.go:204","msg":"server listening on :22222"}
+[18:05:45] Process Exit with Code 0
+[18:06:03] templates/post-editor.gohtml has changed
+[18:06:03] building...
+[18:06:03] running...
+{"level":"info","ts":1757282763.8269792,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757282763.838048,"caller":"blog/db.go:34","msg":"Database connection established!"}
+Signups Disabled ...
+{"level":"info","ts":1757282763.839529,"caller":"blog/main.go:204","msg":"server listening on :22222"}
+[18:06:03] Process Exit with Code 0
+[18:10:15] templates/blogpost.gohtml has changed
+[18:10:15] building...
+[18:10:16] running...
+{"level":"info","ts":1757283016.601019,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757283016.611263,"caller":"blog/db.go:34","msg":"Database connection established!"}
+Signups Disabled ...
+{"level":"info","ts":1757283016.612603,"caller":"blog/main.go:204","msg":"server listening on :22222"}
+[18:10:16] Process Exit with Code 0
+[18:10:46] templates/post-editor.gohtml has changed
+[18:10:46] building...
+[18:10:47] running...
+{"level":"info","ts":1757283047.75195,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757283047.7739022,"caller":"blog/db.go:34","msg":"Database connection established!"}
+Signups Disabled ...
+{"level":"info","ts":1757283047.77632,"caller":"blog/main.go:204","msg":"server listening on :22222"}
+[00:39:33] cleaning...
+[00:39:33] see you again~
 [14:32:12] templates/admin-formatting-guide.gohtml has changed
 [14:32:12] building...
 # anshumanbiswas.com/blog/controllers
@@ -1731,3 +1726,79 @@ Signups Disabled ...
 {"level":"info","ts":1757276644.35293,"caller":"blog/main.go:203","msg":"server listening on :22222"}
 [16:24:04] Process Exit with Code 0
 [16:27:34] watching static/uploads
+[17:09:54] templates/blogpost.gohtml has changed
+[17:09:54] building...
+[17:09:55] running...
+{"level":"info","ts":1757279395.641398,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757279395.652551,"caller":"blog/db.go:34","msg":"Database connection established!"}
+Signups Disabled ...
+{"level":"info","ts":1757279395.655068,"caller":"blog/main.go:203","msg":"server listening on :22222"}
+[17:09:55] Process Exit with Code 0
+[17:11:30] templates/post-editor.gohtml has changed
+[17:11:30] building...
+[17:11:31] running...
+{"level":"info","ts":1757279491.6063948,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757279491.616576,"caller":"blog/db.go:34","msg":"Database connection established!"}
+Signups Disabled ...
+{"level":"info","ts":1757279491.618127,"caller":"blog/main.go:203","msg":"server listening on :22222"}
+[17:22:42] templates/post-editor.gohtml has changed
+[17:22:42] building...
+[17:22:43] running...
+{"level":"info","ts":1757280163.606741,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757280163.6163101,"caller":"blog/db.go:34","msg":"Database connection established!"}
+Signups Disabled ...
+{"level":"info","ts":1757280163.617874,"caller":"blog/main.go:204","msg":"server listening on :22222"}
+[17:22:43] Process Exit with Code 0
+[17:23:03] templates/admin-formatting-guide.gohtml has changed
+[17:23:03] building...
+[17:23:04] running...
+{"level":"info","ts":1757280184.571501,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757280184.5838091,"caller":"blog/db.go:34","msg":"Database connection established!"}
+Signups Disabled ...
+{"level":"info","ts":1757280184.5852811,"caller":"blog/main.go:204","msg":"server listening on :22222"}
+[17:23:04] Process Exit with Code 0
+[18:00:05] templates/blogpost.gohtml has changed
+[18:00:05] building...
+# anshumanbiswas.com/blog/models
+models/blog.go:119:42: syntax error: unexpected literal `` in argument list; possibly missing comma or )
+models/blog.go:119:45: invalid character U+005C '\'
+models/blog.go:119:51: invalid character U+003F '?'
+[18:00:05] failed to build, error: exit status 1
+[18:00:05] running...
+{"level":"info","ts":1757282405.902848,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757282405.915058,"caller":"blog/db.go:34","msg":"Database connection established!"}
+Signups Disabled ...
+{"level":"info","ts":1757282405.916595,"caller":"blog/main.go:204","msg":"server listening on :22222"}
+[18:00:05] Process Exit with Code 0
+[18:05:44] templates/blogpost.gohtml has changed
+[18:05:44] building...
+[18:05:45] running...
+{"level":"info","ts":1757282745.47982,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757282745.4946969,"caller":"blog/db.go:34","msg":"Database connection established!"}
+Signups Disabled ...
+{"level":"info","ts":1757282745.496191,"caller":"blog/main.go:204","msg":"server listening on :22222"}
+[18:06:03] templates/post-editor.gohtml has changed
+[18:06:03] building...
+[18:06:03] running...
+{"level":"info","ts":1757282763.8269749,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757282763.834722,"caller":"blog/db.go:34","msg":"Database connection established!"}
+Signups Disabled ...
+{"level":"info","ts":1757282763.836203,"caller":"blog/main.go:204","msg":"server listening on :22222"}
+[18:06:03] Process Exit with Code 0
+[18:10:15] templates/blogpost.gohtml has changed
+[18:10:15] building...
+[18:10:16] running...
+{"level":"info","ts":1757283016.601027,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757283016.610576,"caller":"blog/db.go:34","msg":"Database connection established!"}
+Signups Disabled ...
+{"level":"info","ts":1757283016.612118,"caller":"blog/main.go:204","msg":"server listening on :22222"}
+[18:10:46] templates/post-editor.gohtml has changed
+[18:10:46] building...
+[18:10:47] running...
+{"level":"info","ts":1757283047.751948,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757283047.77205,"caller":"blog/db.go:34","msg":"Database connection established!"}
+Signups Disabled ...
+{"level":"info","ts":1757283047.7758431,"caller":"blog/main.go:204","msg":"server listening on :22222"}
+[18:10:47] Process Exit with Code 0
+[00:39:33] cleaning...
+[00:39:33] see you again~

@@ -166,6 +166,23 @@ func (u Users) UploadImage(w http.ResponseWriter, r *http.Request) {
     _ = json.NewEncoder(w).Encode(resp)
 }
 
+// PreviewRender returns rendered HTML for editor preview using server pipeline
+func (u Users) PreviewRender(w http.ResponseWriter, r *http.Request) {
+    user, err := u.isUserLoggedIn(r)
+    if err != nil || (!models.CanEditPosts(user.Role) && !models.IsAdmin(user.Role)) {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
+    if err := r.ParseForm(); err != nil {
+        http.Error(w, "Invalid form", http.StatusBadRequest)
+        return
+    }
+    content := r.FormValue("content")
+    html := models.RenderContent(content)
+    w.Header().Set("Content-Type", "application/json")
+    _ = json.NewEncoder(w).Encode(map[string]string{"html": html})
+}
+
 func (u Users) GetTopPosts() (*models.PostsList, error) {
 	return u.PostService.GetTopPosts()
 }

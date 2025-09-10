@@ -104,6 +104,9 @@ show_help() {
     echo "  test-playwright        Run Playwright tests in tests/playwright"
     echo "  test-all               Run Go + Playwright tests"
     echo ""
+    echo -e "${YELLOW}Deployment Commands:${NC}"
+    echo "  deploy                 Deploy to production server (ubuntu@anshumanbiswas.com)"
+    echo ""
     echo -e "${YELLOW}Examples:${NC}"
     echo "  $0 start --force                                    # Force start all services"
     echo "  $0 dev --force                                      # Start in dev mode"
@@ -884,6 +887,241 @@ show_categories() {
     execute_db_query "SELECT category_id, category_name, created_at FROM categories ORDER BY category_id;"
 }
 
+# Deployment function
+deploy_to_production() {
+    print_header "Deploying to Production Server"
+    
+    local SERVER="ubuntu@anshumanbiswas.com"
+    local DEPLOY_PATH="/home/ubuntu/projects/blog"
+    local DOMAIN="anshumanbiswas.com"
+    
+    # Verify git status
+    print_status "Checking git status..."
+    if [ -n "$(git status --porcelain)" ]; then
+        print_error "Working directory not clean. Please commit or stash changes first."
+        git status --short
+        return 1
+    fi
+    
+    # Push to remote
+    print_status "Pushing to git remote..."
+    git push origin main || {
+        print_error "Failed to push to git remote"
+        return 1
+    }
+    
+    # Test SSH connection
+    print_status "Testing SSH connection..."
+    ssh -o ConnectTimeout=10 "$SERVER" "echo 'SSH connection successful'" || {
+        print_error "Cannot connect to $SERVER"
+        return 1
+    }
+    
+    # Create remote deployment script
+    print_status "Creating remote deployment script..."
+    cat << 'EOF' | ssh "$SERVER" "cat > /tmp/deploy_blog.sh && chmod +x /tmp/deploy_blog.sh"
+#!/bin/bash
+set -e
+
+DEPLOY_PATH="/home/ubuntu/projects/blog"
+DOMAIN="anshumanbiswas.com"
+REPO_URL="https://github.com/anshumanbiswas/blog.git"
+
+# Colors
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+print_status() { echo -e "${GREEN}[INFO]${NC} $1"; }
+print_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+print_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+
+# Update system packages
+print_status "Updating system packages..."
+sudo apt-get update -y
+sudo apt-get install -y git nginx certbot python3-certbot-nginx docker.io docker-compose-plugin curl postgresql-client
+
+# Add user to docker group
+sudo usermod -aG docker ubuntu
+newgrp docker || true
+
+# Create project directory
+print_status "Setting up project directory..."
+mkdir -p "$(dirname "$DEPLOY_PATH")"
+
+# Clone or update repository
+if [ -d "$DEPLOY_PATH" ]; then
+    print_status "Updating existing repository..."
+    cd "$DEPLOY_PATH"
+    git fetch origin
+    git reset --hard origin/main
+else
+    print_status "Cloning repository..."
+    git clone "$REPO_URL" "$DEPLOY_PATH"
+    cd "$DEPLOY_PATH"
+fi
+
+# Create production .env file
+print_status "Creating production environment file..."
+cat > .env << 'ENVEOF'
+PG_PASSWORD=secureprodpassword123
+PG_PORT=5432
+PG_USER=blog
+PG_DB=blog
+PG_HOST=127.0.0.1
+APP_DISABLE_SIGNUP=true
+APP_PORT=22222
+API_TOKEN=productionSecretToken456
+ENVEOF
+
+# Build the application
+print_status "Building Go application..."
+if ! command -v go &> /dev/null; then
+    print_status "Installing Go..."
+    wget https://go.dev/dl/go1.21.0.linux-amd64.tar.gz
+    sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.21.0.linux-amd64.tar.gz
+    echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
+    export PATH=$PATH:/usr/local/go/bin
+fi
+
+mkdir -p tmp
+go build -o tmp/blog
+
+# Start PostgreSQL database with Docker
+print_status "Starting PostgreSQL database..."
+docker stop blog-postgres || true
+docker rm blog-postgres || true
+
+docker run -d \
+    --name blog-postgres \
+    --restart unless-stopped \
+    -e POSTGRES_PASSWORD=secureprodpassword123 \
+    -e POSTGRES_USER=blog \
+    -e POSTGRES_DB=blog \
+    -p 5432:5432 \
+    -v blog-postgres-data:/var/lib/postgresql/data \
+    postgres:15
+
+# Wait for database to be ready
+print_status "Waiting for database to be ready..."
+sleep 10
+for i in {1..30}; do
+    if docker exec blog-postgres pg_isready -U blog; then
+        break
+    fi
+    sleep 2
+done
+
+# Run database migrations if migrations directory exists
+if [ -d "migrations" ]; then
+    print_status "Running database migrations..."
+    # Install golang-migrate if not present
+    if ! command -v migrate &> /dev/null; then
+        curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/migrate.linux-amd64.tar.gz | tar xvz
+        sudo mv migrate /usr/local/bin/
+    fi
+    migrate -source file://migrations -database "postgresql://blog:secureprodpassword123@localhost:5432/blog?sslmode=disable" up || true
+fi
+
+# Stop existing blog service
+print_status "Stopping existing blog service..."
+sudo systemctl stop blog || true
+
+# Create systemd service file
+print_status "Creating systemd service..."
+sudo tee /etc/systemd/system/blog.service > /dev/null << 'SERVICEEOF'
+[Unit]
+Description=Blog Application
+After=network.target docker.service
+Wants=docker.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/projects/blog
+Environment=PATH=/usr/local/go/bin:/usr/bin:/bin
+EnvironmentFile=/home/ubuntu/projects/blog/.env
+ExecStart=/home/ubuntu/projects/blog/tmp/blog --listen-addr :22222
+Restart=always
+RestartSec=10
+KillMode=mixed
+TimeoutStopSec=5
+
+[Install]
+WantedBy=multi-user.target
+SERVICEEOF
+
+# Reload systemd and start service
+sudo systemctl daemon-reload
+sudo systemctl enable blog
+sudo systemctl start blog
+
+# Setup nginx reverse proxy
+print_status "Configuring nginx..."
+sudo tee /etc/nginx/sites-available/blog > /dev/null << 'NGINXEOF'
+server {
+    listen 80;
+    server_name anshumanbiswas.com www.anshumanbiswas.com;
+
+    location / {
+        proxy_pass http://localhost:22222;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+NGINXEOF
+
+# Enable site
+sudo ln -sf /etc/nginx/sites-available/blog /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t && sudo systemctl reload nginx
+
+# Setup SSL with Let's Encrypt
+print_status "Setting up SSL certificate with Let's Encrypt..."
+sudo certbot --nginx -d anshumanbiswas.com -d www.anshumanbiswas.com --non-interactive --agree-tos --email ubuntu@anshumanbiswas.com || {
+    print_warning "SSL certificate setup failed, but deployment continues..."
+}
+
+# Setup automatic certificate renewal
+(sudo crontab -l 2>/dev/null; echo "0 12 * * * /usr/bin/certbot renew --quiet") | sudo crontab -
+
+print_status "Deployment completed successfully!"
+print_status "Blog should be accessible at https://$DOMAIN"
+
+# Show service status
+systemctl status blog --no-pager || true
+sudo nginx -t || true
+EOF
+    
+    # Execute remote deployment
+    print_status "Executing deployment on remote server..."
+    ssh "$SERVER" "/tmp/deploy_blog.sh" || {
+        print_error "Remote deployment failed"
+        return 1
+    }
+    
+    # Verify deployment
+    print_status "Verifying deployment..."
+    sleep 5
+    
+    if curl -f -s "https://anshumanbiswas.com" >/dev/null 2>&1; then
+        print_success "✅ Deployment successful! Blog is accessible at https://anshumanbiswas.com"
+    elif curl -f -s "http://anshumanbiswas.com" >/dev/null 2>&1; then
+        print_warning "⚠️  Blog is accessible at http://anshumanbiswas.com but SSL might need time to propagate"
+    else
+        print_error "❌ Deployment verification failed - site not responding"
+        return 1
+    fi
+    
+    # Cleanup
+    ssh "$SERVER" "rm -f /tmp/deploy_blog.sh"
+    print_success "Deployment process completed!"
+}
+
 # Main command handler
 case ${1:-help} in
     start)
@@ -1005,6 +1243,9 @@ case ${1:-help} in
     demo-post)
         shift
         create_demo_post "$@"
+        ;;
+    deploy)
+        deploy_to_production
         ;;
     health)
         check_health

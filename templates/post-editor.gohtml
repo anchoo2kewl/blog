@@ -114,6 +114,15 @@
 .preview #preview-content { padding: 1.25rem; }
 .dark .preview { background:#0b1220; border-color:#1f2937; color:#e5e7eb; }
 .hidden { display:none; }
+#preview .prose table { border:1.5px solid rgba(0,0,0,0.15); border-radius:12px; border-collapse:separate; overflow:hidden; }
+#preview .prose th, #preview .prose td { border-bottom:1.5px solid rgba(0,0,0,0.12); padding:.6rem .9rem; }
+#preview .prose th { background:linear-gradient(135deg, #f8fafc, #e2e8f0); font-weight:700; }
+.dark #preview .prose th { background:linear-gradient(135deg, #1f2937, #374151); border-bottom-color: rgba(255,255,255,0.12); }
+#preview .prose a { color:#2563eb; font-weight:600; text-decoration:none; }
+.dark #preview .prose a { color:#60a5fa; }
+#preview .prose a:hover { color:#1d4ed8; }
+.dark #preview .prose a:hover { color:#93c5fd; }
+#preview .prose hr { border:0; height:3px; background:linear-gradient(90deg, rgba(99,102,241,0) 0%, rgba(99,102,241,0.6) 50%, rgba(99,102,241,0) 100%); margin:2.25rem 0; display:block; }
 </style>
 
 <script>
@@ -136,12 +145,19 @@ document.getElementById('insert-image').addEventListener('click', () => {
 document.getElementById('insert-more').addEventListener('click', () => {
   document.execCommand('insertHTML', false, '<more-->');
 });
+function currentSlugFromInputs(){
+  const s = (document.querySelector('input[name="slug"]').value || '').trim();
+  if (s) return s;
+  const t = (document.querySelector('input[name="title"]').value || '').toLowerCase();
+  return t.replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').replace(/--+/g,'-');
+}
 document.getElementById('upload-inline-btn').addEventListener('click', async () => {
   const picker = document.getElementById('inline-upload');
   if (!picker.files.length) return picker.click();
   const f = picker.files[0];
   const fd = new FormData(); fd.append('file', f);
-  const res = await fetch('/admin/uploads', { method:'POST', body:fd });
+  const slug = currentSlugFromInputs();
+  const res = await fetch('/admin/uploads' + (slug? ('?slug=' + encodeURIComponent(slug)) : ''), { method:'POST', body:fd });
   if (!res.ok) { alert('Upload failed'); return; }
   const j = await res.json();
   document.execCommand('insertImage', false, j.url);
@@ -172,7 +188,8 @@ document.getElementById('upload-cover-btn').addEventListener('click', async () =
   const f = document.getElementById('cover-upload').files[0];
   if (!f) return alert('Choose a file');
   const fd = new FormData(); fd.append('file', f);
-  const res = await fetch('/admin/uploads', { method:'POST', body:fd });
+  const slug = currentSlugFromInputs();
+  const res = await fetch('/admin/uploads' + (slug? ('?slug=' + encodeURIComponent(slug)) : ''), { method:'POST', body:fd });
   if (!res.ok) { alert('Upload failed'); return; }
   const j = await res.json();
   document.getElementById('featured-url').value = j.url;
@@ -191,13 +208,21 @@ const previewFull = document.getElementById('preview-full');
 const editor = document.getElementById('editor');
 const preview = document.getElementById('preview');
 tabEdit.addEventListener('click', () => { tabEdit.classList.add('active'); tabPrev.classList.remove('active'); editor.classList.remove('hidden'); preview.classList.add('hidden'); });
-function renderPreview(){
+async function renderPreview(){
   tabPrev.classList.add('active'); tabEdit.classList.remove('active');
   // Render preview up to read-more marker
   let html = editor.innerHTML;
   html = previewFull.checked ? removeMore(html) : cutAtMore(html);
   const container = document.getElementById('preview-content');
-  container.innerHTML = convertFences(html);
+  try {
+    const body = new URLSearchParams(); body.set('content', html);
+    const res = await fetch('/admin/preview', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: body.toString() });
+    const j = res.ok ? await res.json() : { html: convertFences(html) };
+    container.innerHTML = j.html || convertFences(html);
+  } catch(e){
+    container.innerHTML = convertFences(html);
+  }
+  enhanceArticle(container);
   if (window.Prism) { Prism.highlightAllUnder(container); }
   editor.classList.add('hidden'); preview.classList.remove('hidden');
 }
@@ -226,6 +251,33 @@ function cutAtMore(html){
 function removeMore(html){
   return html.replaceAll('<more-->','').replaceAll('&lt;more--&gt;','');
 }
+function enhanceArticle(root){
+  root.querySelectorAll('img').forEach(img => {
+    const parent = img.parentElement;
+    if (parent && parent.tagName === 'A') {
+      const href = parent.getAttribute('href') || '';
+      const isSame = href && (href === img.src || href.split('?')[0] === img.src.split('?')[0]);
+      const isImage = /\.(png|jpe?g|webp|gif|svg)$/i.test(href);
+      if (isSame || isImage) {
+        parent.setAttribute('data-lightbox', 'article-images');
+        parent.setAttribute('data-title', img.alt || '');
+        parent.removeAttribute('target');
+        return;
+      }
+    }
+    const link = document.createElement('a');
+    link.href = img.src;
+    link.setAttribute('data-lightbox', 'article-images');
+    link.setAttribute('data-title', img.alt || '');
+    img.parentNode.insertBefore(link, img);
+    link.appendChild(img);
+  });
+  root.querySelectorAll('h2, h3, h4, h5, h6').forEach(heading => {
+    const id = heading.textContent.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+    heading.id = id;
+  });
+}
 </script>
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
 {{template "modern-footer" .}}

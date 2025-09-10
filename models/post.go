@@ -7,6 +7,8 @@ import (
     "regexp"
     "strings"
     "time"
+    "os"
+    "path/filepath"
 )
 
 type PostsList struct {
@@ -264,7 +266,32 @@ func (pp *PostService) GetByID(id int) (*Post, error) {
 }
 
 func (pp *PostService) Update(id int, categoryID int, title, content string, isPublished bool, featuredImageURL, slug string) error {
-    _, err := pp.DB.Exec(`UPDATE posts SET category_id=$1, title=$2, content=$3, slug=$4, last_edit_date=$5, is_published=$6, featured_image_url=$7 WHERE post_id=$8`,
-        categoryID, title, content, slug, time.Now(), isPublished, featuredImageURL, id)
+    // Fetch existing post to detect slug change
+    existing, err := pp.GetByID(id)
+    if err != nil {
+        return err
+    }
+
+    oldSlug := strings.TrimSpace(existing.Slug)
+    newSlug := strings.TrimSpace(slug)
+
+    // If slug changed, rename upload dir and rewrite URLs in content and featured image
+    if oldSlug != "" && newSlug != "" && oldSlug != newSlug {
+        oldDir := filepath.Join("static", "uploads", oldSlug)
+        newDir := filepath.Join("static", "uploads", newSlug)
+        if _, statErr := os.Stat(oldDir); statErr == nil {
+            // Ensure parent exists, then rename dir if possible
+            _ = os.MkdirAll(filepath.Dir(newDir), 0o755)
+            _ = os.Rename(oldDir, newDir)
+        }
+        // Update URLs inside content and featured URL
+        oldPrefix := "/static/uploads/" + oldSlug + "/"
+        newPrefix := "/static/uploads/" + newSlug + "/"
+        content = strings.ReplaceAll(content, oldPrefix, newPrefix)
+        featuredImageURL = strings.ReplaceAll(featuredImageURL, oldPrefix, newPrefix)
+    }
+
+    _, err = pp.DB.Exec(`UPDATE posts SET category_id=$1, title=$2, content=$3, slug=$4, last_edit_date=$5, is_published=$6, featured_image_url=$7 WHERE post_id=$8`,
+        categoryID, title, content, newSlug, time.Now(), isPublished, featuredImageURL, id)
     return err
 }

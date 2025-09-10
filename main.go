@@ -156,6 +156,7 @@ func main() {
 	r.Get("/admin/posts/{postID}/edit", usersC.EditPost)
 	r.Post("/admin/posts/{postID}", usersC.UpdatePost)
 	r.Post("/admin/uploads", usersC.UploadImage)
+	r.Post("/admin/preview", usersC.PreviewRender)
 	r.Get("/my-posts", usersC.UserPosts)
 	r.Get("/api-access", usersC.APIAccess)
 

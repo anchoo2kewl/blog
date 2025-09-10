@@ -263,19 +263,26 @@
     border-spacing: 0;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     margin: 1.5rem 0;
+    border: 1.5px solid rgba(0,0,0,0.08);
+}
+
+.prose th, .prose td {
+    border-bottom: 1.5px solid rgba(0,0,0,0.08);
+    padding: 0.75rem 1rem;
 }
 
 .prose th {
     background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-    font-weight: 600;
+    font-weight: 700;
     color: #374151;
 }
 
 .dark .prose th {
     background: linear-gradient(135deg, #1f2937, #374151);
     color: #f3f4f6;
+    border-bottom-color: rgba(255,255,255,0.12);
 }
 
 /* Blockquotes */
@@ -306,6 +313,10 @@
 }
 
 /* Lists */
+.prose ul, .prose ol {
+    padding-left: 1.5rem;
+}
+
 .prose ul li::marker {
     color: #6366f1;
 }
@@ -315,11 +326,21 @@
     font-weight: 600;
 }
 
+.prose li { margin: 0.25rem 0; }
+
+/* Nested ordered list styles */
+.prose ol ol { list-style-type: lower-alpha; }
+.prose ol ol ol { list-style-type: lower-roman; }
+
 /* Headings */
 .prose h2, .prose h3, .prose h4 {
     position: relative;
     scroll-margin-top: 100px;
 }
+
+.prose h2 { font-size: 1.8rem; line-height: 2.2rem; margin-top: 2.5rem; margin-bottom: 1rem; }
+.prose h3 { font-size: 1.375rem; line-height: 1.875rem; margin-top: 2rem; margin-bottom: 0.75rem; }
+.prose h4 { font-size: 1.125rem; line-height: 1.5rem; margin-top: 1.5rem; margin-bottom: 0.5rem; }
 
 .prose h2::before, .prose h3::before, .prose h4::before {
     content: '#';
@@ -334,6 +355,25 @@
 .prose h2:hover::before, .prose h3:hover::before, .prose h4:hover::before {
     opacity: 1;
 }
+
+/* Modern horizontal rule */
+.prose hr {
+    border: 0;
+    height: 3px;
+    background: linear-gradient(90deg, rgba(99,102,241,0) 0%, rgba(99,102,241,0.6) 50%, rgba(99,102,241,0) 100%);
+    margin: 2.25rem 0;
+    display: block;
+}
+
+/* Prominent links */
+.prose a {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+}
+.dark .prose a { color: #60a5fa; }
+.prose a:hover { color: #1d4ed8; }
+.dark .prose a:hover { color: #93c5fd; }
 
 /* YouTube embed container */
 .video-container {
@@ -409,16 +449,29 @@
     document.addEventListener('DOMContentLoaded', function() {
         const content = document.getElementById('article-content');
         
-        // Add lightbox to images
+        // Add/normalize lightbox for images
         content.querySelectorAll('img').forEach(img => {
-            if (!img.parentElement.matches('a')) {
-                const link = document.createElement('a');
-                link.href = img.src;
-                link.setAttribute('data-lightbox', 'article-images');
-                link.setAttribute('data-title', img.alt || '');
-                img.parentNode.insertBefore(link, img);
-                link.appendChild(img);
+            const parent = img.parentElement;
+            // If already wrapped in a link and points to the image, just enhance
+            if (parent && parent.tagName === 'A') {
+                const href = parent.getAttribute('href') || '';
+                // If link goes to same image file, treat as lightbox
+                const isSame = href && (href === img.src || href.split('?')[0] === img.src.split('?')[0]);
+                const isImage = /\.(png|jpe?g|webp|gif|svg)$/i.test(href);
+                if (isSame || isImage) {
+                    parent.setAttribute('data-lightbox', 'article-images');
+                    parent.setAttribute('data-title', img.alt || '');
+                    parent.removeAttribute('target');
+                    return;
+                }
             }
+            // Otherwise, wrap with a lightbox link
+            const link = document.createElement('a');
+            link.href = img.src;
+            link.setAttribute('data-lightbox', 'article-images');
+            link.setAttribute('data-title', img.alt || '');
+            img.parentNode.insertBefore(link, img);
+            link.appendChild(img);
         });
         
         // Process YouTube embeds

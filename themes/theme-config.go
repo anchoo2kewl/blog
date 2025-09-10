@@ -3,7 +3,6 @@ package themes
 import (
     "fmt"
     "html/template"
-    "path/filepath"
 )
 
 // Theme represents a blog theme configuration
