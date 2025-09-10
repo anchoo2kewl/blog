@@ -8,8 +8,73 @@
 
   <form method="POST" action="{{if eq .Mode "edit"}}/admin/posts/{{.Post.ID}}{{else}}/admin/posts{{end}}" onsubmit="syncEditor()">
     {{csrfField}}
-    <div class="editor-layout" style="display: flex !important; flex-direction: column !important; gap: 1.5rem !important; width: 100% !important;">
-      <div class="editor-main" style="flex: 1 !important; display: flex !important; flex-direction: column !important; gap: 1rem !important; width: 100% !important; order: 1 !important;">
+    <div class="editor-layout" style="display: flex !important; flex-direction: row !important; align-items: flex-start !important; gap: 1.5rem !important; width: 100% !important; flex-wrap: nowrap !important;">
+      
+      <!-- Sidebar on top with categories, slug, and featured image -->
+      <div class="editor-sidebar" style="display: flex !important; flex-direction: column !important; gap: 1rem !important; padding: 1.5rem !important; border-radius: 0.75rem !important; box-sizing: border-box !important; flex: 0 0 320px !important; width: 320px !important; min-width: 320px !important; max-width: 320px !important; position: sticky !important; top: 1rem !important; align-self: flex-start !important;">
+        <div style="flex: 1; min-width: 200px;">
+        Slug
+          <input type="text" name="slug" placeholder="Slug (optional)" class="form-input w-full" value="{{.Post.Slug}}" />
+        </div>
+        <div style="flex: 1; min-width: 200px;">
+        Feature Image
+          <input type="text" name="featured_image_url" id="featured-url" placeholder="Featured Image URL" class="form-input w-full" value="{{.Post.FeaturedImageURL}}" />
+          <div class="cover-upload-section mt-2">
+            <div id="current-cover-preview" class="current-cover-preview" style="display: {{if .Post.FeaturedImageURL}}block{{else}}none{{end}};">
+              <img id="current-cover-img" src="{{.Post.FeaturedImageURL}}" alt="Current featured image" />
+              <button type="button" id="remove-cover-btn" class="remove-cover-btn" aria-label="Remove featured image">&times;</button>
+            </div>
+            <div id="cover-upload-zone" class="cover-drop-zone">
+              <div class="cover-drop-content">
+                <svg class="upload-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                <div class="cover-upload-text">Drop image here or click Upload</div>
+              </div>
+            </div>
+            <div class="cover-upload-controls">
+              <input type="file" id="cover-upload" accept="image/*" style="display:none" />
+              <button type="button" id="upload-new-cover-btn" class="btn btn-secondary">Upload New</button>
+              <button type="button" id="choose-existing-cover-btn" class="btn">Choose Existing</button>
+            </div>
+          </div>
+        </div>
+        <div style="flex: 1; min-width: 250px;">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Categories <span class="text-red-500">*</span>
+          </label>
+          <div class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md p-2 max-h-32 overflow-y-auto">
+            {{if .Categories}}
+              {{range .Categories}}
+              <label class="flex items-center space-x-2 py-1 hover:bg-gray-50 dark:hover:bg-gray-700 rounded px-1 cursor-pointer">
+                <input type="checkbox" 
+                       name="categories" 
+                       value="{{.ID}}"
+                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                       {{$catID := .ID}}{{range $.SelectedCategories}}{{if eq . $catID}}checked{{end}}{{end}}>
+                <span class="text-sm text-gray-700 dark:text-gray-300">{{.Name}}</span>
+              </label>
+              {{end}}
+            {{else}}
+              <p class="text-sm text-gray-500 dark:text-gray-400">No categories available</p>
+            {{end}}
+          </div>
+        </div>
+        <div style="flex: 0 0 auto;">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Publish</label>
+          <label class="flex items-center space-x-2 cursor-pointer">
+            <input type="checkbox" name="is_published" {{if .Post.IsPublished}}checked{{end}} 
+                   class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+            <span class="text-sm text-gray-700 dark:text-gray-300">Published</span>
+          </label>
+        </div>
+        <div class="mt-4">
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px 24px; font-size: 16px; font-weight: 600;">
+            {{if eq .Mode "edit"}}Update Post{{else}}Create Post{{end}}
+          </button>
+        </div>
+      </div>
+      
+      <!-- Main content area taking full width -->
+      <div class="editor-main" style="display: flex !important; flex-direction: column !important; gap: 1rem !important; width: 100% !important;">
         <input type="text" name="title" placeholder="Title" class="form-input w-full" value="{{.Post.Title}}" required />
 
         <div class="editor-toolbar">
@@ -26,7 +91,7 @@
             <button type="button" class="btn" data-cmd="insertOrderedList">1. List</button>
             <button type="button" class="btn" data-cmd="formatBlock" data-value="blockquote">❝ Quote</button>
             <button type="button" class="btn" id="insert-hr">HR</button>
-            <button type="button" class="btn" id="insert-code"></> Code</button>
+            <button type="button" class="btn" id="insert-code"> Code</button>
           </div>
 
           <div class="btn-group">
@@ -70,56 +135,7 @@
           <div id="preview-content" class="prose dark:prose-invert max-w-none"></div>
         </div>
         <textarea name="content" id="content-field" class="hidden"></textarea>
-      </div>
-
-      <div class="editor-sidebar" style="display: flex !important; flex-direction: column !important; gap: 1rem !important; background: #f9fafb !important; padding: 1.5rem !important; border-radius: 0.75rem !important; border: 1px solid #e5e7eb !important; box-sizing: border-box !important; order: 2 !important; width: 100% !important;">
-        <input type="text" name="slug" placeholder="Slug (optional)" class="form-input w-full" value="{{.Post.Slug}}" />
-        <div class="space-y-2">
-          <input type="text" name="featured_image_url" id="featured-url" placeholder="Featured Image URL" class="form-input w-full" value="{{.Post.FeaturedImageURL}}" />
-          <div class="cover-upload-section">
-            <div class="current-cover-preview" id="current-cover-preview" style="{{if not .Post.FeaturedImageURL}}display:none{{end}}">
-              <img id="current-cover-img" src="{{.Post.FeaturedImageURL}}" alt="Current cover" />
-              <button type="button" id="remove-cover-btn" class="remove-cover-btn">&times;</button>
-            </div>
-            <div class="cover-upload-controls">
-              <input type="file" id="cover-upload" accept="image/*" style="display:none" />
-              <div class="cover-drop-zone" id="cover-upload-zone">
-                <div class="cover-drop-content">
-                  <svg class="upload-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                  </svg>
-                  <div class="cover-upload-text">Drop cover image or <button type="button" class="upload-link" onclick="document.getElementById('cover-upload').click()">browse</button></div>
-                </div>
-              </div>
-              <button type="button" id="choose-existing-cover-btn" class="btn btn-secondary">Choose Existing</button>
-            </div>
-          </div>
-        </div>
-        <!-- Category Selection -->
-        <div class="space-y-3">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Categories <span class="text-red-500">*</span>
-            </label>
-            <div class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md p-3 max-h-48 overflow-y-auto">
-                {{if .Categories}}
-                    {{range .Categories}}
-                    <label class="flex items-center space-x-2 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded px-2 cursor-pointer">
-                        <input type="checkbox" 
-                               name="categories" 
-                               value="{{.ID}}"
-                               class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                               {{$catID := .ID}}{{range $.SelectedCategories}}{{if eq . $catID}}checked{{end}}{{end}}>
-                        <span class="text-sm text-gray-700 dark:text-gray-300">{{.Name}}</span>
-                    </label>
-                    {{end}}
-                {{else}}
-                    <p class="text-sm text-gray-500 dark:text-gray-400">No categories available. <a href="/admin/categories" class="text-blue-600 hover:text-blue-800">Create categories</a> first.</p>
-                {{end}}
-            </div>
-            <input type="hidden" name="category_id" value="{{if .Post.CategoryID}}{{.Post.CategoryID}}{{else}}1{{end}}" />
-        </div>
-        <label class="flex items-center gap-2"><input type="checkbox" name="is_published" {{if .Post.IsPublished}}checked{{end}} /> Published</label>
-        <button type="submit" class="btn btn-primary w-full">{{if eq .Mode "edit"}}Update Post{{else}}Create Post{{end}}</button>
+        
       </div>
     </div>
   </form>
@@ -299,6 +315,13 @@ section.editor-container div.editor-layout div.editor-main div.wysiwyg {
 #preview .prose a:hover { color:#1d4ed8; }
 .dark #preview .prose a:hover { color:#93c5fd; }
 #preview .prose hr { border:0; height:3px; background:linear-gradient(90deg, rgba(99,102,241,0) 0%, rgba(99,102,241,0.6) 50%, rgba(99,102,241,0) 100%); margin:2.25rem 0; display:block; }
+/* Add minimal typography for preview (tailwind-typography not loaded here) */
+#preview .prose h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; margin: 1.2em 0 .6em; }
+#preview .prose h2 { font-size: 1.5rem; line-height: 2rem; font-weight: 700; margin: 1.1em 0 .6em; }
+#preview .prose h3 { font-size: 1.25rem; line-height: 1.75rem; font-weight: 700; margin: 1em 0 .5em; }
+#preview .prose p { margin: 1em 0; }
+#preview .prose ul { list-style: disc; padding-left: 1.5rem; margin: .75em 0; }
+#preview .prose ol { list-style: decimal; padding-left: 1.5rem; margin: .75em 0; }
 </style>
 
 <script>
@@ -349,10 +372,8 @@ document.addEventListener('DOMContentLoaded', function() {
           display: flex !important;
           flex-direction: column !important;
           gap: 1rem !important;
-          background: #f9fafb !important;
           padding: 1.5rem !important;
           border-radius: 0.75rem !important;
-          border: 1px solid #e5e7eb !important;
           box-sizing: border-box !important;
         `;
         
@@ -382,10 +403,8 @@ document.addEventListener('DOMContentLoaded', function() {
           display: flex !important;
           flex-direction: column !important;
           gap: 1rem !important;
-          background: #f9fafb !important;
           padding: 1.5rem !important;
           border-radius: 0.75rem !important;
-          border: 1px solid #e5e7eb !important;
           box-sizing: border-box !important;
         `;
         
@@ -469,11 +488,14 @@ document.getElementById('insert-hr').addEventListener('click', () => document.ex
 document.getElementById('clear-color').addEventListener('click', () => exec('removeFormat'));
 
 // Modern cover image upload functionality
-document.getElementById('upload-new-cover-btn').addEventListener('click', () => {
-  document.getElementById('cover-upload').click();
-});
+const uploadNewCoverBtn = document.getElementById('upload-new-cover-btn');
+const coverUploadInput = document.getElementById('cover-upload');
+if (uploadNewCoverBtn && coverUploadInput && !uploadNewCoverBtn._bound) {
+  uploadNewCoverBtn.addEventListener('click', () => coverUploadInput.click());
+  uploadNewCoverBtn._bound = true;
+}
 
-document.getElementById('cover-upload').addEventListener('change', async (e) => {
+if (coverUploadInput && !coverUploadInput._boundChange) coverUploadInput.addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
   
@@ -481,12 +503,13 @@ document.getElementById('cover-upload').addEventListener('change', async (e) => 
   formData.append('file', file);
   
   const slug = currentSlugFromInputs();
-  const uploadUrl = '/admin/uploads' + (slug ? '?slug=' + encodeURIComponent(slug) : '');
+  const uploadUrl = '/admin/uploads' + (slug ? ('?slug=' + encodeURIComponent(slug) + '&type=featured') : '?type=featured');
   
   try {
     const response = await fetch(uploadUrl, {
       method: 'POST',
-      body: formData
+      body: formData,
+      credentials: 'same-origin'
     });
     
     if (!response.ok) throw new Error('Upload failed');
@@ -498,13 +521,24 @@ document.getElementById('cover-upload').addEventListener('change', async (e) => 
   }
   
   e.target.value = ''; // Reset file input
+  coverUploadInput._boundChange = true;
+});
+
+// Last-resort delegated clicks to handle dynamic DOM
+document.addEventListener('click', (e) => {
+  const upBtn = e.target && e.target.closest && e.target.closest('#upload-new-cover-btn');
+  if (upBtn) {
+    e.preventDefault();
+    const input = document.getElementById('cover-upload');
+    if (input) input.click();
+  }
 });
 
   // Cover image drag and drop functionality
   const coverUploadZone = document.getElementById('cover-upload-zone');
   const coverUpload = document.getElementById('cover-upload');
   
-  if (coverUploadZone && coverUpload) {
+  if (coverUploadZone && coverUpload && !coverUploadZone._bound) {
     // Drag and drop event handlers for cover image
     coverUploadZone.addEventListener('dragover', (e) => {
       e.preventDefault();
@@ -540,27 +574,27 @@ document.getElementById('cover-upload').addEventListener('change', async (e) => 
       if (e.target.classList.contains('upload-link')) return; // Let the button handle it
       coverUpload.click();
     });
+    coverUploadZone._bound = true;
   }
 
   // Cover image functionality
   const chooseExistingCoverBtn = document.getElementById('choose-existing-cover-btn');
-  if (chooseExistingCoverBtn) {
-    chooseExistingCoverBtn.addEventListener('click', async () => {
+  async function openExistingCoverModal(){
   const modal = document.getElementById('existing-images-modal');
   const container = document.getElementById('existing-images-container');
   
   // Load existing images
   const slug = currentSlugFromInputs();
-  const listUrl = '/admin/uploads/list' + (slug ? '?slug=' + encodeURIComponent(slug) : '');
+  const listUrl = '/admin/uploads/list' + (slug ? ('?slug=' + encodeURIComponent(slug) + '&type=featured') : '?type=featured');
   
   try {
-    const response = await fetch(listUrl);
+    const response = await fetch(listUrl, { credentials: 'same-origin' });
     if (!response.ok) throw new Error('Failed to load images');
     
     const result = await response.json();
     
     if (result.images && result.images.length > 0) {
-      container.innerHTML = result.images.map((img, index) => `
+      container.innerHTML = result.images.map((img) => `
         <div class="existing-image-item" data-url="${img.url}">
           <img src="${img.url}" alt="${img.filename}" />
           <div class="image-info">
@@ -569,47 +603,104 @@ document.getElementById('cover-upload').addEventListener('change', async (e) => 
           </div>
         </div>
       `).join('');
-      
-      // Add click handlers for image selection
-      container.querySelectorAll('.existing-image-item').forEach(item => {
-        item.addEventListener('click', () => {
-          const url = item.getAttribute('data-url');
-          setCoverImage(url);
-          modal.classList.add('hidden');
-        });
-      });
+
+      // Delegated click for selection
+      container.onclick = (e) => {
+        const card = e.target && e.target.closest && e.target.closest('.existing-image-item');
+        if (!card) return;
+        const url = card.getAttribute('data-url');
+        setCoverImage(url);
+        modal.classList.add('hidden');
+      };
     } else {
       container.innerHTML = '<div class="no-images">No images found. Upload some images first.</div>';
     }
     
     modal.classList.remove('hidden');
+    // Bind close controls after opening (ensures elements exist)
+    const closeBtn = document.getElementById('close-existing-modal');
+    if (closeBtn && !closeBtn._bound) {
+      closeBtn.addEventListener('click', (e)=>{ e.preventDefault(); modal.classList.add('hidden'); });
+      closeBtn._bound = true;
+    }
+    if (!modal._backdropBound) {
+      modal.addEventListener('click', (e)=>{ if (e.target === modal) modal.classList.add('hidden'); });
+      window.addEventListener('keydown', (e)=>{ if (e.key === 'Escape') modal.classList.add('hidden'); });
+      modal._backdropBound = true;
+    }
   } catch (error) {
     alert('Failed to load existing images: ' + error.message);
   }
-});
+}
+  if (chooseExistingCoverBtn) {
+    chooseExistingCoverBtn.addEventListener('click', (e)=>{ e.preventDefault(); openExistingCoverModal(); });
+  }
+  document.addEventListener('click', (e)=>{
+    if (e.target && e.target.closest && e.target.closest('#choose-existing-cover-btn')) {
+      e.preventDefault();
+      openExistingCoverModal();
+    }
+  });
 
-document.getElementById('remove-cover-btn').addEventListener('click', () => {
-  setCoverImage('');
-});
+const removeCoverBtn = document.getElementById('remove-cover-btn');
+if (removeCoverBtn) {
+  removeCoverBtn.addEventListener('click', () => setCoverImage(''));
+}
+
+function normalizeFeaturedUrl(url){
+  if (!url) return '';
+  try {
+    if (url.startsWith('/static/')) return url;
+    if (url.startsWith('/uploads/')) return '/static' + url;
+    return url;
+  } catch(_) { return url; }
+}
 
 function setCoverImage(url) {
   const urlInput = document.getElementById('featured-url');
   const preview = document.getElementById('current-cover-preview');
   const img = document.getElementById('current-cover-img');
   
-  urlInput.value = url;
+  const normalized = normalizeFeaturedUrl(url);
+  urlInput.value = normalized;
   
-  if (url) {
-    img.src = url;
+  if (normalized) {
+    img.src = normalized;
     preview.style.display = 'block';
   } else {
     preview.style.display = 'none';
   }
 }
 
-// Close existing images modal
-document.getElementById('close-existing-modal').addEventListener('click', () => {
-  document.getElementById('existing-images-modal').classList.add('hidden');
+// Close existing images modal (guard if not yet in DOM)
+(function(){
+  const closeBtn = document.getElementById('close-existing-modal');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      const modal = document.getElementById('existing-images-modal');
+      if (modal) modal.classList.add('hidden');
+    });
+  }
+})();
+// Close when clicking backdrop
+(function(){
+  const modal = document.getElementById('existing-images-modal');
+  if (modal) {
+    modal.addEventListener('click', (e)=>{ if (e.target === modal) modal.classList.add('hidden'); });
+    window.addEventListener('keydown', (e)=>{ if (e.key === 'Escape') modal.classList.add('hidden'); });
+  }
+})();
+
+// Normalize and show initial preview if an URL exists
+document.addEventListener('DOMContentLoaded', () => {
+  const urlInput = document.getElementById('featured-url');
+  if (urlInput && urlInput.value) {
+    const v = normalizeFeaturedUrl(urlInput.value.trim());
+    if (v !== urlInput.value) urlInput.value = v;
+    const img = document.getElementById('current-cover-img');
+    const preview = document.getElementById('current-cover-preview');
+    if (img && preview) { img.src = v; preview.style.display = v ? 'block' : 'none'; }
+  }
 });
 document.getElementById('insert-code').addEventListener('click', () => {
   const lang = prompt('Language (optional, e.g. css, js, go)') || '';
@@ -855,7 +946,7 @@ document.addEventListener('DOMContentLoaded', function() {
         editor.focus();
         const galleryHtml = `
           <div class="image-gallery">
-            ${result.uploads.map(upload => `<img src="${upload.url}" alt="${upload.filename}" style="width: 200px; height: 150px; object-fit: cover; margin: 5px;">`).join('')}
+            ${result.uploads.map(upload => `<a href="${upload.url}" data-lightbox="article-images" data-title="${upload.filename}"><img src="${upload.url}" alt="${upload.filename}" style="width: 200px; height: 150px; object-fit: cover; margin: 5px;"></a>`).join('')}
           </div><br>
         `;
         document.execCommand('insertHTML', false, galleryHtml);
@@ -887,6 +978,144 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('multi-upload-modal').classList.add('hidden');
     });
   }
+
+  // Enhanced Image Management System
+  let currentImageMode = 'post'; // 'post' or 'all'
+  
+  // Tab functionality for image modal
+  const tabPostImages = document.getElementById('tab-post-images');
+  const tabAllImages = document.getElementById('tab-all-images');
+  
+  if (tabPostImages && tabAllImages) {
+    tabPostImages.addEventListener('click', () => {
+      currentImageMode = 'post';
+      setActiveTab(tabPostImages);
+      loadImages();
+    });
+    
+    tabAllImages.addEventListener('click', () => {
+      currentImageMode = 'all';
+      setActiveTab(tabAllImages);
+      loadImages();
+    });
+  }
+  
+  function setActiveTab(activeTab) {
+    document.querySelectorAll('.tab-button').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    activeTab.classList.add('active');
+  }
+  
+  // Enhanced image loading function
+  async function loadImages() {
+    const container = document.getElementById('existing-images-container');
+    const slug = currentSlugFromInputs();
+    
+    let listUrl = '/admin/uploads/list';
+    if (currentImageMode === 'post' && slug) {
+      listUrl += '?slug=' + encodeURIComponent(slug);
+    }
+    
+    try {
+      const response = await fetch(listUrl, { credentials: 'same-origin' });
+      if (!response.ok) throw new Error('Failed to load images');
+      
+      const result = await response.json();
+      
+      if (result.images && result.images.length > 0) {
+        container.innerHTML = result.images.map((img) => `
+          <div class="existing-image-item" data-url="${img.url}">
+            <img src="${img.url}" alt="${img.filename}" style="width: 100%; height: 120px; object-fit: cover;" />
+            <div class="image-info" style="padding: 8px;">
+              <div class="filename" style="font-size: 12px; font-weight: 500; color: #111827; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${img.filename}</div>
+              <div class="filesize" style="font-size: 10px; color: #6b7280;">${(img.size / 1024).toFixed(1)} KB</div>
+            </div>
+            <button class="image-delete-btn" data-url="${img.url}" title="Delete image">×</button>
+            <button class="image-insert-btn" data-url="${img.url}" title="Insert into editor">Insert</button>
+          </div>
+        `).join('');
+
+        // Add event listeners for delete and insert buttons
+        container.querySelectorAll('.image-delete-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const imageUrl = btn.getAttribute('data-url');
+            if (confirm('Are you sure you want to delete this image?')) {
+              await deleteImage(imageUrl);
+              loadImages(); // Reload the list
+            }
+          });
+        });
+
+        container.querySelectorAll('.image-insert-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const imageUrl = btn.getAttribute('data-url');
+            insertImageIntoEditor(imageUrl);
+            document.getElementById('existing-images-modal').classList.add('hidden');
+          });
+        });
+      } else {
+        const message = currentImageMode === 'post' 
+          ? 'No images found for this post. Upload some images first.'
+          : 'No images found. Upload some images first.';
+        container.innerHTML = `<div class="no-images" style="text-align: center; color: #6b7280; padding: 20px;">${message}</div>`;
+      }
+    } catch (error) {
+      console.error('Failed to load images:', error);
+      container.innerHTML = `<div class="error" style="text-align: center; color: #ef4444; padding: 20px;">Failed to load images: ${error.message}</div>`;
+    }
+  }
+  
+  // Function to delete an image
+  async function deleteImage(imageUrl) {
+    try {
+      const response = await fetch('/admin/uploads?path=' + encodeURIComponent(imageUrl), {
+        method: 'DELETE',
+        credentials: 'same-origin'
+      });
+      
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || 'Failed to delete image');
+      }
+      
+      console.log('Image deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete image:', error);
+      alert('Failed to delete image: ' + error.message);
+      throw error;
+    }
+  }
+  
+  // Function to insert image into editor
+  function insertImageIntoEditor(imageUrl) {
+    const editor = document.getElementById('editor');
+    editor.focus();
+    
+    // Create image HTML
+    const imageHtml = `<img src="${imageUrl}" alt="Uploaded image" style="max-width: 100%; height: auto; margin: 10px 0;" /><br>`;
+    
+    // Insert the image
+    document.execCommand('insertHTML', false, imageHtml);
+  }
+  
+  // Override the browse images button to open the enhanced modal
+  const browseBtn = document.getElementById('browse-btn');
+  if (browseBtn) {
+    // Remove existing event listeners by cloning
+    const newBrowseBtn = browseBtn.cloneNode(true);
+    browseBtn.parentNode.replaceChild(newBrowseBtn, browseBtn);
+    
+    newBrowseBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentImageMode = 'post';
+      setActiveTab(document.getElementById('tab-post-images'));
+      loadImages();
+      document.getElementById('existing-images-modal').classList.remove('hidden');
+    });
+  }
 });
 </script>
 
@@ -914,8 +1143,20 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="existing-images-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
   <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
     <div class="flex justify-between items-center mb-4">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-50">Choose Existing Image</h3>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-50">Post Images</h3>
       <button id="close-existing-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl">&times;</button>
+    </div>
+    
+    <!-- Filter Tabs -->
+    <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
+      <nav class="-mb-px flex space-x-8">
+        <button id="tab-post-images" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm tab-button active">
+          This Post
+        </button>
+        <button id="tab-all-images" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm tab-button">
+          All Images
+        </button>
+      </nav>
     </div>
     
     <div id="existing-images-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -991,6 +1232,80 @@ document.addEventListener('DOMContentLoaded', function() {
   flex-wrap: wrap;
   gap: 5px;
   margin: 10px 0;
+}
+
+/* Tab styling */
+.tab-button.active {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+/* Image management styling */
+.existing-image-item {
+  position: relative;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.existing-image-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.existing-image-item.selected {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+.dark .existing-image-item {
+  border-color: #374151;
+  background: #1f2937;
+}
+
+.image-delete-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.existing-image-item:hover .image-delete-btn {
+  opacity: 1;
+}
+
+.image-insert-btn {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 11px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.existing-image-item:hover .image-insert-btn {
+  opacity: 1;
 }
 
 /* Cover upload styles */
@@ -1243,5 +1558,119 @@ document.addEventListener('DOMContentLoaded', function() {
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
+
+<script>
+// Force sidebar layout after everything loads
+function forceSidebarLayout() {
+  console.log('Layout: Forcing sidebar layout...');
+  const layout = document.querySelector('.editor-layout');
+  const sidebar = document.querySelector('.editor-sidebar');
+  const main = document.querySelector('.editor-main');
+  
+  if (!layout || !sidebar || !main) {
+    console.log('Layout: Missing elements, skipping');
+    return;
+  }
+
+  if (window.innerWidth >= 768) {
+    // Desktop: sidebar on right, main on left
+    layout.style.cssText = `
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: flex-start !important;
+      flex-wrap: nowrap !important;
+      width: 100% !important;
+      gap: 1.5rem !important;
+    `;
+
+    // MAIN on the left
+    main.style.cssText = `
+      order: 1 !important;
+      flex: 2 1 0% !important;
+      min-width: 0 !important;
+      width: auto !important;
+      position: relative !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 1rem !important;
+      margin-right: 1.5rem !important;
+      margin-left: 0 !important;
+    `;
+
+    // SIDEBAR on the right
+    sidebar.style.cssText = `
+      order: 2 !important;
+      flex: 0 0 320px !important;
+      width: 320px !important;
+      min-width: 320px !important;
+      max-width: 320px !important;
+      position: sticky !important;
+      top: 1rem !important;
+      max-height: calc(100vh - 2rem) !important;
+      overflow-y: auto !important;
+      align-self: flex-start !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 1rem !important;
+      padding: 1.5rem !important;
+      border-radius: 0.75rem !important;
+      box-sizing: border-box !important;
+    `;
+
+    console.log('Layout: Desktop layout applied - sidebar left, main right');
+  } else {
+    // Mobile: sidebar on top, main below
+    layout.style.cssText = `
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 1.5rem !important;
+      width: 100% !important;
+    `;
+
+    // SIDEBAR first (top) on mobile
+    sidebar.style.cssText = `
+      order: 1 !important;
+      width: 100% !important;
+      position: relative !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 1rem !important;
+      padding: 1.5rem !important;
+      border-radius: 0.75rem !important;
+      box-sizing: border-box !important;
+    `;
+
+    // MAIN second (below)
+    main.style.cssText = `
+      order: 2 !important;
+      flex: 1 !important;
+      width: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 1rem !important;
+    `;
+
+    console.log('Layout: Mobile layout applied - sidebar top, main below');
+  }
+  
+  // Log final computed styles
+  const styles = getComputedStyle(layout);
+  console.log('Layout: Final layout styles:', {
+    display: styles.display,
+    flexDirection: styles.flexDirection,
+    width: styles.width
+  });
+}
+
+// Try multiple times to ensure it takes
+document.addEventListener('DOMContentLoaded', forceSidebarLayout);
+window.addEventListener('load', forceSidebarLayout);
+window.addEventListener('resize', forceSidebarLayout);
+setTimeout(forceSidebarLayout, 100);
+setTimeout(forceSidebarLayout, 500);
+setTimeout(forceSidebarLayout, 1000);
+</script>
+
 {{template "modern-footer" .}}

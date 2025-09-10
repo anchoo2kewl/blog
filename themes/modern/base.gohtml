@@ -1,4 +1,4 @@
-{{define "modern-header"}}
+{{define "modern-base-header"}}
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
@@ -16,7 +16,7 @@
     
     <!-- Styles -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/static/css/modern-theme.css?v=2025-v2" />
+    <link rel="stylesheet" href="/static/css/modern-theme.css?v=2025-v3" />
     
     <!-- Dark mode script -->
     <script>
@@ -50,16 +50,6 @@
                 {{if .LoggedIn}}
                     {{if .IsAdmin}}
                         <li><a href="/admin" class="nav-link ">Admin</a></li>
-                    {{end}}
-                    {{if .IsAdmin}}
-                        <li>
-                            <span class="admin-badge">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 0L15.09 8.26L24 9L17 14.74L19.18 24L12 19.77L4.82 24L7 14.74L0 9L8.91 8.26L12 0Z"/>
-                                </svg>
-                                Admin
-                            </span>
-                        </li>
                     {{end}}
                     <li><a href="/users/me" class="nav-link">Profile</a></li>
                     <li><a href="/logout" class="nav-link">Sign Out</a></li>
@@ -125,7 +115,7 @@
     <main class="main-container">
 {{end}}
 
-{{define "modern-footer"}}
+{{define "modern-base-footer"}}
     </main>
     
     <!-- Footer -->

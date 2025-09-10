@@ -1,17 +1,18 @@
 package views
 
 import (
-    "bytes"
-    "fmt"
-    "html/template"
-    "io"
-    "io/fs"
-    "log"
-    "net/http"
-    "reflect"
-    "strings"
+	"bytes"
+	"fmt"
+	"html/template"
+	"io"
+	"io/fs"
+	"log"
+	"net/http"
+	"path/filepath"
+	"reflect"
+	"strings"
 
-    "github.com/gorilla/csrf"
+	"github.com/gorilla/csrf"
 )
 
 type Template struct {
@@ -26,34 +27,36 @@ func Must(t Template, err error) Template {
 }
 
 func ParseFS(fs fs.FS, patterns ...string) (Template, error) {
-	tpl := template.New(patterns[0])
-    tpl = tpl.Funcs(
-        template.FuncMap{
-            "csrfField": func() template.HTML {
-                return `<input type="hidden" />`
-            },
-            "contains": func(s, substr string) bool {
-                return strings.Contains(s, substr)
-            },
-            "upper": func(s string) string { return strings.ToUpper(s) },
-            "initial": func(s string) string {
-                if s == "" { return "" }
-                r := []rune(s)
-                return strings.ToUpper(string(r[0]))
-            },
-            "where": func(slice interface{}, field string, value interface{}) interface{} {
-                sliceValue := reflect.ValueOf(slice)
-                if sliceValue.Kind() != reflect.Slice {
-                    return slice
-                }
-				
+	tpl := template.New(filepath.Base(patterns[0]))
+	tpl = tpl.Funcs(
+		template.FuncMap{
+			"csrfField": func() template.HTML {
+				return `<input type="hidden" />`
+			},
+			"contains": func(s, substr string) bool {
+				return strings.Contains(s, substr)
+			},
+			"upper": func(s string) string { return strings.ToUpper(s) },
+			"initial": func(s string) string {
+				if s == "" {
+					return ""
+				}
+				r := []rune(s)
+				return strings.ToUpper(string(r[0]))
+			},
+			"where": func(slice interface{}, field string, value interface{}) interface{} {
+				sliceValue := reflect.ValueOf(slice)
+				if sliceValue.Kind() != reflect.Slice {
+					return slice
+				}
+
 				result := reflect.MakeSlice(sliceValue.Type(), 0, 0)
 				for i := 0; i < sliceValue.Len(); i++ {
 					item := sliceValue.Index(i)
 					if item.Kind() == reflect.Ptr {
 						item = item.Elem()
 					}
-					
+
 					if item.Kind() == reflect.Struct {
 						fieldValue := item.FieldByName(field)
 						if fieldValue.IsValid() && reflect.DeepEqual(fieldValue.Interface(), value) {
@@ -81,33 +84,35 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data interface
 		http.Error(w, "There was an error rendering the page.", http.StatusInternalServerError)
 		return
 	}
-    tpl = tpl.Funcs(
-        template.FuncMap{
-            "csrfField": func() template.HTML {
-                return csrf.TemplateField(r)
-            },
-            "contains": func(s, substr string) bool {
-                return strings.Contains(s, substr)
-            },
-            "upper": func(s string) string { return strings.ToUpper(s) },
-            "initial": func(s string) string {
-                if s == "" { return "" }
-                r := []rune(s)
-                return strings.ToUpper(string(r[0]))
-            },
-            "where": func(slice interface{}, field string, value interface{}) interface{} {
-                sliceValue := reflect.ValueOf(slice)
-                if sliceValue.Kind() != reflect.Slice {
-                    return slice
-                }
-				
+	tpl = tpl.Funcs(
+		template.FuncMap{
+			"csrfField": func() template.HTML {
+				return csrf.TemplateField(r)
+			},
+			"contains": func(s, substr string) bool {
+				return strings.Contains(s, substr)
+			},
+			"upper": func(s string) string { return strings.ToUpper(s) },
+			"initial": func(s string) string {
+				if s == "" {
+					return ""
+				}
+				r := []rune(s)
+				return strings.ToUpper(string(r[0]))
+			},
+			"where": func(slice interface{}, field string, value interface{}) interface{} {
+				sliceValue := reflect.ValueOf(slice)
+				if sliceValue.Kind() != reflect.Slice {
+					return slice
+				}
+
 				result := reflect.MakeSlice(sliceValue.Type(), 0, 0)
 				for i := 0; i < sliceValue.Len(); i++ {
 					item := sliceValue.Index(i)
 					if item.Kind() == reflect.Ptr {
 						item = item.Elem()
 					}
-					
+
 					if item.Kind() == reflect.Struct {
 						fieldValue := item.FieldByName(field)
 						if fieldValue.IsValid() && reflect.DeepEqual(fieldValue.Interface(), value) {

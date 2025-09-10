@@ -20,9 +20,13 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-const (
-	APP_PORT = "3000"
-)
+func getAppPort() string {
+	port := os.Getenv("APP_PORT")
+	if port == "" {
+		return "3000"
+	}
+	return port
+}
 
 func main() {
 	sugar := sugarLog()
@@ -35,7 +39,7 @@ func main() {
 		sugar.Infof("API Token: %s", apiToken)
 	}
 
-	listenAddr := flag.String("listen-addr", ":"+APP_PORT, "server listen address")
+	listenAddr := flag.String("listen-addr", ":"+getAppPort(), "server listen address")
 	flag.Parse()
 
 	r := chi.NewRouter()
@@ -75,13 +79,13 @@ func main() {
 		views.Must(views.ParseFS(templates.FS, "admin-formatting-guide.gohtml", "tailwind.gohtml")), &sessionService))
 	r.Get("/docs/complete-formatting-guide", controllers.StaticHandler(
 		views.Must(views.ParseFS(templates.FS, "admin-formatting-guide.gohtml", "tailwind.gohtml")), &sessionService))
-	
+
 	r.Get("/admin/formatting-guide", controllers.StaticHandler(
 		views.Must(views.ParseFS(templates.FS, "admin-formatting-guide.gohtml", "tailwind.gohtml")), &sessionService))
-	
+
 	r.Get("/docs/formatting-guide", controllers.StaticHandler(
 		views.Must(views.ParseFS(templates.FS, "admin-formatting-guide.gohtml", "tailwind.gohtml")), &sessionService))
-	
+
 	r.Get("/docs/complete-formatting-guide", controllers.StaticHandler(
 		views.Must(views.ParseFS(templates.FS, "complete-formatting-guide.gohtml", "tailwind.gohtml")), &sessionService))
 
@@ -174,10 +178,11 @@ func main() {
 	r.Post("/admin/uploads", usersC.UploadImage)
 	r.Post("/admin/uploads/multiple", usersC.UploadMultipleImages)
 	r.Get("/admin/uploads/list", usersC.ListUploadedImages)
+	r.Delete("/admin/uploads", usersC.DeleteImage)
 	r.Post("/admin/preview", usersC.PreviewRender)
 	r.Get("/my-posts", usersC.UserPosts)
 	r.Get("/api-access", usersC.APIAccess)
-	
+
 	// Category Management Routes
 	r.Get("/admin/categories", categoriesC.Manage)
 	r.Post("/admin/categories", categoriesC.CreateCategoryForm)
@@ -190,14 +195,14 @@ func main() {
 	r.Post("/users/api-tokens", usersC.CreateAPIToken)
 	r.Post("/users/api-tokens/revoke", usersC.RevokeAPIToken)
 	r.Post("/users/api-tokens/delete", usersC.DeleteAPIToken)
-	
+
 	// JSON API endpoints for AJAX operations
 	r.Post("/api/users/api-tokens", usersC.CreateAPITokenJSON)
 	r.Post("/api/users/api-tokens/revoke", usersC.RevokeAPITokenJSON)
 	r.Delete("/api/users/api-tokens/{token_id}", usersC.DeleteAPITokenJSON)
 	r.Get("/api/users/api-tokens", usersC.GetAPITokensJSON)
 	r.Get("/users/logout", usersC.Logout)
-	
+
 	// Logout redirect route for convenience
 	r.Get("/logout", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/users/logout", http.StatusFound)
@@ -208,6 +213,9 @@ func main() {
 
 	// Define a route for the blog post
 	r.Get("/blog/{slug}", blogC.GetBlogPost)
+
+	// Public API for lazy loading posts
+	r.Get("/api/posts/load-more", usersC.LoadMorePosts)
 
 	// REST API endpoints for users
 	r.Route("/api/users", func(r chi.Router) {

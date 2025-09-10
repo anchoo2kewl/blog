@@ -1,4 +1,5 @@
-{{template "modern-header" .}}
+{{define "modern/home.gohtml"}}
+{{template "modern-base-header" .}}
 
 <!-- Hero Section -->
 <section class="hero">
@@ -116,4 +117,104 @@
 </section>
 {{end}}
 
-{{template "modern-footer" .}}
+<!-- Infinite Scroll JavaScript -->
+<script>
+let offset = 5; // Start after the first 5 posts
+let loading = false;
+let hasMorePosts = true;
+let pageLoaded = false;
+
+function loadMorePosts() {
+    if (loading || !hasMorePosts) return;
+    
+    loading = true;
+    
+    fetch(`/api/posts/load-more?offset=${offset}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.Posts && data.Posts.length > 0) {
+                const blogPostsSection = document.querySelector('.blog-posts');
+                
+                data.Posts.forEach(post => {
+                    const articleHTML = `
+                        <article class="blog-post">
+                            <div class="blog-post-meta">
+                                <div class="blog-post-date">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <time datetime="${post.CreatedAt}">${post.PublicationDate}</time>
+                                </div>
+                                ${post.FeaturedImageURL ? '<div class="text-sm text-gray-500">Featured</div>' : ''}
+                            </div>
+                            
+                            <h2 class="blog-post-title">
+                                <a href="/blog/${post.Slug}">${post.Title}</a>
+                            </h2>
+                            
+                            <div class="blog-post-excerpt">
+                                ${post.Content.length > 200 ? post.Content.substring(0, 200) + '...' : post.Content}
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <a href="/blog/${post.Slug}" class="read-more">
+                                    Read more
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </a>
+                                
+                                <div class="flex items-center gap-4 text-sm text-gray-500">
+                                    ${post.IsPublished ? 
+                                        `<span class="flex items-center gap-1">
+                                            <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            Published
+                                        </span>` :
+                                        `<span class="flex items-center gap-1">
+                                            <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            Draft
+                                        </span>`
+                                    }
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                    blogPostsSection.insertAdjacentHTML('beforeend', articleHTML);
+                });
+                
+                offset += data.Posts.length;
+                
+                if (data.Posts.length < 5) {
+                    hasMorePosts = false;
+                }
+            } else {
+                hasMorePosts = false;
+            }
+            
+            loading = false;
+        })
+        .catch(error => {
+            console.error('Error loading more posts:', error);
+            loading = false;
+        });
+}
+
+// Listen for scroll events
+window.addEventListener('scroll', () => {
+    if (pageLoaded && window.scrollY > 0 && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+        loadMorePosts();
+    }
+});
+
+// Set pageLoaded flag after a short delay to prevent immediate firing
+setTimeout(() => {
+    pageLoaded = true;
+}, 1000);
+</script>
+
+{{template "modern-base-footer" .}}
+{{end}}

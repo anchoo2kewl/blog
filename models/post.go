@@ -45,7 +45,7 @@ type PostService struct {
 func (pp *PostService) GetTopPosts() (*PostsList, error) {
 	list := PostsList{}
 
-	query := `SELECT * FROM posts LIMIT 5`
+	query := `SELECT * FROM posts WHERE is_published = true ORDER BY created_at DESC LIMIT 5`
 	rows, err := pp.DB.Query(query)
 	if err != nil {
 		return &list, nil
@@ -83,7 +83,53 @@ func (pp *PostService) GetTopPosts() (*PostsList, error) {
 	if err != nil {
 		return nil, fmt.Errorf("create post: %w", err)
 	} else {
-		fmt.Println("Posts fetched successfully!")
+		fmt.Printf("Posts fetched successfully! Count: %d\n", len(list.Posts))
+	}
+
+	return &list, nil
+}
+
+func (pp *PostService) GetTopPostsWithPagination(limit int, offset int) (*PostsList, error) {
+	list := PostsList{}
+
+	query := `SELECT * FROM posts WHERE is_published = true ORDER BY created_at DESC LIMIT $1 OFFSET $2`
+	rows, err := pp.DB.Query(query, limit, offset)
+	if err != nil {
+		return &list, nil
+	}
+
+	for rows.Next() {
+		var post Post
+		err := rows.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt)
+		if err != nil {
+			panic(err)
+		}
+
+		// Parse and format CreatedAt
+		t, err := time.Parse(time.RFC3339, post.CreatedAt)
+		if err != nil {
+			fmt.Println(err)
+		}
+		post.CreatedAt = t.Format(time.RFC3339) // Keep original for JavaScript
+		post.PublicationDate = t.Format("January 2, 2006") // Readable fallback
+		
+		// Parse and format PublicationDate if it's different from CreatedAt
+		if post.PublicationDate != "" && post.PublicationDate != post.CreatedAt {
+			pubDate, pubErr := time.Parse(time.RFC3339, post.PublicationDate)
+			if pubErr == nil {
+				post.PublicationDate = pubDate.Format("January 2, 2006")
+			}
+		}
+
+		post.Content = trimContent(post.Content)
+
+		list.Posts = append(list.Posts, post)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("get paginated posts: %w", err)
+	} else {
+		fmt.Printf("Paginated posts fetched successfully! Limit: %d, Offset: %d\n", limit, offset)
 	}
 
 	return &list, nil
