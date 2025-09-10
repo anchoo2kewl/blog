@@ -940,7 +940,17 @@ print_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 # Update system packages
 print_status "Updating system packages..."
 sudo apt-get update -y
-sudo apt-get install -y git nginx certbot python3-certbot-nginx docker.io docker-compose-plugin curl postgresql-client
+sudo apt-get install -y git nginx certbot python3-certbot-nginx curl postgresql-client
+
+# Check if Docker is installed
+if ! command -v docker &> /dev/null; then
+    print_error "Docker is not installed on the server"
+    print_error "Please install Docker first and then run deployment again"
+    print_status "Install Docker with: curl -fsSL https://get.docker.com -o get-docker.sh && sudo sh get-docker.sh"
+    exit 1
+else
+    print_status "Docker is already installed"
+fi
 
 # Add user to docker group
 sudo usermod -aG docker ubuntu
