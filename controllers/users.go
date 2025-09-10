@@ -5,6 +5,7 @@ import (
     "encoding/hex"
     "fmt"
     "io"
+    "log"
     "net/http"
     "os"
     "strconv"
@@ -769,6 +770,8 @@ func (u Users) CreateAPIToken(w http.ResponseWriter, r *http.Request) {
 
 	token, err := u.APITokenService.Create(user.UserID, tokenName, nil)
 	if err != nil {
+		// Log the actual error for debugging
+		log.Printf("Failed to create API token for user %d: %v", user.UserID, err)
 		http.Redirect(w, r, "/api-access?message=Failed to create API token", http.StatusFound)
 		return
 	}

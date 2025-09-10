@@ -1,13 +1,4 @@
-{"level":"info","ts":1757516165.043215,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
-{"level":"info","ts":1757516165.060134,"caller":"blog/db.go:34","msg":"Database connection established!"}
+{"level":"info","ts":1757517559.43654,"caller":"blog/main.go:35","msg":"API Token: secretToken"}
+{"level":"info","ts":1757517559.4734669,"caller":"blog/db.go:34","msg":"Database connection established!"}
 Signups Disabled ...
-{"level":"info","ts":1757516165.0629382,"caller":"blog/main.go:204","msg":"server listening on :22222"}
-Password:  testpass123
-Password Hash:  $2a$10$HUzuInP8CyjIjvBlSP8gw.ZDe3EVNg/kXOJy2VH614rJq1VKi79ly
-2025/09/10 10:56:28 "POST http://localhost:22222/api/users HTTP/1.1" from [::1]:61905 - 500 22B in 53.831458ms
-Password:  testpass123
-Password Hash:  $2a$10$gxY8vR3scDv0DrySN2Td3OK00q404ysXRUo9vVXW.6zLmL1h/iRM.
-2025/09/10 10:56:49 "POST http://localhost:22222/api/users HTTP/1.1" from [::1]:61947 - 200 187B in 55.17025ms
-Password:  testpass123
-Password Hash:  $2a$10$tjAI0rxiNToqIC69RVzkGe7Zfk1QfXaInX.3a.KFz32Q/m07yhUkq
-2025/09/10 10:57:05 "POST http://localhost:22222/api/users HTTP/1.1" from [::1]:61975 - 200 187B in 50.479875ms
+{"level":"info","ts":1757517559.4764328,"caller":"blog/main.go:204","msg":"server listening on :22222"}
