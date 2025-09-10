@@ -169,6 +169,54 @@
                 </div>
             </div>
 
+            <!-- Confirmation Modal -->
+            <div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+                <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full mx-4 shadow-2xl border border-gray-200/50 dark:border-slate-700/50">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div id="modal-icon" class="w-12 h-12 rounded-2xl flex items-center justify-center">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"/>
+                                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 id="modal-title" class="text-xl font-bold text-gray-900 dark:text-white">Confirm Action</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">This action cannot be undone</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-8">
+                        <p id="modal-message" class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                            Are you sure you want to perform this action?
+                        </p>
+                        <div id="token-info" class="hidden mt-4 p-4 bg-gray-50 dark:bg-slate-900/50 rounded-xl border border-gray-200 dark:border-slate-600">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white" id="token-name">Token Name</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">API Token</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button id="modal-cancel-btn" 
+                                class="flex-1 px-6 py-3 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-xl font-medium transition-colors duration-200 border border-gray-200 dark:border-slate-600">
+                            Cancel
+                        </button>
+                        <button id="modal-confirm-btn" 
+                                class="flex-1 px-6 py-3 text-white rounded-xl font-medium transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span id="modal-confirm-text">Confirm</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Right Column: Tokens & Documentation -->
             <div class="lg:col-span-2 space-y-8">
                 <!-- Your API Tokens Card -->
@@ -483,55 +531,153 @@ document.getElementById('create-token-form').addEventListener('submit', function
     });
 });
 
+// Confirmation Modal Functions
+function showConfirmationModal(title, message, actionType, tokenName, onConfirm) {
+    const modal = document.getElementById('confirmation-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMessage = document.getElementById('modal-message');
+    const modalIcon = document.getElementById('modal-icon');
+    const tokenInfo = document.getElementById('token-info');
+    const tokenNameEl = document.getElementById('token-name');
+    const confirmBtn = document.getElementById('modal-confirm-btn');
+    const confirmText = document.getElementById('modal-confirm-text');
+    const cancelBtn = document.getElementById('modal-cancel-btn');
+
+    // Set modal content
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+    tokenNameEl.textContent = tokenName;
+    tokenInfo.classList.remove('hidden');
+
+    // Style the modal based on action type
+    if (actionType === 'delete') {
+        modalIcon.className = 'w-12 h-12 rounded-2xl flex items-center justify-center bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400';
+        modalIcon.innerHTML = `
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"/>
+                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+            </svg>
+        `;
+        confirmBtn.className = 'flex-1 px-6 py-3 text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50 disabled:cursor-not-allowed';
+        confirmText.textContent = 'Delete Token';
+    } else if (actionType === 'revoke') {
+        modalIcon.className = 'w-12 h-12 rounded-2xl flex items-center justify-center bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400';
+        modalIcon.innerHTML = `
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+            </svg>
+        `;
+        confirmBtn.className = 'flex-1 px-6 py-3 text-white bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 disabled:transform-none disabled:opacity-50 disabled:cursor-not-allowed';
+        confirmText.textContent = 'Revoke Token';
+    }
+
+    // Show modal with animation
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.querySelector('div').classList.add('animate-pulse');
+    }, 10);
+
+    // Handle confirm button
+    const handleConfirm = () => {
+        confirmBtn.disabled = true;
+        confirmText.textContent = actionType === 'delete' ? 'Deleting...' : 'Revoking...';
+        onConfirm();
+        cleanup();
+    };
+
+    // Handle cancel button  
+    const handleCancel = () => {
+        cleanup();
+    };
+
+    // Cleanup function
+    const cleanup = () => {
+        modal.classList.add('hidden');
+        confirmBtn.disabled = false;
+        confirmBtn.removeEventListener('click', handleConfirm);
+        cancelBtn.removeEventListener('click', handleCancel);
+        modal.removeEventListener('click', handleOutsideClick);
+        document.removeEventListener('keydown', handleEscape);
+    };
+
+    // Handle clicks outside modal
+    const handleOutsideClick = (e) => {
+        if (e.target === modal) {
+            cleanup();
+        }
+    };
+
+    // Handle Escape key
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            cleanup();
+        }
+    };
+
+    // Add event listeners
+    confirmBtn.addEventListener('click', handleConfirm);
+    cancelBtn.addEventListener('click', handleCancel);
+    modal.addEventListener('click', handleOutsideClick);
+    document.addEventListener('keydown', handleEscape);
+}
+
 // Token action handlers
 function deleteToken(tokenId, tokenName) {
-    if (!confirm(`Are you sure you want to delete the token "${tokenName}"? This action cannot be undone.`)) {
-        return;
-    }
-    
-    fetch(`/api/users/api-tokens/${tokenId}`, {
-        method: 'DELETE'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showMessage(data.message, true);
-            reloadTokenList();
-        } else {
-            showMessage(data.error || 'Failed to delete token', false);
+    showConfirmationModal(
+        'Delete API Token',
+        `Are you sure you want to permanently delete this token? Any applications using this token will lose access immediately.`,
+        'delete',
+        tokenName,
+        () => {
+            fetch(`/api/users/api-tokens/${tokenId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage(data.message, true);
+                    reloadTokenList();
+                } else {
+                    showMessage(data.error || 'Failed to delete token', false);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('Network error occurred', false);
+            });
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showMessage('Network error occurred', false);
-    });
+    );
 }
 
 function revokeToken(tokenId, tokenName) {
-    if (!confirm(`Are you sure you want to revoke the token "${tokenName}"? This action cannot be undone.`)) {
-        return;
-    }
-    
-    const formData = new FormData();
-    formData.append('token_id', tokenId);
-    
-    fetch('/api/users/api-tokens/revoke', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showMessage(data.message, true);
-            reloadTokenList();
-        } else {
-            showMessage(data.error || 'Failed to revoke token', false);
+    showConfirmationModal(
+        'Revoke API Token',
+        `Are you sure you want to revoke this token? The token will be deactivated but can be reactivated later if needed.`,
+        'revoke',
+        tokenName,
+        () => {
+            const formData = new FormData();
+            formData.append('token_id', tokenId);
+            
+            fetch('/api/users/api-tokens/revoke', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage(data.message, true);
+                    reloadTokenList();
+                } else {
+                    showMessage(data.error || 'Failed to revoke token', false);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('Network error occurred', false);
+            });
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showMessage('Network error occurred', false);
-    });
+    );
 }
 </script>
 
