@@ -166,6 +166,12 @@ func main() {
 	r.Post("/users/api-tokens", usersC.CreateAPIToken)
 	r.Post("/users/api-tokens/revoke", usersC.RevokeAPIToken)
 	r.Post("/users/api-tokens/delete", usersC.DeleteAPIToken)
+	
+	// JSON API endpoints for AJAX operations
+	r.Post("/api/users/api-tokens", usersC.CreateAPITokenJSON)
+	r.Post("/api/users/api-tokens/revoke", usersC.RevokeAPITokenJSON)
+	r.Delete("/api/users/api-tokens/{token_id}", usersC.DeleteAPITokenJSON)
+	r.Get("/api/users/api-tokens", usersC.GetAPITokensJSON)
 	r.Get("/users/logout", usersC.Logout)
 	
 	// Logout redirect route for convenience

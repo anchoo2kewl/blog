@@ -829,3 +829,121 @@ func (u Users) DeleteAPIToken(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/api-access?message=Token deleted successfully", http.StatusFound)
 }
+
+// JSON API endpoints for AJAX operations
+
+// GetAPITokensJSON returns user's API tokens as JSON
+func (u Users) GetAPITokensJSON(w http.ResponseWriter, r *http.Request) {
+	user, err := u.isUserLoggedIn(r)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Unauthorized"})
+		return
+	}
+
+	tokens, err := u.APITokenService.GetByUser(user.UserID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to fetch API tokens"})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"tokens": tokens,
+	})
+}
+
+// CreateAPITokenJSON creates an API token and returns JSON response
+func (u Users) CreateAPITokenJSON(w http.ResponseWriter, r *http.Request) {
+	user, err := u.isUserLoggedIn(r)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Unauthorized"})
+		return
+	}
+
+	tokenName := r.FormValue("name")
+	if tokenName == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Token name is required"})
+		return
+	}
+
+	token, err := u.APITokenService.Create(user.UserID, tokenName, nil)
+	if err != nil {
+		log.Printf("Failed to create API token for user %d: %v", user.UserID, err)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to create API token"})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"message": "Token created successfully",
+		"token":   token,
+	})
+}
+
+// RevokeAPITokenJSON revokes an API token and returns JSON response  
+func (u Users) RevokeAPITokenJSON(w http.ResponseWriter, r *http.Request) {
+	user, err := u.isUserLoggedIn(r)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Unauthorized"})
+		return
+	}
+
+	tokenIDStr := r.FormValue("token_id")
+	tokenID, err := strconv.Atoi(tokenIDStr)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid token ID"})
+		return
+	}
+
+	err = u.APITokenService.Revoke(tokenID, user.UserID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to revoke token"})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"message": "Token revoked successfully",
+	})
+}
+
+// DeleteAPITokenJSON deletes an API token and returns JSON response
+func (u Users) DeleteAPITokenJSON(w http.ResponseWriter, r *http.Request) {
+	user, err := u.isUserLoggedIn(r)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Unauthorized"})
+		return
+	}
+
+	tokenIDStr := chi.URLParam(r, "token_id")
+	tokenID, err := strconv.Atoi(tokenIDStr)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid token ID"})
+		return
+	}
+
+	err = u.APITokenService.Delete(tokenID, user.UserID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to delete token"})
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"message": "Token deleted successfully",
+	})
+}
