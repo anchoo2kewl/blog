@@ -1073,10 +1073,45 @@ if [ -d "migrations" ]; then
     print_status "Running database migrations..."
     # Install golang-migrate if not present
     if ! command -v migrate &> /dev/null; then
-        curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/migrate.linux-amd64.tar.gz | tar xvz
+        # Detect architecture for migrate binary
+        ARCH=$(uname -m)
+        if [ "$ARCH" = "aarch64" ]; then
+            MIGRATE_ARCH="arm64"
+        elif [ "$ARCH" = "x86_64" ]; then
+            MIGRATE_ARCH="amd64"
+        else
+            print_error "Unsupported architecture for migrate: $ARCH"
+            exit 1
+        fi
+        
+        print_status "Installing golang-migrate for $MIGRATE_ARCH..."
+        curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/migrate.linux-${MIGRATE_ARCH}.tar.gz | tar xvz
         sudo mv migrate /usr/local/bin/
+        sudo chmod +x /usr/local/bin/migrate
     fi
-    migrate -source file://migrations -database "postgresql://blog:secureprodpassword123@localhost:5432/blog?sslmode=disable" up || true
+    
+    print_status "Executing database migrations..."
+    migrate -source file://migrations -database "postgresql://blog:secureprodpassword123@localhost:5432/blog?sslmode=disable" up
+    
+    if [ $? -eq 0 ]; then
+        print_status "Database migrations completed successfully"
+        
+        # Insert default roles
+        print_status "Seeding default roles..."
+        docker exec blog-postgres psql -U blog -d blog -c "
+        INSERT INTO roles (role_name) VALUES 
+        ('Commenter'),
+        ('Administrator'), 
+        ('Editor'),
+        ('Viewer')
+        ON CONFLICT DO NOTHING;" || print_warning "Role seeding failed but continuing..."
+        
+    else
+        print_error "Database migrations failed"
+        exit 1
+    fi
+else
+    print_warning "No migrations directory found, skipping migrations"
 fi
 
 # Stop existing blog service
