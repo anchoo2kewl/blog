@@ -925,7 +925,7 @@ set -e
 
 DEPLOY_PATH="/home/ubuntu/projects/blog"
 DOMAIN="anshumanbiswas.com"
-REPO_URL="https://github.com/anshumanbiswas/blog.git"
+REPO_URL="git@github.com:anchoo2kewl/blog.git"
 
 # Colors
 GREEN='\033[0;32m'
