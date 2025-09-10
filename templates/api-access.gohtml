@@ -155,13 +155,6 @@
                                 </div>
                                 <div class="flex-1">
                                     <p id="ajax-message-text" class="font-medium"></p>
-                                    <div id="new-token-display" class="hidden mt-4 p-4 bg-gray-900 dark:bg-gray-800 rounded-xl border">
-                                        <p class="text-sm font-medium text-gray-200 mb-2">Your new API token (copy it now, it won't be shown again). This message will auto-hide in 30 seconds:</p>
-                                        <div class="flex items-center space-x-3">
-                                            <code id="new-token-value" class="flex-1 px-3 py-2 bg-gray-800 dark:bg-gray-700 text-green-400 rounded-lg font-mono text-sm break-all"></code>
-                                            <button id="copy-new-token-btn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors duration-200">Copy</button>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div class="flex-shrink-0">
                                     <button id="dismiss-message-btn" onclick="dismissMessage()" class="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200">
@@ -420,6 +413,55 @@
                     </div>
                 </div>
             </div>
+
+            <!-- New Token Display Modal -->
+            <div id="new-token-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+                <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-lg w-full mx-4 shadow-2xl border border-gray-200/50 dark:border-slate-700/50">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-800 rounded-2xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">API Token Created Successfully!</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Your new token is ready to use</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/50 rounded-xl p-4 mb-6">
+                        <div class="flex items-start space-x-3">
+                            <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-yellow-800 dark:text-yellow-300">Important: Copy this token now!</p>
+                                <p class="text-xs text-yellow-700 dark:text-yellow-400 mt-1">This token will never be shown again for security reasons.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Your API Token:</label>
+                        <div class="flex items-center space-x-3">
+                            <code id="modal-new-token-value" class="flex-1 px-4 py-3 bg-gray-900 dark:bg-gray-800 text-green-400 rounded-xl font-mono text-sm break-all border border-gray-300 dark:border-gray-600"></code>
+                            <button id="modal-copy-token-btn" class="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium text-sm transition-colors duration-200 flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
+                                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
+                                </svg>
+                                <span>Copy</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3">
+                        <button id="close-token-modal-btn" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-300 rounded-xl font-medium transition-colors duration-200">
+                            I've copied the token
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -453,13 +495,16 @@ function copyToClipboard(text) {
 }
 
 function showMessage(message, isSuccess, token = null) {
+    // If token is provided, show it in the modal instead of inline
+    if (token && isSuccess) {
+        showNewTokenModal(token);
+        return;
+    }
+    
     const messageDiv = document.getElementById('ajax-message');
     const messageContent = document.getElementById('ajax-message-content');
     const messageIcon = document.getElementById('ajax-message-icon');
     const messageText = document.getElementById('ajax-message-text');
-    const newTokenDisplay = document.getElementById('new-token-display');
-    const newTokenValue = document.getElementById('new-token-value');
-    const copyBtn = document.getElementById('copy-new-token-btn');
 
     // Update message content
     messageText.textContent = message;
@@ -473,23 +518,13 @@ function showMessage(message, isSuccess, token = null) {
         messageIcon.innerHTML = '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>';
     }
 
-    // Show token if provided
-    if (token && isSuccess) {
-        newTokenValue.textContent = token;
-        newTokenDisplay.classList.remove('hidden');
-        copyBtn.onclick = () => copyToClipboard(token);
-    } else {
-        newTokenDisplay.classList.add('hidden');
-    }
-
     // Show message
     messageDiv.classList.remove('hidden');
 
-    // Auto-hide after 5 seconds
+    // Auto-hide after 5 seconds for regular messages
     setTimeout(() => {
         messageDiv.classList.add('hidden');
-        newTokenDisplay.classList.add('hidden');
-    }, 30000);
+    }, 5000);
 }
 
 function reloadTokenList() {
@@ -501,9 +536,47 @@ function reloadTokenList() {
 
 function dismissMessage() {
     const messageDiv = document.getElementById('ajax-message');
-    const newTokenDisplay = document.getElementById('new-token-display');
     messageDiv.classList.add('hidden');
-    newTokenDisplay.classList.add('hidden');
+}
+
+function showNewTokenModal(token) {
+    const modal = document.getElementById('new-token-modal');
+    const tokenValue = document.getElementById('modal-new-token-value');
+    const copyBtn = document.getElementById('modal-copy-token-btn');
+    const closeBtn = document.getElementById('close-token-modal-btn');
+    
+    // Set token value
+    tokenValue.textContent = token;
+    
+    // Show modal
+    modal.classList.remove('hidden');
+    
+    // Set up event handlers
+    copyBtn.onclick = () => copyToClipboard(token);
+    
+    closeBtn.onclick = () => {
+        modal.classList.add('hidden');
+        // Reload the token list to show the newly created token in the table
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    };
+    
+    // Close on escape key
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            closeBtn.click();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+    
+    // Close on backdrop click
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            closeBtn.click();
+        }
+    };
 }
 
 // Create token form handler
