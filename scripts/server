@@ -86,7 +86,7 @@ show_help() {
     echo "  db-categories          Show all categories"
     echo ""
     echo -e "${YELLOW}API Commands:${NC}"
-    echo "  add-user <email> <username> <password> [role_id]   Add new user"
+    echo "  add-user <email> <username> <password> [role_name] Add new user (role: admin, editor, commenter, viewer)"
     echo "  add-post <title> <content> [user_id] [category_id] Add new post"
     echo "  toggle-signup          Enable/disable user signups"
     echo "  api-test               Test API endpoints"
@@ -623,10 +623,11 @@ add_user() {
     local email="$1"
     local username="$2"
     local password="$3"
-    local role_id="${4:-1}"
+    local role_name="${4:-commenter}"
     
     if [ -z "$email" ] || [ -z "$username" ] || [ -z "$password" ]; then
-        print_error "Usage: add_user <email> <username> <password> [role_id]"
+        print_error "Usage: add_user <email> <username> <password> [role_name]"
+        print_error "Available roles: admin, administrator, editor, commenter, viewer"
         return 1
     fi
     
@@ -637,13 +638,46 @@ add_user() {
         return 1
     fi
     
-    print_status "Adding user: $username ($email)"
+    # Resolve role name to role ID
+    local role_id
+    # Convert to lowercase using tr
+    local role_lower=$(echo "$role_name" | tr '[:upper:]' '[:lower:]')
+    case "$role_lower" in
+        "admin"|"administrator")
+            role_id=2
+            ;;
+        "editor")
+            role_id=3
+            ;;
+        "commenter")
+            role_id=1
+            ;;
+        "viewer")
+            role_id=4
+            ;;
+        [0-9]*)
+            role_id="$role_name"  # If numeric, use as-is for backward compatibility
+            ;;
+        *)
+            print_error "Invalid role: $role_name"
+            print_error "Available roles: admin, administrator, editor, commenter, viewer"
+            return 1
+            ;;
+    esac
     
-    curl -X POST \
+    print_status "Adding user: $username ($email) with role: $role_name (ID: $role_id)"
+    
+    local response=$(curl -s -X POST \
         -H "Content-Type: application/json" \
         -H "Authorization: Bearer $API_TOKEN" \
         -d "{\"email\":\"$email\",\"username\":\"$username\",\"password\":\"$password\",\"role\":$role_id}" \
-        "http://localhost:$BLOG_PORT/api/users" | jq '.' || echo ""
+        "http://localhost:$BLOG_PORT/api/users")
+    
+    if echo "$response" | jq . >/dev/null 2>&1; then
+        echo "$response" | jq .
+    else
+        echo "Response: $response"
+    fi
 }
 
 add_post() {
