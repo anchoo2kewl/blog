@@ -108,7 +108,8 @@ show_help() {
     echo "  test-all               Run Go + Playwright tests"
     echo ""
     echo -e "${YELLOW}Deployment Commands:${NC}"
-    echo "  deploy                 Deploy to production server (ubuntu@anshumanbiswas.com)"
+    echo "  deploy [commit_msg]    Deploy to production server (ubuntu@anshumanbiswas.com)"
+    echo "                         Optional commit message for uncommitted changes"
     echo ""
     echo -e "${YELLOW}Examples:${NC}"
     echo "  $0 start --force                                    # Force start all services"
@@ -121,6 +122,7 @@ show_help() {
     echo "  $0 db \"SELECT * FROM users LIMIT 5;\"             # Execute SQL query"
     echo "  $0 logs blog                                        # Show blog logs"
     echo "  $0 tail db 100                                      # Tail database logs"
+    echo "  $0 deploy \"fix: resolve authentication bug\"       # Deploy with custom commit message"
 }
 
 # Function to load environment variables
@@ -1062,13 +1064,21 @@ deploy_to_production() {
     local SERVER="ubuntu@anshumanbiswas.com"
     local DEPLOY_PATH="/home/ubuntu/projects/blog"
     local DOMAIN="anshumanbiswas.com"
+    local commit_message="${1:-Deploy: automated commit before deployment}"
     
-    # Verify git status
+    # Check if there are changes to commit
     print_status "Checking git status..."
     if [ -n "$(git status --porcelain)" ]; then
-        print_error "Working directory not clean. Please commit or stash changes first."
-        git status --short
-        return 1
+        print_status "Changes detected, committing all changes..."
+        git add .
+        git commit -m "$commit_message
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>" || {
+            print_error "Failed to commit changes"
+            return 1
+        }
     fi
     
     # Push to remote
@@ -1110,19 +1120,8 @@ print_status "Updating system packages..."
 sudo apt-get update -y
 sudo apt-get install -y git nginx certbot python3-certbot-nginx curl postgresql-client
 
-# Check if Docker is installed
-if ! command -v docker &> /dev/null; then
-    print_error "Docker is not installed on the server"
-    print_error "Please install Docker first and then run deployment again"
-    print_status "Install Docker with: curl -fsSL https://get.docker.com -o get-docker.sh && sudo sh get-docker.sh"
-    exit 1
-else
-    print_status "Docker is already installed"
-fi
-
-# Add user to docker group
+# Add user to docker group if not already in it
 sudo usermod -aG docker ubuntu
-newgrp docker || true
 
 # Create project directory
 print_status "Setting up project directory..."
@@ -1134,10 +1133,13 @@ if [ -d "$DEPLOY_PATH" ]; then
     cd "$DEPLOY_PATH"
     git fetch origin
     git reset --hard origin/main
+    git clean -fd
+    print_status "Repository updated to latest main branch"
 else
     print_status "Cloning repository..."
     git clone "$REPO_URL" "$DEPLOY_PATH"
     cd "$DEPLOY_PATH"
+    print_status "Repository cloned successfully"
 fi
 
 # Create production .env file
@@ -1481,7 +1483,8 @@ case ${1:-help} in
         create_demo_post "$@"
         ;;
     deploy)
-        deploy_to_production
+        shift
+        deploy_to_production "$*"
         ;;
     health)
         check_health
