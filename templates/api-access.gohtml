@@ -156,12 +156,19 @@
                                 <div class="flex-1">
                                     <p id="ajax-message-text" class="font-medium"></p>
                                     <div id="new-token-display" class="hidden mt-4 p-4 bg-gray-900 dark:bg-gray-800 rounded-xl border">
-                                        <p class="text-sm font-medium text-gray-200 mb-2">Your new API token (copy it now, it won't be shown again):</p>
+                                        <p class="text-sm font-medium text-gray-200 mb-2">Your new API token (copy it now, it won't be shown again). This message will auto-hide in 30 seconds:</p>
                                         <div class="flex items-center space-x-3">
                                             <code id="new-token-value" class="flex-1 px-3 py-2 bg-gray-800 dark:bg-gray-700 text-green-400 rounded-lg font-mono text-sm break-all"></code>
                                             <button id="copy-new-token-btn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors duration-200">Copy</button>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <button id="dismiss-message-btn" onclick="dismissMessage()" class="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors duration-200">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -482,7 +489,7 @@ function showMessage(message, isSuccess, token = null) {
     setTimeout(() => {
         messageDiv.classList.add('hidden');
         newTokenDisplay.classList.add('hidden');
-    }, 10000);
+    }, 30000);
 }
 
 function reloadTokenList() {
@@ -490,6 +497,13 @@ function reloadTokenList() {
     setTimeout(() => {
         window.location.reload();
     }, 2000);
+}
+
+function dismissMessage() {
+    const messageDiv = document.getElementById('ajax-message');
+    const newTokenDisplay = document.getElementById('new-token-display');
+    messageDiv.classList.add('hidden');
+    newTokenDisplay.classList.add('hidden');
 }
 
 // Create token form handler
