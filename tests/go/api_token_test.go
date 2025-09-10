@@ -3,6 +3,7 @@ package gotests
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"testing"
 
 	"anshumanbiswas.com/blog/models"
@@ -10,12 +11,27 @@ import (
 )
 
 func setupTestDB() (*sql.DB, error) {
-	// Use hardcoded test database credentials (matching local dev setup)
-	dbHost := "127.0.0.1"
-	dbPort := "5433" // Local dev port
-	dbUser := "blog"
-	dbPassword := "1234" // Local dev password from .env
-	dbName := "blog"
+	// Read environment variables (same as main app)
+	dbHost := os.Getenv("PG_HOST")
+	if dbHost == "" {
+		dbHost = "127.0.0.1"
+	}
+	dbPort := os.Getenv("PG_PORT")
+	if dbPort == "" {
+		dbPort = "5433"
+	}
+	dbUser := os.Getenv("PG_USER")
+	if dbUser == "" {
+		dbUser = "blog"
+	}
+	dbPassword := os.Getenv("PG_PASSWORD")
+	if dbPassword == "" {
+		dbPassword = "1234" // fallback for tests
+	}
+	dbName := os.Getenv("PG_DB")
+	if dbName == "" {
+		dbName = "blog"
+	}
 
 	// Connect to database
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", dbHost, dbPort, dbUser, dbPassword, dbName)
