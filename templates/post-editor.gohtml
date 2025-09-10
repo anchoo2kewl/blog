@@ -8,8 +8,8 @@
 
   <form method="POST" action="{{if eq .Mode "edit"}}/admin/posts/{{.Post.ID}}{{else}}/admin/posts{{end}}" onsubmit="syncEditor()">
     {{csrfField}}
-    <div class="grid md:grid-cols-3 gap-6">
-      <div class="md:col-span-2 space-y-4">
+    <div class="editor-layout" style="display: flex !important; flex-direction: column !important; gap: 1.5rem !important; width: 100% !important;">
+      <div class="editor-main" style="flex: 1 !important; display: flex !important; flex-direction: column !important; gap: 1rem !important; width: 100% !important; order: 1 !important;">
         <input type="text" name="title" placeholder="Title" class="form-input w-full" value="{{.Post.Title}}" required />
 
         <div class="editor-toolbar">
@@ -42,6 +42,18 @@
           <button type="button" class="btn" id="insert-more">More</button>
           <input type="file" id="inline-upload" accept="image/*" style="display:none" />
           <button type="button" class="btn btn-secondary" id="upload-inline-btn">Upload Inline</button>
+          <input type="file" id="multi-upload" accept="image/*" multiple style="display:none" />
+          <div class="upload-drop-zone" id="multi-upload-zone">
+            <div class="upload-drop-content">
+              <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+              </svg>
+              <div class="upload-text">
+                <div class="upload-title">Drop images here or <button type="button" class="upload-link" onclick="document.getElementById('multi-upload').click()">browse</button></div>
+                <div class="upload-subtitle">Support for multiple JPG, PNG, GIF files</div>
+              </div>
+            </div>
+          </div>
         </div>
 
           <div class="segmented">
@@ -60,13 +72,27 @@
         <textarea name="content" id="content-field" class="hidden"></textarea>
       </div>
 
-      <div class="space-y-4 side-panel">
+      <div class="editor-sidebar" style="display: flex !important; flex-direction: column !important; gap: 1rem !important; background: #f9fafb !important; padding: 1.5rem !important; border-radius: 0.75rem !important; border: 1px solid #e5e7eb !important; box-sizing: border-box !important; order: 2 !important; width: 100% !important;">
         <input type="text" name="slug" placeholder="Slug (optional)" class="form-input w-full" value="{{.Post.Slug}}" />
         <div class="space-y-2">
           <input type="text" name="featured_image_url" id="featured-url" placeholder="Featured Image URL" class="form-input w-full" value="{{.Post.FeaturedImageURL}}" />
-          <div class="flex items-center gap-3 upload-row">
-            <input type="file" id="cover-upload" accept="image/*" />
-            <button type="button" id="upload-cover-btn" class="btn btn-secondary">Upload Cover</button>
+          <div class="cover-upload-section">
+            <div class="current-cover-preview" id="current-cover-preview" style="{{if not .Post.FeaturedImageURL}}display:none{{end}}">
+              <img id="current-cover-img" src="{{.Post.FeaturedImageURL}}" alt="Current cover" />
+              <button type="button" id="remove-cover-btn" class="remove-cover-btn">&times;</button>
+            </div>
+            <div class="cover-upload-controls">
+              <input type="file" id="cover-upload" accept="image/*" style="display:none" />
+              <div class="cover-drop-zone" id="cover-upload-zone">
+                <div class="cover-drop-content">
+                  <svg class="upload-icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                  <div class="cover-upload-text">Drop cover image or <button type="button" class="upload-link" onclick="document.getElementById('cover-upload').click()">browse</button></div>
+                </div>
+              </div>
+              <button type="button" id="choose-existing-cover-btn" class="btn btn-secondary">Choose Existing</button>
+            </div>
           </div>
         </div>
         <!-- Category Selection -->
@@ -100,7 +126,135 @@
 </section>
 
 <style>
-.editor-container { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+/* CRITICAL: Reset and force the editor layout with maximum specificity */
+section.editor-container { 
+  max-width: 1200px !important; 
+  margin: 0 auto !important; 
+  padding: 1.5rem !important; 
+  box-sizing: border-box !important;
+}
+
+/* FORCE flexbox layout - use maximum specificity */
+section.editor-container div.editor-layout {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1.5rem !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  max-width: none !important;
+  position: relative !important;
+  /* Kill any grid or other layout */
+  grid-template-columns: none !important;
+  grid-template-rows: none !important;
+}
+
+section.editor-container div.editor-layout div.editor-main {
+  flex: 1 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+  width: 100% !important;
+  order: 1 !important;
+  position: relative !important;
+  /* Ensure it doesn't float */
+  float: none !important;
+  clear: both !important;
+}
+
+section.editor-container div.editor-layout div.editor-sidebar {
+  flex-shrink: 0 !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+  background: #f9fafb !important;
+  padding: 1.5rem !important;
+  border-radius: 0.75rem !important;
+  border: 1px solid #e5e7eb !important;
+  order: 2 !important;
+  box-sizing: border-box !important;
+  /* Ensure it doesn't float */
+  float: none !important;
+  clear: both !important;
+  position: relative !important;
+}
+
+.dark section.editor-container div.editor-layout div.editor-sidebar {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+/* DESKTOP LAYOUT - Override inline styles for desktop */
+@media screen and (min-width: 768px) {
+  /* Layout container */
+  div.editor-layout[style] {
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    flex-wrap: nowrap !important;
+  }
+  
+  /* Main section */  
+  div.editor-main[style] {
+    flex: 2 1 0% !important;
+    min-width: 0 !important;
+    width: auto !important;
+    max-width: calc(100% - 340px) !important;
+    order: 1 !important;
+    margin-right: 1.5rem !important;
+  }
+  
+  /* Sidebar - force fixed width and sticky positioning - EXTREME SPECIFICITY */
+  div.editor-sidebar[style*="display: flex"] {
+    flex: 0 0 320px !important;
+    flex-basis: 320px !important;
+    flex-grow: 0 !important;
+    flex-shrink: 0 !important;
+    width: 320px !important;
+    min-width: 320px !important;
+    max-width: 320px !important;
+    position: sticky !important;
+    top: 1rem !important;
+    max-height: calc(100vh - 2rem) !important;
+    overflow-y: auto !important;
+    order: 2 !important;
+    align-self: flex-start !important;
+    margin-left: 0 !important;
+  }
+  
+  /* Alternative - use class + attribute selector */
+  .editor-sidebar[style] {
+    flex: 0 0 320px !important;
+    width: 320px !important;
+    position: sticky !important;
+    top: 1rem !important;
+  }
+}
+
+/* Nuclear option: Kill any classes that might interfere */
+section.editor-container div.editor-layout {
+  /* Override Tailwind grid classes */
+  grid-template-columns: unset !important;
+  grid-template-rows: unset !important;
+  grid-column: unset !important;
+  grid-row: unset !important;
+  /* Override positioning */
+  position: relative !important;
+  /* Force flexbox */
+  display: flex !important;
+}
+
+/* Ensure WYSIWYG content doesn't break the flex container */
+section.editor-container div.editor-layout div.editor-main div.wysiwyg {
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  /* Prevent content from causing overflow */
+  overflow-x: hidden !important;
+  contain: layout !important;
+}
 .form-input { border: 1px solid #e5e7eb; border-radius: .5rem; padding: .6rem .8rem; background: #fff; color: #111827; }
 .dark .form-input { background: #111827; color: #e5e7eb; border-color: #374151; }
 .editor-toolbar { position: sticky; top: 0; z-index: 10; display:flex; align-items:center; justify-content:space-between; gap:.75rem; flex-wrap:wrap; background:#f8fafc; border:1px solid #e5e7eb; border-radius:.75rem; padding:.5rem .75rem; }
@@ -148,6 +302,113 @@
 </style>
 
 <script>
+// CRITICAL: Force layout fix with JavaScript as last resort
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Forcing layout fix...');
+  
+  const layout = document.querySelector('.editor-layout');
+  const main = document.querySelector('.editor-main');
+  const sidebar = document.querySelector('.editor-sidebar');
+  
+  if (layout && main && sidebar) {
+    // Force the layout styles with JavaScript
+    function forceLayout() {
+      // Desktop media query
+      if (window.innerWidth >= 768) {
+        layout.style.cssText = `
+          display: flex !important;
+          flex-direction: row !important;
+          align-items: flex-start !important;
+          flex-wrap: nowrap !important;
+          width: 100% !important;
+          gap: 1.5rem !important;
+        `;
+        
+        main.style.cssText = `
+          flex: 2 1 0% !important;
+          min-width: 0 !important;
+          width: auto !important;
+          order: 1 !important;
+          position: relative !important;
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 1rem !important;
+        `;
+        
+        sidebar.style.cssText = `
+          flex: 0 0 320px !important;
+          width: 320px !important;
+          min-width: 320px !important;
+          max-width: 320px !important;
+          position: sticky !important;
+          top: 1rem !important;
+          max-height: calc(100vh - 2rem) !important;
+          overflow-y: auto !important;
+          order: 2 !important;
+          align-self: flex-start !important;
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 1rem !important;
+          background: #f9fafb !important;
+          padding: 1.5rem !important;
+          border-radius: 0.75rem !important;
+          border: 1px solid #e5e7eb !important;
+          box-sizing: border-box !important;
+        `;
+        
+        console.log('Layout forced for desktop');
+      } else {
+        // Mobile layout
+        layout.style.cssText = `
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 1.5rem !important;
+          width: 100% !important;
+        `;
+        
+        main.style.cssText = `
+          flex: 1 !important;
+          width: 100% !important;
+          order: 1 !important;
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 1rem !important;
+        `;
+        
+        sidebar.style.cssText = `
+          width: 100% !important;
+          order: 2 !important;
+          position: relative !important;
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 1rem !important;
+          background: #f9fafb !important;
+          padding: 1.5rem !important;
+          border-radius: 0.75rem !important;
+          border: 1px solid #e5e7eb !important;
+          box-sizing: border-box !important;
+        `;
+        
+        console.log('Layout forced for mobile');
+      }
+    }
+    
+    // Apply layout immediately
+    forceLayout();
+    
+    // Reapply on window resize
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(forceLayout, 100);
+    });
+    
+    // Reapply periodically to catch any overrides
+    setTimeout(forceLayout, 1000);
+    setTimeout(forceLayout, 2000);
+  }
+});
+
 function exec(cmd, value) { const e=document.getElementById('editor'); e.focus(); document.execCommand(cmd, false, value || null); }
 document.querySelectorAll('.editor-toolbar button[data-cmd]').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -206,15 +467,149 @@ sizeInput.addEventListener('change', () => {
 });
 document.getElementById('insert-hr').addEventListener('click', () => document.execCommand('insertHorizontalRule'));
 document.getElementById('clear-color').addEventListener('click', () => exec('removeFormat'));
-document.getElementById('upload-cover-btn').addEventListener('click', async () => {
-  const f = document.getElementById('cover-upload').files[0];
-  if (!f) return alert('Choose a file');
-  const fd = new FormData(); fd.append('file', f);
+
+// Modern cover image upload functionality
+document.getElementById('upload-new-cover-btn').addEventListener('click', () => {
+  document.getElementById('cover-upload').click();
+});
+
+document.getElementById('cover-upload').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const formData = new FormData();
+  formData.append('file', file);
+  
   const slug = currentSlugFromInputs();
-  const res = await fetch('/admin/uploads' + (slug? ('?slug=' + encodeURIComponent(slug)) : ''), { method:'POST', body:fd });
-  if (!res.ok) { alert('Upload failed'); return; }
-  const j = await res.json();
-  document.getElementById('featured-url').value = j.url;
+  const uploadUrl = '/admin/uploads' + (slug ? '?slug=' + encodeURIComponent(slug) : '');
+  
+  try {
+    const response = await fetch(uploadUrl, {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (!response.ok) throw new Error('Upload failed');
+    
+    const result = await response.json();
+    setCoverImage(result.url);
+  } catch (error) {
+    alert('Upload failed: ' + error.message);
+  }
+  
+  e.target.value = ''; // Reset file input
+});
+
+  // Cover image drag and drop functionality
+  const coverUploadZone = document.getElementById('cover-upload-zone');
+  const coverUpload = document.getElementById('cover-upload');
+  
+  if (coverUploadZone && coverUpload) {
+    // Drag and drop event handlers for cover image
+    coverUploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      coverUploadZone.classList.add('drag-over');
+    });
+    
+    coverUploadZone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      coverUploadZone.classList.remove('drag-over');
+    });
+    
+    coverUploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      coverUploadZone.classList.remove('drag-over');
+      
+      const files = Array.from(e.dataTransfer.files).filter(file => 
+        file.type.startsWith('image/')
+      );
+      
+      if (files.length > 0) {
+        // Use only the first image for cover
+        const dt = new DataTransfer();
+        dt.items.add(files[0]);
+        coverUpload.files = dt.files;
+        
+        // Trigger the change event
+        coverUpload.dispatchEvent(new Event('change'));
+      }
+    });
+    
+    // Click handler for the drop zone
+    coverUploadZone.addEventListener('click', (e) => {
+      if (e.target.classList.contains('upload-link')) return; // Let the button handle it
+      coverUpload.click();
+    });
+  }
+
+  // Cover image functionality
+  const chooseExistingCoverBtn = document.getElementById('choose-existing-cover-btn');
+  if (chooseExistingCoverBtn) {
+    chooseExistingCoverBtn.addEventListener('click', async () => {
+  const modal = document.getElementById('existing-images-modal');
+  const container = document.getElementById('existing-images-container');
+  
+  // Load existing images
+  const slug = currentSlugFromInputs();
+  const listUrl = '/admin/uploads/list' + (slug ? '?slug=' + encodeURIComponent(slug) : '');
+  
+  try {
+    const response = await fetch(listUrl);
+    if (!response.ok) throw new Error('Failed to load images');
+    
+    const result = await response.json();
+    
+    if (result.images && result.images.length > 0) {
+      container.innerHTML = result.images.map((img, index) => `
+        <div class="existing-image-item" data-url="${img.url}">
+          <img src="${img.url}" alt="${img.filename}" />
+          <div class="image-info">
+            <div class="filename">${img.filename}</div>
+            <div class="filesize">${(img.size / 1024).toFixed(1)} KB</div>
+          </div>
+        </div>
+      `).join('');
+      
+      // Add click handlers for image selection
+      container.querySelectorAll('.existing-image-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const url = item.getAttribute('data-url');
+          setCoverImage(url);
+          modal.classList.add('hidden');
+        });
+      });
+    } else {
+      container.innerHTML = '<div class="no-images">No images found. Upload some images first.</div>';
+    }
+    
+    modal.classList.remove('hidden');
+  } catch (error) {
+    alert('Failed to load existing images: ' + error.message);
+  }
+});
+
+document.getElementById('remove-cover-btn').addEventListener('click', () => {
+  setCoverImage('');
+});
+
+function setCoverImage(url) {
+  const urlInput = document.getElementById('featured-url');
+  const preview = document.getElementById('current-cover-preview');
+  const img = document.getElementById('current-cover-img');
+  
+  urlInput.value = url;
+  
+  if (url) {
+    img.src = url;
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
+// Close existing images modal
+document.getElementById('close-existing-modal').addEventListener('click', () => {
+  document.getElementById('existing-images-modal').classList.add('hidden');
 });
 document.getElementById('insert-code').addEventListener('click', () => {
   const lang = prompt('Language (optional, e.g. css, js, go)') || '';
@@ -299,7 +694,554 @@ function enhanceArticle(root){
     heading.id = id;
   });
 }
+
+// Multi-image upload functionality
+document.addEventListener('DOMContentLoaded', function() {
+  // Drag and drop functionality for multi-upload
+  const multiUploadZone = document.getElementById('multi-upload-zone');
+  const multiUpload = document.getElementById('multi-upload');
+  
+  if (multiUploadZone && multiUpload) {
+    // Drag and drop event handlers
+    multiUploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      multiUploadZone.classList.add('drag-over');
+    });
+    
+    multiUploadZone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      multiUploadZone.classList.remove('drag-over');
+    });
+    
+    multiUploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      multiUploadZone.classList.remove('drag-over');
+      
+      const files = Array.from(e.dataTransfer.files).filter(file => 
+        file.type.startsWith('image/')
+      );
+      
+      if (files.length > 0) {
+        // Simulate file input selection
+        const dt = new DataTransfer();
+        files.forEach(file => dt.items.add(file));
+        multiUpload.files = dt.files;
+        
+        // Trigger the change event
+        multiUpload.dispatchEvent(new Event('change'));
+      }
+    });
+    
+    // Click handler for the drop zone
+    multiUploadZone.addEventListener('click', (e) => {
+      if (e.target.classList.contains('upload-link')) return; // Let the button handle it
+      multiUpload.click();
+    });
+  }
+
+  // Multi-upload file change handler
+  if (multiUpload) {
+    multiUpload.addEventListener('change', async (e) => {
+      console.log('File selection changed'); // Debug log
+      const files = Array.from(e.target.files);
+      if (files.length === 0) return;
+      
+      const modal = document.getElementById('multi-upload-modal');
+      const container = document.getElementById('upload-preview-container');
+      const progressBar = document.getElementById('upload-progress');
+  
+  // Clear previous previews
+  container.innerHTML = '';
+  progressBar.style.width = '0%';
+  modal.classList.remove('hidden');
+  
+  // Show file previews
+  files.forEach((file, index) => {
+    const preview = document.createElement('div');
+    preview.className = 'upload-preview-item';
+    
+    const img = document.createElement('img');
+    img.className = 'preview-image';
+    img.src = URL.createObjectURL(file);
+    
+    const info = document.createElement('div');
+    info.className = 'preview-info';
+    info.innerHTML = `
+      <div class="filename">${file.name}</div>
+      <div class="filesize">${(file.size / 1024).toFixed(1)} KB</div>
+      <div class="status" id="status-${index}">Ready</div>
+    `;
+    
+    preview.appendChild(img);
+    preview.appendChild(info);
+    container.appendChild(preview);
+  });
+  
+  // Upload files
+  const formData = new FormData();
+  files.forEach(file => formData.append('files', file));
+  
+  const slug = currentSlugFromInputs();
+  const uploadUrl = '/admin/uploads/multiple' + (slug ? '?slug=' + encodeURIComponent(slug) : '');
+  
+  try {
+    console.log('Starting upload to:', uploadUrl);
+    console.log('Files to upload:', files.length);
+    
+    progressBar.style.width = '50%';
+    const response = await fetch(uploadUrl, {
+      method: 'POST',
+      body: formData,
+      credentials: 'same-origin' // Include cookies for session auth
+    });
+    
+    progressBar.style.width = '100%';
+    
+    console.log('Upload response status:', response.status);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Upload failed:', response.status, errorText);
+      throw new Error(`Upload failed: ${response.status} ${errorText}`);
+    }
+    
+    const result = await response.json();
+    console.log('Upload result:', result);
+    
+    // Update status for each file
+    if (result.uploads) {
+      result.uploads.forEach((upload, index) => {
+        const status = document.getElementById(`status-${index}`);
+        if (status) {
+          status.textContent = 'Uploaded';
+          status.className = 'status success';
+        }
+      });
+    }
+    
+    if (result.errors) {
+      result.errors.forEach((error, index) => {
+        const status = document.getElementById(`status-${files.length - result.errors.length + index}`);
+        if (status) {
+          status.textContent = 'Failed';
+          status.className = 'status error';
+        }
+      });
+    }
+    
+    // Show insert buttons for successful uploads
+    if (result.uploads && result.uploads.length > 0) {
+      const actions = document.createElement('div');
+      actions.className = 'upload-actions';
+      actions.innerHTML = `
+        <button type="button" id="insert-all-btn" class="btn btn-primary">Insert All Images</button>
+        <button type="button" id="insert-gallery-btn" class="btn btn-secondary">Insert as Gallery</button>
+      `;
+      container.appendChild(actions);
+      
+      // Insert all images individually
+      document.getElementById('insert-all-btn').addEventListener('click', () => {
+        const editor = document.getElementById('editor');
+        editor.focus();
+        result.uploads.forEach(upload => {
+          document.execCommand('insertHTML', false, `<img src="${upload.url}" alt="${upload.filename}" style="max-width: 100%; height: auto;"><br>`);
+        });
+        modal.classList.add('hidden');
+      });
+      
+      // Insert as gallery
+      document.getElementById('insert-gallery-btn').addEventListener('click', () => {
+        const editor = document.getElementById('editor');
+        editor.focus();
+        const galleryHtml = `
+          <div class="image-gallery">
+            ${result.uploads.map(upload => `<img src="${upload.url}" alt="${upload.filename}" style="width: 200px; height: 150px; object-fit: cover; margin: 5px;">`).join('')}
+          </div><br>
+        `;
+        document.execCommand('insertHTML', false, galleryHtml);
+        modal.classList.add('hidden');
+      });
+    }
+    
+  } catch (error) {
+    console.error('Upload error:', error);
+    alert('Upload failed: ' + error.message);
+    // Don't hide the modal so user can try again
+    progressBar.style.width = '0%';
+    // Show error message in the modal
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'upload-error';
+    errorDiv.innerHTML = `<p style="color: red; text-align: center; margin: 10px;">Upload failed: ${error.message}</p>`;
+    container.appendChild(errorDiv);
+  }
+  
+      // Reset file input
+      e.target.value = '';
+    });
+  }
+
+  // Close modal functionality
+  const closeModalBtn = document.getElementById('close-modal');
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', () => {
+      document.getElementById('multi-upload-modal').classList.add('hidden');
+    });
+  }
+});
 </script>
+
+<!-- Multi-upload Modal -->
+<div id="multi-upload-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-50">Upload Multiple Images</h3>
+      <button id="close-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl">&times;</button>
+    </div>
+    
+    <div class="mb-4">
+      <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+        <div id="upload-progress" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+      </div>
+    </div>
+    
+    <div id="upload-preview-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <!-- Preview items will be inserted here -->
+    </div>
+  </div>
+</div>
+
+<!-- Existing Images Modal -->
+<div id="existing-images-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-50">Choose Existing Image</h3>
+      <button id="close-existing-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl">&times;</button>
+    </div>
+    
+    <div id="existing-images-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <!-- Existing images will be loaded here -->
+    </div>
+  </div>
+</div>
+
+<style>
+.upload-preview-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+  dark: {
+    border-color: #374151;
+    background: #1f2937;
+  }
+}
+
+.preview-image {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+
+.preview-info {
+  padding: 8px;
+}
+
+.filename {
+  font-size: 12px;
+  font-weight: 500;
+  color: #111827;
+  truncate: true;
+  dark: {
+    color: #f9fafb;
+  }
+}
+
+.filesize {
+  font-size: 10px;
+  color: #6b7280;
+  dark: {
+    color: #9ca3af;
+  }
+}
+
+.status {
+  font-size: 10px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.status.success {
+  color: #10b981;
+}
+
+.status.error {
+  color: #ef4444;
+}
+
+.upload-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.image-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 10px 0;
+}
+
+/* Cover upload styles */
+.cover-upload-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f9fafb;
+}
+
+.current-cover-preview {
+  position: relative;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.current-cover-preview img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+
+.remove-cover-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-cover-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.cover-upload-controls {
+  display: flex;
+  gap: 8px;
+}
+
+/* Existing images modal styles */
+.existing-image-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.existing-image-item:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+}
+
+.existing-image-item img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+
+.image-info {
+  padding: 8px;
+}
+
+.no-images {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px 20px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* Upload drop zone styles */
+.upload-drop-zone {
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 24px 16px;
+  text-align: center;
+  background: #f9fafb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-drop-zone:hover, .upload-drop-zone.drag-over {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  transform: translateY(-1px);
+}
+
+.upload-drop-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.upload-icon {
+  width: 48px;
+  height: 48px;
+  color: #6b7280;
+}
+
+.upload-text {
+  text-align: center;
+}
+
+.upload-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.upload-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.upload-link {
+  color: #3b82f6;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: inherit;
+  font-weight: 500;
+}
+
+.upload-link:hover {
+  color: #2563eb;
+}
+
+/* Cover upload zone styles */
+.cover-drop-zone {
+  border: 1px dashed #d1d5db;
+  border-radius: 6px;
+  padding: 16px 12px;
+  text-align: center;
+  background: #f9fafb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 8px;
+}
+
+.cover-drop-zone:hover, .cover-drop-zone.drag-over {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.cover-drop-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-icon-small {
+  width: 24px;
+  height: 24px;
+  color: #6b7280;
+}
+
+.cover-upload-text {
+  font-size: 14px;
+  color: #374151;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .cover-upload-section {
+    border-color: #374151;
+    background: #1f2937;
+  }
+  
+  .current-cover-preview {
+    background: #374151;
+  }
+  
+  .existing-image-item {
+    border-color: #374151;
+    background: #1f2937;
+  }
+  
+  .existing-image-item:hover {
+    border-color: #3b82f6;
+  }
+  
+  .no-images {
+    color: #9ca3af;
+  }
+  
+  .upload-drop-zone {
+    border-color: #374151;
+    background: #1f2937;
+  }
+  
+  .upload-drop-zone:hover, .upload-drop-zone.drag-over {
+    border-color: #3b82f6;
+    background: #1e3a8a;
+  }
+  
+  .upload-title {
+    color: #f9fafb;
+  }
+  
+  .upload-subtitle {
+    color: #9ca3af;
+  }
+  
+  .upload-icon {
+    color: #9ca3af;
+  }
+  
+  .cover-drop-zone {
+    border-color: #374151;
+    background: #1f2937;
+  }
+  
+  .cover-drop-zone:hover, .cover-drop-zone.drag-over {
+    border-color: #3b82f6;
+    background: #1e3a8a;
+  }
+  
+  .cover-upload-text {
+    color: #f9fafb;
+  }
+  
+  .upload-icon-small {
+    color: #9ca3af;
+  }
+}
+</style>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
 {{template "modern-footer" .}}

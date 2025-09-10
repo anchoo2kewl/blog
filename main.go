@@ -168,9 +168,12 @@ func main() {
 	r.Get("/admin/posts", usersC.AdminPosts)
 	r.Get("/admin/posts/new", usersC.NewPost)
 	r.Post("/admin/posts", usersC.CreatePost)
+	r.Post("/admin/posts/from-file", usersC.CreatePostFromFile)
 	r.Get("/admin/posts/{postID}/edit", usersC.EditPost)
 	r.Post("/admin/posts/{postID}", usersC.UpdatePost)
 	r.Post("/admin/uploads", usersC.UploadImage)
+	r.Post("/admin/uploads/multiple", usersC.UploadMultipleImages)
+	r.Get("/admin/uploads/list", usersC.ListUploadedImages)
 	r.Post("/admin/preview", usersC.PreviewRender)
 	r.Get("/my-posts", usersC.UserPosts)
 	r.Get("/api-access", usersC.APIAccess)
@@ -218,6 +221,7 @@ func main() {
 		r.Get("/", getAllPosts)
 		r.Get("/{postID}", getPostByID)
 		r.Post("/", createPost)
+		r.Post("/from-file", usersC.CreatePostFromFile)
 	})
 
 	r.Route("/api/categories", func(r chi.Router) {

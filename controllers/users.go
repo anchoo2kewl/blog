@@ -8,6 +8,7 @@ import (
     "log"
     "net/http"
     "os"
+    "sort"
     "strconv"
     "strings"
     "crypto/rand"
@@ -168,6 +169,115 @@ func (u Users) UploadImage(w http.ResponseWriter, r *http.Request) {
     _ = json.NewEncoder(w).Encode(resp)
 }
 
+// UploadMultipleImages handles multiple image uploads. Returns JSON {uploads: [{url, filename, size}]}
+func (u Users) UploadMultipleImages(w http.ResponseWriter, r *http.Request) {
+    user, err := u.isUserLoggedIn(r)
+    if err != nil {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
+    if !models.CanEditPosts(user.Role) && !models.IsAdmin(user.Role) {
+        http.Error(w, "Forbidden", http.StatusForbidden)
+        return
+    }
+
+    if err := r.ParseMultipartForm(100 << 20); err != nil { // 100MB total
+        http.Error(w, "Invalid form", http.StatusBadRequest)
+        return
+    }
+
+    files := r.MultipartForm.File["files"]
+    if len(files) == 0 {
+        http.Error(w, "No files provided", http.StatusBadRequest)
+        return
+    }
+
+    // Optional per-slug folder
+    slug := r.URL.Query().Get("slug")
+    slug = strings.ToLower(slug)
+    slug = regexp.MustCompile(`[^a-z0-9-]`).ReplaceAllString(slug, "-")
+
+    var uploads []map[string]interface{}
+    var errors []string
+
+    for _, fileHeader := range files {
+        file, err := fileHeader.Open()
+        if err != nil {
+            errors = append(errors, fmt.Sprintf("Failed to open %s: %v", fileHeader.Filename, err))
+            continue
+        }
+        defer file.Close()
+
+        // Validate type
+        buff := make([]byte, 512)
+        n, _ := file.Read(buff)
+        filetype := http.DetectContentType(buff[:n])
+        allowed := map[string]string{"image/jpeg": ".jpg", "image/png": ".png", "image/gif": ".gif", "image/webp": ".webp"}
+        ext, ok := allowed[filetype]
+        if !ok {
+            // fallback to extension from filename if content-type sniff fails
+            ext = strings.ToLower(filepath.Ext(fileHeader.Filename))
+            ok = ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".webp"
+            if !ok {
+                errors = append(errors, fmt.Sprintf("Unsupported file type for %s", fileHeader.Filename))
+                continue
+            }
+            if ext == ".jpeg" { ext = ".jpg" }
+        }
+        
+        // rewind
+        if _, err := file.Seek(0, io.SeekStart); err != nil {
+            errors = append(errors, fmt.Sprintf("Unable to read file %s", fileHeader.Filename))
+            continue
+        }
+
+        // Random filename to avoid collisions
+        rb := make([]byte, 16)
+        if _, err := rand.Read(rb); err != nil {
+            errors = append(errors, fmt.Sprintf("Internal error for %s", fileHeader.Filename))
+            continue
+        }
+        name := hex.EncodeToString(rb) + ext
+
+        // Ensure upload directory exists
+        base := filepath.Join("static", "uploads")
+        if slug != "" { base = filepath.Join(base, slug) }
+        _ = os.MkdirAll(base, 0o755)
+        fpath := filepath.Join(base, name)
+        out, err := os.Create(fpath)
+        if err != nil {
+            errors = append(errors, fmt.Sprintf("Failed to save %s", fileHeader.Filename))
+            continue
+        }
+        defer out.Close()
+        if _, err := io.Copy(out, file); err != nil {
+            errors = append(errors, fmt.Sprintf("Failed to save %s", fileHeader.Filename))
+            continue
+        }
+
+        url := "/static/uploads/" + name
+        if slug != "" { url = "/static/uploads/" + slug + "/" + name }
+        
+        uploads = append(uploads, map[string]interface{}{
+            "url": url,
+            "filename": fileHeader.Filename,
+            "size": fileHeader.Size,
+        })
+    }
+
+    resp := map[string]interface{}{
+        "uploads": uploads,
+        "success": len(uploads),
+        "total": len(files),
+    }
+    if len(errors) > 0 {
+        resp["errors"] = errors
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    _ = json.NewEncoder(w).Encode(resp)
+}
+
 // PreviewRender returns rendered HTML for editor preview using server pipeline
 func (u Users) PreviewRender(w http.ResponseWriter, r *http.Request) {
     user, err := u.isUserLoggedIn(r)
@@ -183,6 +293,143 @@ func (u Users) PreviewRender(w http.ResponseWriter, r *http.Request) {
     html := models.RenderContent(content)
     w.Header().Set("Content-Type", "application/json")
     _ = json.NewEncoder(w).Encode(map[string]string{"html": html})
+}
+
+// CreatePostFromFile creates a blog post from a file (API endpoint)
+func (u Users) CreatePostFromFile(w http.ResponseWriter, r *http.Request) {
+    // This endpoint is used via API middleware, so we don't need to check user login
+    // The API middleware handles authentication
+
+    if err := r.ParseMultipartForm(50 << 20); err != nil { // 50MB
+        http.Error(w, "Invalid form", http.StatusBadRequest)
+        return
+    }
+
+    file, header, err := r.FormFile("file")
+    if err != nil {
+        http.Error(w, "File required", http.StatusBadRequest)
+        return
+    }
+    defer file.Close()
+
+    // Read file content
+    content, err := io.ReadAll(file)
+    if err != nil {
+        http.Error(w, "Failed to read file", http.StatusInternalServerError)
+        return
+    }
+
+    // Get form parameters
+    title := r.FormValue("title")
+    if title == "" {
+        title = strings.TrimSuffix(header.Filename, filepath.Ext(header.Filename))
+    }
+
+    userIDStr := r.FormValue("user_id")
+    userID, _ := strconv.Atoi(userIDStr)
+    if userID == 0 {
+        userID = 2 // Default to admin user
+    }
+
+    categoryIDStr := r.FormValue("category_id")
+    categoryID, _ := strconv.Atoi(categoryIDStr)
+    if categoryID == 0 {
+        categoryID = 1 // Default category
+    }
+
+    isPublished := r.FormValue("is_published") == "true"
+    featuredImageURL := r.FormValue("featured_image_url")
+
+    // Generate slug from title
+    slug := strings.ToLower(title)
+    slug = regexp.MustCompile(`[^a-z0-9\s-]`).ReplaceAllString(slug, "")
+    slug = regexp.MustCompile(`\s+`).ReplaceAllString(slug, "-")
+    slug = strings.Trim(slug, "-")
+
+    // Create post
+    post, err := u.PostService.Create(userID, categoryID, title, string(content), isPublished, featuredImageURL, slug)
+    if err != nil {
+        http.Error(w, fmt.Sprintf("Failed to create post: %v", err), http.StatusInternalServerError)
+        return
+    }
+
+    resp := map[string]interface{}{
+        "id": post.ID,
+        "title": post.Title,
+        "slug": post.Slug,
+        "url": fmt.Sprintf("/blog/%s", post.Slug),
+        "success": true,
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    _ = json.NewEncoder(w).Encode(resp)
+}
+
+// ListUploadedImages returns previously uploaded images for selection
+func (u Users) ListUploadedImages(w http.ResponseWriter, r *http.Request) {
+    user, err := u.isUserLoggedIn(r)
+    if err != nil {
+        http.Error(w, "Unauthorized", http.StatusUnauthorized)
+        return
+    }
+    if !models.CanEditPosts(user.Role) && !models.IsAdmin(user.Role) {
+        http.Error(w, "Forbidden", http.StatusForbidden)
+        return
+    }
+
+    // Get optional slug filter
+    slug := r.URL.Query().Get("slug")
+
+    // Build directory path
+    baseDir := "static/uploads"
+    if slug != "" {
+        baseDir = filepath.Join(baseDir, slug)
+    }
+
+    var images []map[string]interface{}
+
+    // Walk through upload directory
+    if _, err := os.Stat(baseDir); err == nil {
+        err = filepath.Walk(baseDir, func(path string, info os.FileInfo, err error) error {
+            if err != nil {
+                return nil // Skip errors
+            }
+            if info.IsDir() {
+                return nil
+            }
+            
+            ext := strings.ToLower(filepath.Ext(info.Name()))
+            if ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".gif" || ext == ".webp" {
+                // Convert local path to URL
+                relPath := strings.TrimPrefix(path, "static/")
+                url := "/" + strings.ReplaceAll(relPath, "\\", "/")
+                
+                images = append(images, map[string]interface{}{
+                    "url": url,
+                    "filename": info.Name(),
+                    "size": info.Size(),
+                    "modified": info.ModTime().Unix(),
+                })
+            }
+            return nil
+        })
+    }
+
+    // Sort by modification time (newest first)
+    sort.Slice(images, func(i, j int) bool {
+        return images[i]["modified"].(int64) > images[j]["modified"].(int64)
+    })
+
+    // Limit to recent images (last 50)
+    if len(images) > 50 {
+        images = images[:50]
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    _ = json.NewEncoder(w).Encode(map[string]interface{}{
+        "images": images,
+        "total": len(images),
+    })
 }
 
 func (u Users) GetTopPosts() (*models.PostsList, error) {

@@ -306,10 +306,50 @@
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: transform 0.2s ease;
+    position: relative;
 }
 
 .prose img:hover {
     transform: scale(1.02);
+    box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.2);
+}
+
+/* Lightbox link styling */
+.prose a[data-lightbox] {
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.prose a[data-lightbox]:hover {
+    text-decoration: none;
+}
+
+.prose a[data-lightbox]:hover img {
+    transform: scale(1.02);
+    box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.2);
+}
+
+/* Add a subtle overlay to indicate clickable image */
+.prose a[data-lightbox]::before {
+    content: '🔍';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 14px;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.prose a[data-lightbox]:hover::before {
+    opacity: 1;
 }
 
 /* Lists */
@@ -446,11 +486,16 @@
     });
 
     // Enhanced content processing
-    document.addEventListener('DOMContentLoaded', function() {
+    function initializeLightbox() {
         const content = document.getElementById('article-content');
         
         // Add/normalize lightbox for images
         content.querySelectorAll('img').forEach(img => {
+            // Skip if already processed
+            if (img.parentElement && img.parentElement.hasAttribute('data-lightbox')) {
+                return;
+            }
+            
             const parent = img.parentElement;
             // If already wrapped in a link and points to the image, just enhance
             if (parent && parent.tagName === 'A') {
@@ -473,6 +518,85 @@
             img.parentNode.insertBefore(link, img);
             link.appendChild(img);
         });
+    }
+    
+    // Wait for both DOM and lightbox library to be ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if lightbox is loaded, if not wait for it
+        function waitForLightbox() {
+            if (typeof lightbox !== 'undefined') {
+                console.log('Lightbox loaded successfully');
+                initializeLightbox();
+                // Configure lightbox options
+                lightbox.option({
+                    'resizeDuration': 200,
+                    'wrapAround': true,
+                    'fitImagesInViewport': true,
+                    'maxWidth': 1200,
+                    'maxHeight': 800,
+                    'showImageNumberLabel': false,
+                    'albumLabel': "Image %1 of %2"
+                });
+            } else {
+                console.log('Waiting for lightbox to load...');
+                setTimeout(waitForLightbox, 100);
+            }
+        }
+        
+        // Also try a more reliable approach by loading lightbox after a delay
+        setTimeout(() => {
+            console.log('Initializing lightbox after delay');
+            initializeLightbox();
+            
+            // Check if lightbox elements exist
+            const lightboxLinks = document.querySelectorAll('a[data-lightbox]');
+            console.log('Found lightbox links:', lightboxLinks.length);
+            
+            // If lightbox is still not available, create simple click handlers
+            if (typeof lightbox === 'undefined') {
+                console.log('Lightbox not available, creating manual handlers');
+                lightboxLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        // Create a simple modal
+                        const modal = document.createElement('div');
+                        modal.style.cssText = `
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: rgba(0,0,0,0.9);
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            z-index: 9999;
+                            cursor: pointer;
+                        `;
+                        
+                        const img = document.createElement('img');
+                        img.src = this.href;
+                        img.style.cssText = `
+                            max-width: 90%;
+                            max-height: 90%;
+                            border-radius: 12px;
+                            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+                        `;
+                        
+                        modal.appendChild(img);
+                        document.body.appendChild(modal);
+                        
+                        modal.addEventListener('click', () => {
+                            document.body.removeChild(modal);
+                        });
+                    });
+                });
+            }
+        }, 1000);
+        
+        waitForLightbox();
+        
+        const content = document.getElementById('article-content');
         
         // Process YouTube embeds
         content.querySelectorAll('a[href*="youtube.com/watch"], a[href*="youtu.be/"]').forEach(link => {

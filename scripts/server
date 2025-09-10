@@ -88,6 +88,8 @@ show_help() {
     echo -e "${YELLOW}API Commands:${NC}"
     echo "  add-user <email> <username> <password> [role_name] Add new user (role: admin, editor, commenter, viewer)"
     echo "  add-post <title> <content> [user_id] [category_ids] [featured_image] Create new post with multiple categories"
+    echo "  add-post-from-file <file_path> [title] [category_id] [featured_image] Create post from external file"
+    echo "  upload-multiple-images <file1> <file2> ... [slug] Upload multiple images with preview"
     echo "  add-category <name>    Create a new category"
     echo "  assign-categories <post_id> <category_ids> Assign multiple categories to a post"
     echo "  upload-image <file_path> [alt_text] Upload image and return URL"
@@ -117,6 +119,8 @@ show_help() {
     echo "  $0 add-user user@example.com john password123 admin # Add admin user"
     echo "  $0 add-category \"Machine Learning\"                # Create new category"
     echo "  $0 add-post \"My Post\" \"Content\" 1 \"2,3,4\"       # Add post with categories 2,3,4"
+    echo "  $0 add-post-from-file ./my-post.md \"My Post\" 1 /static/cover.jpg # Create post from markdown file"
+    echo "  $0 upload-multiple-images img1.jpg img2.png img3.gif my-post-slug # Upload multiple images"
     echo "  $0 assign-categories 5 \"1,2,3\"                   # Assign categories 1,2,3 to post 5"
     echo "  $0 upload-image ./image.jpg \"Alt text\"             # Upload image"
     echo "  $0 db \"SELECT * FROM users LIMIT 5;\"             # Execute SQL query"
@@ -792,6 +796,132 @@ assign_categories() {
         "SELECT pc.post_id, p.title, c.category_name FROM post_categories pc JOIN posts p ON pc.post_id = p.post_id JOIN categories c ON pc.category_id = c.category_id WHERE pc.post_id = $post_id;"
 }
 
+# File-based post creation function
+add_post_from_file() {
+    local file_path="$1"
+    local title="$2"
+    local category_id="${3:-1}"
+    local featured_image_url="$4"
+    
+    if [ -z "$file_path" ]; then
+        print_error "Usage: add_post_from_file <file_path> [title] [category_id] [featured_image_url]"
+        return 1
+    fi
+    
+    if [ ! -f "$file_path" ]; then
+        print_error "File not found: $file_path"
+        return 1
+    fi
+    
+    load_env
+    
+    if ! port_in_use $BLOG_PORT; then
+        print_error "Blog not running. Start with: $0 start-blog"
+        return 1
+    fi
+    
+    print_status "Creating post from file: $(basename "$file_path")"
+    
+    local response=$(curl -s -X POST \
+        -H "Authorization: Bearer $API_TOKEN" \
+        -F "file=@$file_path" \
+        -F "title=$title" \
+        -F "user_id=2" \
+        -F "category_id=$category_id" \
+        -F "featured_image_url=$featured_image_url" \
+        -F "is_published=true" \
+        "http://localhost:$BLOG_PORT/api/posts/from-file")
+    
+    if echo "$response" | jq . >/dev/null 2>&1; then
+        if echo "$response" | jq -e '.success' >/dev/null 2>&1; then
+            print_success "Post created successfully"
+            echo "$response" | jq .
+        else
+            print_error "Failed to create post"
+            echo "$response" | jq .
+            return 1
+        fi
+    else
+        print_error "Failed to create post"
+        echo "Response: $response"
+        return 1
+    fi
+}
+
+# Multiple image upload function  
+upload_multiple_images() {
+    if [ $# -lt 1 ]; then
+        print_error "Usage: upload_multiple_images <file1> [file2] [file3] ... [slug]"
+        return 1
+    fi
+    
+    load_env
+    
+    if ! port_in_use $BLOG_PORT; then
+        print_error "Blog not running. Start with: $0 start-blog"
+        return 1
+    fi
+    
+    # Last argument might be slug if it doesn't exist as a file
+    local files=()
+    local slug=""
+    
+    for arg in "$@"; do
+        if [ -f "$arg" ]; then
+            files+=("$arg")
+        else
+            slug="$arg"
+        fi
+    done
+    
+    if [ ${#files[@]} -eq 0 ]; then
+        print_error "No valid image files provided"
+        return 1
+    fi
+    
+    print_status "Uploading ${#files[@]} images..."
+    
+    # Build curl command with multiple files
+    local curl_cmd=(curl -s -X POST -H "Authorization: Bearer $API_TOKEN")
+    
+    for file in "${files[@]}"; do
+        curl_cmd+=(-F "files=@$file")
+    done
+    
+    if [ -n "$slug" ]; then
+        curl_cmd+=("http://localhost:$BLOG_PORT/admin/uploads/multiple?slug=$slug")
+    else
+        curl_cmd+=("http://localhost:$BLOG_PORT/admin/uploads/multiple")
+    fi
+    
+    local response=$("${curl_cmd[@]}")
+    
+    if echo "$response" | jq . >/dev/null 2>&1; then
+        local success_count=$(echo "$response" | jq -r '.success // 0')
+        local total_count=$(echo "$response" | jq -r '.total // 0')
+        
+        if [ "$success_count" -gt 0 ]; then
+            print_success "Successfully uploaded $success_count/$total_count images"
+            echo "$response" | jq -r '.uploads[] | "  ✓ \(.filename) -> \(.url)"'
+            
+            local errors=$(echo "$response" | jq -r '.errors[]?' 2>/dev/null)
+            if [ -n "$errors" ]; then
+                echo ""
+                print_warning "Errors:"
+                echo "$response" | jq -r '.errors[] | "  ✗ \(.)"'
+            fi
+        else
+            print_error "No images were uploaded successfully"
+            echo "$response" | jq .
+            return 1
+        fi
+    else
+        print_error "Failed to upload images"
+        echo "Response: $response"
+        return 1
+    fi
+}
+
 # Image upload function
 upload_image() {
     local file_path="$1"
@@ -1462,6 +1592,13 @@ case ${1:-help} in
         ;;
     add-post)
         add_post "$2" "$3" "$4" "$5" "$6"
+        ;;
+    add-post-from-file)
+        add_post_from_file "$2" "$3" "$4" "$5"
+        ;;
+    upload-multiple-images)
+        shift
+        upload_multiple_images "$@"
         ;;
     add-category)
         add_category "$2"

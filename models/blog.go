@@ -52,14 +52,17 @@ func (bs *BlogService) GetBlogPostBySlug(slug string) (*Post, error) {
 
 		// Markdown render (blackfriday passes raw HTML through)
 		content := replaceMoreTag(post.Content)
+		
 		content = stripStyleSnippets(content)
-		content = preprocessLooseMarkdownHTML(content)
-		content = buildNestedLists(content)
+		// Don't preprocess markdown that might interfere with blackfriday
+		// content = preprocessLooseMarkdownHTML(content)
+		// content = buildNestedLists(content)
 		content = normalizeInlinePipeTables(content)
 		content = convertPipeTablesSimple(content)
 		// Convert Markdown-style fenced blocks to HTML before markdown render,
 		// because editor content may mix HTML and backticks.
 		content = convertFences(content)
+		// Let blackfriday process the complete markdown including lists and links
 		htmlOut := renderMarkdown(content)
 		htmlOut = replaceBlockquoteTag(replacelistTag(htmlOut))
 		post.ContentHTML = template.HTML(htmlOut)
