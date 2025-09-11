@@ -18,6 +18,7 @@ type SlidesList struct {
 type Slide struct {
 	ID              int
 	UserID          int
+	Username        string // Username of the author
 	Title           string
 	Slug            string
 	ContentFilePath string
@@ -180,8 +181,10 @@ func (ss *SlideService) GetPublishedSlides() (*SlidesList, error) {
 func (ss *SlideService) GetAllSlides() (*SlidesList, error) {
 	list := SlidesList{}
 	
-	query := `SELECT slide_id, user_id, title, slug, content_file_path, is_published, created_at, updated_at 
-			  FROM Slides ORDER BY created_at DESC`
+	query := `SELECT s.slide_id, s.user_id, u.username, s.title, s.slug, s.content_file_path, s.is_published, s.created_at, s.updated_at 
+			  FROM Slides s
+			  JOIN users u ON s.user_id = u.user_id
+			  ORDER BY s.created_at DESC`
 	
 	rows, err := ss.DB.Query(query)
 	if err != nil {
@@ -191,7 +194,7 @@ func (ss *SlideService) GetAllSlides() (*SlidesList, error) {
 
 	for rows.Next() {
 		var slide Slide
-		err := rows.Scan(&slide.ID, &slide.UserID, &slide.Title, &slide.Slug, &slide.ContentFilePath,
+		err := rows.Scan(&slide.ID, &slide.UserID, &slide.Username, &slide.Title, &slide.Slug, &slide.ContentFilePath,
 			&slide.IsPublished, &slide.CreatedAt, &slide.UpdatedAt)
 		if err != nil {
 			return &list, fmt.Errorf("failed to scan slide: %v", err)

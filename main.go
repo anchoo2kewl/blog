@@ -263,6 +263,7 @@ func main() {
 	r.Route("/api/posts", func(r chi.Router) {
 		r.Use(authmw.APIAuthMiddleware(apiToken, &apiTokenService))
 		r.Get("/", getAllPosts)
+		r.Get("/formatted", getFormattedPosts)
 		r.Get("/{postID}", getPostByID)
 		r.Post("/", createPost)
 		r.Post("/from-file", usersC.CreatePostFromFile)
@@ -342,6 +343,86 @@ func getAllPosts(w http.ResponseWriter, r *http.Request) {
 	}
 	// Send the posts as JSON response
 	jsonResponse(w, posts, http.StatusOK)
+}
+
+// FormattedPost represents a post in the requested API format
+type FormattedPost struct {
+	Date       string   `json:"date"`
+	Title      string   `json:"title"`
+	Categories []string `json:"categories"`
+	ReadTime   string   `json:"read_time"`
+	Link       string   `json:"link"`
+}
+
+func getFormattedPosts(w http.ResponseWriter, r *http.Request) {
+	postService := models.PostService{
+		DB: DB,
+	}
+
+	// Get the 5 latest posts with user information
+	posts, err := postService.GetTopPosts()
+	if err != nil {
+		http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)
+		return
+	}
+
+	// Format posts according to the requested structure
+	var formattedPosts []FormattedPost
+	
+	// Get the request host to construct full URLs
+	host := r.Host
+	if host == "" {
+		host = "localhost:8080" // fallback
+	}
+	scheme := "http"
+	if r.TLS != nil {
+		scheme = "https"
+	}
+
+	for _, post := range posts.Posts {
+		if !post.IsPublished {
+			continue // Skip unpublished posts
+		}
+
+		// Format date to "January 2, 2006" format
+		formattedDate := post.PublicationDate
+		if formattedDate == "" {
+			formattedDate = post.CreatedAt
+		}
+
+		// Calculate reading time (approximately 200 words per minute)
+		wordCount := len(strings.Fields(post.Content))
+		readingMinutes := (wordCount + 199) / 200 // Round up
+		if readingMinutes < 1 {
+			readingMinutes = 1
+		}
+		readTime := fmt.Sprintf("%d min read", readingMinutes)
+
+		// Get categories (placeholder for now since we need to implement category fetching)
+		var categories []string
+		for _, cat := range post.Categories {
+			categories = append(categories, cat.Name)
+		}
+		if len(categories) == 0 {
+			categories = []string{"General"} // default category
+		}
+
+		// Construct full link
+		link := fmt.Sprintf("%s://%s/blog/%s", scheme, host, post.Slug)
+
+		formattedPost := FormattedPost{
+			Date:       formattedDate,
+			Title:      post.Title,
+			Categories: categories,
+			ReadTime:   readTime,
+			Link:       link,
+		}
+
+		formattedPosts = append(formattedPosts, formattedPost)
+	}
+
+	// Send the formatted posts as JSON response
+	jsonResponse(w, formattedPosts, http.StatusOK)
 }
 
 func getPostByID(w http.ResponseWriter, r *http.Request) {

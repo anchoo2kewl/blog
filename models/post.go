@@ -20,6 +20,7 @@ type PostsList struct {
 type Post struct {
 	ID               int
 	UserID           int // Added UserID field
+	Username         string // Username of the author
 	CategoryID       int // Legacy field, kept for backward compatibility
 	Title            string
 	Content          string
@@ -145,7 +146,10 @@ func (pp *PostService) GetTopPostsWithPagination(limit int, offset int) (*PostsL
 func (pp *PostService) GetAllPosts() (*PostsList, error) {
 	list := PostsList{}
 
-	query := `SELECT post_id, user_id, category_id, title, content, slug, publication_date, last_edit_date, is_published, featured_image_url, created_at, featured FROM posts ORDER BY created_at DESC`
+	query := `SELECT p.post_id, p.user_id, u.username, p.category_id, p.title, p.content, p.slug, p.publication_date, p.last_edit_date, p.is_published, p.featured_image_url, p.created_at, p.featured 
+			  FROM posts p 
+			  JOIN users u ON p.user_id = u.user_id 
+			  ORDER BY p.created_at DESC`
 	rows, err := pp.DB.Query(query)
 	if err != nil {
 		return &list, err
@@ -154,7 +158,7 @@ func (pp *PostService) GetAllPosts() (*PostsList, error) {
 
 	for rows.Next() {
 		var post Post
-		err := rows.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt, &post.Featured)
+		err := rows.Scan(&post.ID, &post.UserID, &post.Username, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt, &post.Featured)
 		if err != nil {
 			return nil, err
 		}
