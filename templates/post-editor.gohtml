@@ -453,7 +453,11 @@ document.getElementById('insert-link').addEventListener('click', () => {
 });
 document.getElementById('insert-image').addEventListener('click', () => {
   const url = prompt('Enter image URL');
-  if (url) exec('insertImage', url);
+  if (url) {
+    const select = document.getElementById('img-size-select');
+    let pct = (select && select.value) ? select.value : '66%';
+    insertImageIntoEditor(url, pct);
+  }
 });
 document.getElementById('insert-more').addEventListener('click', () => {
   document.execCommand('insertHTML', false, '<more-->');
@@ -473,7 +477,9 @@ document.getElementById('upload-inline-btn').addEventListener('click', async () 
   const res = await fetch('/admin/uploads' + (slug? ('?slug=' + encodeURIComponent(slug)) : ''), { method:'POST', body:fd });
   if (!res.ok) { alert('Upload failed'); return; }
   const j = await res.json();
-  document.execCommand('insertImage', false, j.url);
+  const select = document.getElementById('img-size-select');
+  let pct = (select && select.value) ? select.value : '66%';
+  insertImageIntoEditor(j.url, pct);
   picker.value = '';
 });
 // Open file dialog on first click if none selected
@@ -752,6 +758,11 @@ async function renderPreview(){
   }
   enhanceArticle(container);
   if (window.Prism) { Prism.highlightAllUnder(container); }
+  
+  // Refresh lightbox to handle any new images
+  if (window.lightbox) {
+    lightbox.init();
+  }
   editor.classList.add('hidden'); preview.classList.remove('hidden');
 }
 
@@ -786,19 +797,28 @@ function enhanceArticle(root){
       const href = parent.getAttribute('href') || '';
       const isSame = href && (href === img.src || href.split('?')[0] === img.src.split('?')[0]);
       const isImage = /\.(png|jpe?g|webp|gif|svg)$/i.test(href);
+      const hasLightbox = parent.hasAttribute('data-lightbox');
+      
       if (isSame || isImage) {
-        parent.setAttribute('data-lightbox', 'article-images');
-        parent.setAttribute('data-title', img.alt || '');
+        // Only add lightbox attributes if not already present
+        if (!hasLightbox) {
+          parent.setAttribute('data-lightbox', 'article-images');
+          parent.setAttribute('data-title', img.alt || '');
+        }
         parent.removeAttribute('target');
         return;
       }
     }
-    const link = document.createElement('a');
-    link.href = img.src;
-    link.setAttribute('data-lightbox', 'article-images');
-    link.setAttribute('data-title', img.alt || '');
-    img.parentNode.insertBefore(link, img);
-    link.appendChild(img);
+    
+    // Only wrap standalone images that aren't already in a lightbox link
+    if (!parent || parent.tagName !== 'A' || !parent.hasAttribute('data-lightbox')) {
+      const link = document.createElement('a');
+      link.href = img.src;
+      link.setAttribute('data-lightbox', 'article-images');
+      link.setAttribute('data-title', img.alt || '');
+      img.parentNode.insertBefore(link, img);
+      link.appendChild(img);
+    }
   });
   root.querySelectorAll('h2, h3, h4, h5, h6').forEach(heading => {
     const id = heading.textContent.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
@@ -952,10 +972,19 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Insert all images individually
       document.getElementById('insert-all-btn').addEventListener('click', () => {
-        const editor = document.getElementById('editor');
-        editor.focus();
-        result.uploads.forEach(upload => {
-          document.execCommand('insertHTML', false, `<img src="${upload.url}" alt="${upload.filename}" style="max-width: 100%; height: auto;"><br>`);
+        const select = document.getElementById('img-size-select');
+        let pct = (select && select.value) ? select.value : '66%';
+        result.uploads.forEach((upload, index) => {
+          // Add slight delay to ensure proper sequential insertion
+          setTimeout(() => {
+            insertImageIntoEditor(upload.url, pct);
+            // Only refresh lightbox after the last image
+            if (index === result.uploads.length - 1) {
+              setTimeout(() => {
+                refreshLightbox();
+              }, 50);
+            }
+          }, index * 100);
         });
         modal.classList.add('hidden');
       });
@@ -964,12 +993,41 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('insert-gallery-btn').addEventListener('click', () => {
         const editor = document.getElementById('editor');
         editor.focus();
+        
         const galleryHtml = `
-          <div class="image-gallery">
-            ${result.uploads.map(upload => `<a href="${upload.url}" data-lightbox="article-images" data-title="${upload.filename}"><img src="${upload.url}" alt="${upload.filename}" style="width: 200px; height: 150px; object-fit: cover; margin: 5px;"></a>`).join('')}
-          </div><br>
+          <div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center;">
+            ${result.uploads.map(upload => `<a href="${upload.url}" data-lightbox="article-images" data-title="${upload.filename}"><img src="${upload.url}" alt="${upload.filename}" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a>`).join('')}
+          </div>
         `;
-        document.execCommand('insertHTML', false, galleryHtml);
+        
+        // Use the same improved insertion logic
+        const selection = window.getSelection();
+        
+        if (selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0);
+          range.deleteContents();
+          const fragment = range.createContextualFragment(galleryHtml);
+          range.insertNode(fragment);
+          range.collapse(false);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        } else {
+          if (editor.innerHTML.trim() === '' || editor.innerHTML === '<div><br></div>') {
+            editor.innerHTML = galleryHtml;
+          } else {
+            editor.insertAdjacentHTML('beforeend', galleryHtml);
+          }
+          
+          const range = document.createRange();
+          range.selectNodeContents(editor);
+          range.collapse(false);
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+        
+        // Refresh lightbox to handle new images
+        refreshLightbox();
+        
         modal.classList.add('hidden');
       });
     }
@@ -997,6 +1055,48 @@ document.addEventListener('DOMContentLoaded', function() {
     closeModalBtn.addEventListener('click', () => {
       document.getElementById('multi-upload-modal').classList.add('hidden');
     });
+  }
+
+  // Browse Images button functionality
+  const browseBtn = document.getElementById('browse-btn');
+  if (browseBtn) {
+    browseBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openExistingImagesModal();
+    });
+  }
+
+  // Function to open existing images modal  
+  async function openExistingImagesModal() {
+    const modal = document.getElementById('existing-images-modal');
+    if (!modal) {
+      console.error('Existing images modal not found');
+      return;
+    }
+    
+    // Load images and show modal
+    modal.classList.remove('hidden');
+    loadImages();
+    
+    // Bind close controls after opening (ensures elements exist)
+    const closeBtn = document.getElementById('close-existing-modal');
+    if (closeBtn && !closeBtn._bound) {
+      closeBtn.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        modal.classList.add('hidden'); 
+      });
+      closeBtn._bound = true;
+    }
+    
+    if (!modal._backdropBound) {
+      modal.addEventListener('click', (e) => { 
+        if (e.target === modal) modal.classList.add('hidden'); 
+      });
+      window.addEventListener('keydown', (e) => { 
+        if (e.key === 'Escape') modal.classList.add('hidden'); 
+      });
+      modal._backdropBound = true;
+    }
   }
 
   // Enhanced Image Management System
@@ -1111,17 +1211,67 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
+  // Function to refresh lightbox after DOM changes
+  function refreshLightbox() {
+    if (window.lightbox && typeof lightbox.init === 'function') {
+      // Destroy existing lightbox instances
+      if (lightbox.album && lightbox.album.length) {
+        lightbox.album = [];
+      }
+      // Re-initialize lightbox
+      setTimeout(() => {
+        lightbox.init();
+      }, 100);
+    }
+  }
+
   // Function to insert image into editor
   function insertImageIntoEditor(imageUrl, widthPct) {
     const editor = document.getElementById('editor');
+    
+    // Ensure editor has focus and cursor position
     editor.focus();
     
-    // Create image HTML
+    // Create image HTML with lightbox link
     const w = widthPct || '66%';
-    const imageHtml = `<p style="text-align:center; margin: 10px 0;"><img src="${imageUrl}" alt="Uploaded image" style="width:${w}; height:auto; max-width:100%;" /></p>`;
+    const imageHtml = `<p style="text-align:center; margin: 10px 0;"><a href="${imageUrl}" data-lightbox="article-images" data-title="Uploaded image"><img src="${imageUrl}" alt="Uploaded image" style="width:${w}; height:auto; max-width:100%;" /></a></p>`;
     
-    // Insert the image
-    document.execCommand('insertHTML', false, imageHtml);
+    // Get current selection
+    const selection = window.getSelection();
+    
+    if (selection.rangeCount > 0) {
+      // Insert at current selection/cursor position
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      
+      // Create a document fragment from HTML
+      const fragment = range.createContextualFragment(imageHtml);
+      range.insertNode(fragment);
+      
+      // Move cursor after inserted content
+      range.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    } else {
+      // Fallback: ensure we have content in editor and insert at end
+      if (editor.innerHTML.trim() === '' || editor.innerHTML === '<div><br></div>') {
+        editor.innerHTML = imageHtml;
+      } else {
+        // Insert at the end
+        editor.insertAdjacentHTML('beforeend', imageHtml);
+      }
+      
+      // Set cursor after the inserted content
+      const range = document.createRange();
+      const selection = window.getSelection();
+      range.selectNodeContents(editor);
+      range.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+    
+    // Refresh lightbox to handle new images
+    refreshLightbox();
   }
 
   // Lightweight resize tool for selected image

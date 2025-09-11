@@ -102,6 +102,10 @@ func convertInlineEmphasisInHTML(html string) string {
 	textNodeRe := regexp.MustCompile(">([^<]+)<")
 	html = textNodeRe.ReplaceAllStringFunc(html, func(seg string) string {
 		inner := seg[1 : len(seg)-1]
+		// Skip processing if this looks like a placeholder
+		if strings.Contains(inner, "[[[") && strings.Contains(inner, "]]]") {
+			return seg
+		}
 		inner = regexp.MustCompile(`\*\*([^*]+)\*\*`).ReplaceAllString(inner, "<strong>$1</strong>")
 		inner = regexp.MustCompile(`__([^_]+)__`).ReplaceAllString(inner, "<strong>$1</strong>")
 		inner = regexp.MustCompile(`(^|[^*])\*([^*]+)\*([^*]|$)`).ReplaceAllString(inner, "$1<em>$2</em>$3")
@@ -123,6 +127,14 @@ func wrapImageGalleries(html string) string {
 	altRe := regexp.MustCompile(`(?i)alt="([^"]*)"`)
 
 	transform := func(content string) string {
+		// First, find and protect any existing lightbox-wrapped images
+		existingLightboxRe := regexp.MustCompile(`(?is)<a[^>]*data-lightbox[^>]*>\s*<img[^>]*>\s*</a>`)
+		if existingLightboxRe.MatchString(content) {
+			// Content already has lightbox links, don't add more
+			return content
+		}
+		
+		// Only add lightbox wrapping if images are bare (not already wrapped)
 		return imgRe.ReplaceAllStringFunc(content, func(imgTag string) string {
 			m := imgRe.FindStringSubmatch(imgTag)
 			if len(m) != 4 {
@@ -152,9 +164,16 @@ func wrapImageGalleries(html string) string {
 		return parts[1] + transform(parts[2]) + parts[3]
 	})
 
-	// 7b) Standalone <p><img ...></p> -> lightbox
+	// 7b) Standalone <p><img ...></p> -> lightbox (skip if already has lightbox links)
 	imgPara := regexp.MustCompile(`(?is)<p>\s*(<img[^>]+>)\s*</p>`)
+	existingParaLightboxRe := regexp.MustCompile(`(?is)<p>\s*<a[^>]*data-lightbox[^>]*>\s*<img[^>]*>\s*</a>\s*</p>`)
+	
 	html = imgPara.ReplaceAllStringFunc(html, func(m string) string {
+		// Skip if this paragraph already has a lightbox link
+		if existingParaLightboxRe.MatchString(m) {
+			return m
+		}
+		
 		im := imgRe.FindStringSubmatch(m)
 		if len(im) != 4 {
 			return m
