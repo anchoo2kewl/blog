@@ -20,7 +20,36 @@
     <!-- Custom styles -->
     <style>
         .reveal .slides section {
-            text-align: left;
+            text-align: left !important;
+        }
+        
+        .reveal .slides section p,
+        .reveal .slides section li,
+        .reveal .slides section div,
+        .reveal .slides section ul,
+        .reveal .slides section ol {
+            text-align: left !important;
+        }
+        
+        /* Fix bullet points alignment */
+        .reveal .slides section ul,
+        .reveal .slides section ol {
+            display: block !important;
+            margin-left: 1em !important;
+        }
+        
+        .reveal .slides section li {
+            text-align: left !important;
+            list-style-position: outside !important;
+            margin-left: 0 !important;
+            padding-left: 0 !important;
+        }
+        
+        /* Override any Reveal.js centering */
+        .reveal ul,
+        .reveal ol {
+            display: block !important;
+            text-align: left !important;
         }
         
         .reveal .slides section.center {
