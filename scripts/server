@@ -26,6 +26,7 @@ DB_VOLUME_NAME="postgres-volume"
 REMOTE_SERVER="ubuntu@anshumanbiswas.com"
 REMOTE_DEPLOY_PATH="/home/ubuntu/projects/blog"
 REMOTE_DB_CONTAINER="blog-postgres"
+REMOTE_DOCKER_CONTAINER="blog-app"
 REMOTE_DB_NAME="blog"
 REMOTE_DB_USER="blog"
 
@@ -85,6 +86,7 @@ show_help() {
     echo -e "${YELLOW}Database Commands:${NC}"
     echo "  db [query]             Execute SQL query on database"
     echo "  remote-db [query]      Execute SQL query on REMOTE production database"
+    echo "  remote-logs [service]  View logs from REMOTE production server (nginx/blog/system)"
     echo "  db-migrate             Run database migrations"
     echo "  db-reset               Reset database (drop and recreate)"
     echo "  db-seed                Load test data into database"
@@ -482,6 +484,41 @@ execute_remote_db_query() {
     ssh "$REMOTE_SERVER" "cd '$REMOTE_DEPLOY_PATH' && docker exec -i '$REMOTE_DB_CONTAINER' psql -U '$REMOTE_DB_USER' -d '$REMOTE_DB_NAME' -v ON_ERROR_STOP=1" <<SQL
 $query
 SQL
+}
+
+view_remote_logs() {
+    local service="${1:-blog}"
+    
+    print_header "Remote Production Logs"
+    echo -e "${CYAN}Server:${NC} $REMOTE_SERVER"
+    echo -e "${CYAN}Service:${NC} $service"
+    echo ""
+    
+    # Verify SSH connectivity
+    if ! ssh -o ConnectTimeout=10 "$REMOTE_SERVER" "echo ok" >/dev/null 2>&1; then
+        print_error "Cannot connect to $REMOTE_SERVER"
+        return 1
+    fi
+    
+    case "$service" in
+        blog)
+            print_status "Showing blog application logs..."
+            ssh "$REMOTE_SERVER" "cd '$REMOTE_DEPLOY_PATH' && docker logs --tail=100 -f '$REMOTE_DOCKER_CONTAINER'"
+            ;;
+        nginx)
+            print_status "Showing nginx logs..."
+            ssh "$REMOTE_SERVER" "sudo tail -f /var/log/nginx/access.log /var/log/nginx/error.log"
+            ;;
+        system)
+            print_status "Showing system logs..."
+            ssh "$REMOTE_SERVER" "sudo journalctl -f -n 100"
+            ;;
+        *)
+            print_error "Unknown service: $service"
+            echo "Available services: blog, nginx, system"
+            return 1
+            ;;
+    esac
 }
 
 run_migrations() {
@@ -1466,6 +1503,8 @@ server {
     listen 80;
     server_name anshumanbiswas.com www.anshumanbiswas.com;
 
+    client_max_body_size 2M;
+
     location / {
         proxy_pass http://localhost:22222;
         proxy_set_header Host $host;
@@ -1620,6 +1659,9 @@ case ${1:-help} in
             print_error "Usage: $0 remote-db \"SQL_QUERY\""
             exit 1
         fi
+        ;;
+    remote-logs)
+        view_remote_logs "$2"
         ;;
     db-migrate)
         run_migrations
