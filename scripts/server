@@ -1287,8 +1287,11 @@ ENVEOF
 
 # Build the application
 print_status "Building Go application..."
-if ! command -v go &> /dev/null; then
-    print_status "Installing Go..."
+GO_VERSION="1.25.0"
+# Ensure /usr/local/go/bin is on PATH for this session
+export PATH=/usr/local/go/bin:$PATH
+if ! command -v go &> /dev/null || [ "$(go version 2>/dev/null | awk '{print $3}')" != "go${GO_VERSION}" ]; then
+    print_status "Installing Go ${GO_VERSION} (only if not present)..."
     # Detect architecture
     ARCH=$(uname -m)
     if [ "$ARCH" = "aarch64" ]; then
@@ -1299,11 +1302,20 @@ if ! command -v go &> /dev/null; then
         print_error "Unsupported architecture: $ARCH"
         exit 1
     fi
-    
-    wget https://go.dev/dl/go1.25.0.linux-${GO_ARCH}.tar.gz
-    sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.25.0.linux-${GO_ARCH}.tar.gz
-    echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
-    export PATH=$PATH:/usr/local/go/bin
+    TAR="/tmp/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz"
+    if [ ! -f "$TAR" ]; then
+        wget -O "$TAR" "https://go.dev/dl/go${GO_VERSION}.linux-${GO_ARCH}.tar.gz"
+    else
+        print_status "Using cached Go archive: $TAR"
+    fi
+    sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf "$TAR"
+    # Persist PATH for future logins if not already
+    if ! grep -q "/usr/local/go/bin" ~/.bashrc 2>/dev/null; then
+        echo 'export PATH=/usr/local/go/bin:$PATH' >> ~/.bashrc
+    fi
+    export PATH=/usr/local/go/bin:$PATH
+else
+    print_status "Go $(go version | awk '{print $3}') already installed - skipping download"
 fi
 
 mkdir -p tmp
