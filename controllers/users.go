@@ -372,6 +372,7 @@ func (u Users) CreatePostFromFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	isPublished := r.FormValue("is_published") == "true"
+	featured := r.FormValue("featured") == "true"
 	featuredImageURL := r.FormValue("featured_image_url")
 
 	// Generate slug from title
@@ -381,7 +382,7 @@ func (u Users) CreatePostFromFile(w http.ResponseWriter, r *http.Request) {
 	slug = strings.Trim(slug, "-")
 
 	// Create post
-	post, err := u.PostService.Create(userID, categoryID, title, string(content), isPublished, featuredImageURL, slug)
+	post, err := u.PostService.Create(userID, categoryID, title, string(content), isPublished, featured, featuredImageURL, slug)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to create post: %v", err), http.StatusInternalServerError)
 		return
@@ -970,7 +971,8 @@ func (u Users) CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	title := r.FormValue("title")
 	content := r.FormValue("content")
-	featured := r.FormValue("featured_image_url")
+	featuredImageURL := r.FormValue("featured_image_url")
+	featured := r.FormValue("featured") == "on"
 	slug := r.FormValue("slug")
 	isPublished := r.FormValue("is_published") == "on"
 
@@ -1002,7 +1004,7 @@ func (u Users) CreatePost(w http.ResponseWriter, r *http.Request) {
 		slug = strings.ReplaceAll(slug, "--", "-")
 	}
 
-	post, err := u.PostService.Create(user.UserID, categoryID, title, content, isPublished, featured, slug)
+	post, err := u.PostService.Create(user.UserID, categoryID, title, content, isPublished, featured, featuredImageURL, slug)
 	if err != nil {
 		http.Error(w, "Failed to create post", http.StatusInternalServerError)
 		return
@@ -1105,7 +1107,8 @@ func (u Users) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(idStr)
 	title := r.FormValue("title")
 	content := r.FormValue("content")
-	featured := r.FormValue("featured_image_url")
+	featuredImageURL := r.FormValue("featured_image_url")
+	featured := r.FormValue("featured") == "on"
 	slug := r.FormValue("slug")
 	isPublished := r.FormValue("is_published") == "on"
 
@@ -1136,7 +1139,7 @@ func (u Users) UpdatePost(w http.ResponseWriter, r *http.Request) {
 		slug = strings.ReplaceAll(slug, "--", "-")
 	}
 
-	if err := u.PostService.Update(id, categoryID, title, content, isPublished, featured, slug); err != nil {
+	if err := u.PostService.Update(id, categoryID, title, content, isPublished, featured, featuredImageURL, slug); err != nil {
 		http.Error(w, "Failed to update post", http.StatusInternalServerError)
 		return
 	}

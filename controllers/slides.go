@@ -415,9 +415,45 @@ func (s Slides) PreviewSlide(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Wrap content in proper Reveal.js HTML structure for preview
+	previewHTML := fmt.Sprintf(`
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Slide Preview</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/theme/white.css">
+    <style>
+        .reveal { font-size: 24px; }
+        .reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            %s
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            controls: true,
+            progress: true,
+            center: true,
+            transition: 'slide',
+            width: '100%%',
+            height: '100%%'
+        });
+    </script>
+</body>
+</html>`, content)
+
 	// Return the rendered HTML content
 	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(content))
+	w.Write([]byte(previewHTML))
 }
 
 // Helper functions

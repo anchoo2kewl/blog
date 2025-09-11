@@ -77,9 +77,10 @@
                         </label>
                         <div class="space-y-2 max-h-32 overflow-y-auto">
                             {{range .Categories}}
+                                {{$catID := .ID}}
                                 <label class="inline-flex items-center mr-6">
                                     <input type="checkbox" name="categories" value="{{.ID}}" 
-                                           {{range $.Slide.Categories}}{{if eq .ID $.ID}}checked{{end}}{{end}}
+                                           {{range $.Slide.Categories}}{{if eq .ID $catID}}checked{{end}}{{end}}
                                            class="rounded border-gray-300 dark:border-slate-600 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-slate-700">
                                     <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">{{.Name}}</span>
                                 </label>
@@ -200,7 +201,7 @@
                 </svg>
             </button>
         </div>
-        <div id="preview-content" class="bg-gray-100 dark:bg-slate-700 rounded-lg p-4 max-h-96 overflow-auto">
+        <div id="preview-content" class="bg-white rounded-lg overflow-hidden" style="height: 500px;">
             <!-- Preview content will be loaded here -->
         </div>
     </div>
@@ -246,17 +247,27 @@ document.addEventListener('DOMContentLoaded', function() {
         // Load preview content
         previewContent.innerHTML = '<div class="text-center py-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div><p class="mt-2 text-sm text-gray-500">Loading preview...</p></div>';
         
+        // Get CSRF token
+        const csrfToken = document.querySelector('input[name="gorilla.csrf.Token"]')?.value || '';
+        
         // Send content to preview endpoint
         fetch('/admin/slides/preview', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: 'content=' + encodeURIComponent(content)
+            body: 'content=' + encodeURIComponent(content) + '&gorilla.csrf.Token=' + encodeURIComponent(csrfToken)
         })
         .then(response => response.text())
         .then(html => {
-            previewContent.innerHTML = html;
+            // Create an iframe to display the full HTML preview
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.srcdoc = html;
+            previewContent.innerHTML = '';
+            previewContent.appendChild(iframe);
         })
         .catch(error => {
             previewContent.innerHTML = '<div class="text-red-600 dark:text-red-400 text-center py-8">Error loading preview: ' + error.message + '</div>';

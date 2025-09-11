@@ -22,6 +22,7 @@ type Blog struct {
 }
 
 func (b *Blog) GetBlogPost(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("DEBUG Controller: GetBlogPost called\n")
 
 	var data struct {
 		LoggedIn        bool
@@ -43,13 +44,18 @@ func (b *Blog) GetBlogPost(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
 
 	fmt.Println("Slug:", slug)
+	fmt.Printf("DEBUG Controller: About to call BlogService.GetBlogPostBySlug with slug '%s'\n", slug)
+	fmt.Printf("DEBUG Controller: BlogService is: %+v\n", b.BlogService)
 	// Fetch the blog post using the BlogService
 	post, err := b.BlogService.GetBlogPostBySlug(slug)
+	fmt.Printf("DEBUG Controller: GetBlogPostBySlug call completed, err: %v\n", err)
 	if err != nil {
+		fmt.Printf("DEBUG Controller: BlogService.GetBlogPostBySlug returned error: %v\n", err)
 		// Handle error (e.g., render a 404 page)
 		http.NotFound(w, r)
 		return
 	}
+	fmt.Printf("DEBUG Controller: BlogService.GetBlogPostBySlug returned post ID %d\n", post.ID)
 
 	fmt.Println("Post:", post)
 

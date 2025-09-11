@@ -28,6 +28,7 @@ type Post struct {
 	PublicationDate  string
 	LastEditDate     string
 	IsPublished      bool
+	Featured         bool   // Boolean field to mark posts as featured
 	FeaturedImageURL string
 	CreatedAt        string
 	Categories       []Category `json:"categories,omitempty"` // New many-to-many categories
@@ -47,7 +48,7 @@ type PostService struct {
 func (pp *PostService) GetTopPosts() (*PostsList, error) {
 	list := PostsList{}
 
-	query := `SELECT * FROM posts WHERE is_published = true ORDER BY created_at DESC LIMIT 5`
+	query := `SELECT post_id, user_id, category_id, title, content, slug, publication_date, last_edit_date, is_published, featured_image_url, created_at, featured FROM posts WHERE is_published = true ORDER BY created_at DESC LIMIT 5`
 	rows, err := pp.DB.Query(query)
 	if err != nil {
 		return &list, nil
@@ -56,7 +57,7 @@ func (pp *PostService) GetTopPosts() (*PostsList, error) {
 	for rows.Next() {
 
 		var post Post
-		err := rows.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt)
+		err := rows.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt, &post.Featured)
 		if err != nil {
 			panic(err)
 		}
@@ -96,7 +97,7 @@ func (pp *PostService) GetTopPosts() (*PostsList, error) {
 func (pp *PostService) GetTopPostsWithPagination(limit int, offset int) (*PostsList, error) {
 	list := PostsList{}
 
-	query := `SELECT * FROM posts WHERE is_published = true ORDER BY created_at DESC LIMIT $1 OFFSET $2`
+	query := `SELECT post_id, user_id, category_id, title, content, slug, publication_date, last_edit_date, is_published, featured_image_url, created_at, featured FROM posts WHERE is_published = true ORDER BY created_at DESC LIMIT $1 OFFSET $2`
 	rows, err := pp.DB.Query(query, limit, offset)
 	if err != nil {
 		return &list, nil
@@ -104,7 +105,7 @@ func (pp *PostService) GetTopPostsWithPagination(limit int, offset int) (*PostsL
 
 	for rows.Next() {
 		var post Post
-		err := rows.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt)
+		err := rows.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt, &post.Featured)
 		if err != nil {
 			panic(err)
 		}
@@ -144,7 +145,7 @@ func (pp *PostService) GetTopPostsWithPagination(limit int, offset int) (*PostsL
 func (pp *PostService) GetAllPosts() (*PostsList, error) {
 	list := PostsList{}
 
-	query := `SELECT * FROM posts ORDER BY created_at DESC`
+	query := `SELECT post_id, user_id, category_id, title, content, slug, publication_date, last_edit_date, is_published, featured_image_url, created_at, featured FROM posts ORDER BY created_at DESC`
 	rows, err := pp.DB.Query(query)
 	if err != nil {
 		return &list, err
@@ -153,7 +154,7 @@ func (pp *PostService) GetAllPosts() (*PostsList, error) {
 
 	for rows.Next() {
 		var post Post
-		err := rows.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt)
+		err := rows.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt, &post.Featured)
 		if err != nil {
 			return nil, err
 		}
@@ -188,7 +189,7 @@ func (pp *PostService) GetAllPosts() (*PostsList, error) {
 func (pp *PostService) GetPostsByUser(userID int) (*PostsList, error) {
 	list := PostsList{}
 
-	query := `SELECT * FROM posts WHERE user_id = $1 ORDER BY created_at DESC`
+	query := `SELECT post_id, user_id, category_id, title, content, slug, publication_date, last_edit_date, is_published, featured_image_url, created_at, featured FROM posts WHERE user_id = $1 ORDER BY created_at DESC`
 	rows, err := pp.DB.Query(query, userID)
 	if err != nil {
 		return &list, err
@@ -197,7 +198,7 @@ func (pp *PostService) GetPostsByUser(userID int) (*PostsList, error) {
 
 	for rows.Next() {
 		var post Post
-		err := rows.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt)
+		err := rows.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt, &post.Featured)
 		if err != nil {
 			return nil, err
 		}
@@ -346,17 +347,17 @@ func previewContentRaw(content string) string {
 	return strings.TrimSpace(result.String())
 }
 
-func (pp *PostService) Create(userID int, categoryID int, title, content string, isPublished bool, featuredImageURL string, slug string) (*Post, error) {
+func (pp *PostService) Create(userID int, categoryID int, title, content string, isPublished bool, featured bool, featuredImageURL string, slug string) (*Post, error) {
 	timefmt := time.Now()
 	query := `
-		INSERT INTO posts (user_id, category_id, title, content, slug, publication_date, last_edit_date, is_published, featured_image_url, created_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+		INSERT INTO posts (user_id, category_id, title, content, slug, publication_date, last_edit_date, is_published, featured, featured_image_url, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 		RETURNING post_id
 	`
 	var postID int
-	println(userID, categoryID, title, content, isPublished, featuredImageURL)
+	println(userID, categoryID, title, content, isPublished, featured, featuredImageURL)
 	err := pp.DB.QueryRow(query, userID, categoryID, title, content, slug, timefmt,
-		timefmt, isPublished, featuredImageURL, timefmt).Scan(&postID)
+		timefmt, isPublished, featured, featuredImageURL, timefmt).Scan(&postID)
 	if err != nil {
 		fmt.Printf("Error: %v", err)
 		return nil, fmt.Errorf("create post: %w", err)
@@ -374,6 +375,7 @@ func (pp *PostService) Create(userID int, categoryID int, title, content string,
 		PublicationDate:  timefmt.Format("January 2, 2006"),
 		LastEditDate:     timefmt.Format("January 2, 2006"),
 		IsPublished:      isPublished,
+		Featured:         featured,
 		FeaturedImageURL: featuredImageURL,
 		CreatedAt:        timefmt.Format("January 2, 2006"),
 	}, nil
@@ -381,14 +383,14 @@ func (pp *PostService) Create(userID int, categoryID int, title, content string,
 
 func (pp *PostService) GetByID(id int) (*Post, error) {
 	var post Post
-	row := pp.DB.QueryRow(`SELECT post_id, user_id, category_id, title, content, slug, publication_date, last_edit_date, is_published, featured_image_url, created_at FROM posts WHERE post_id=$1`, id)
-	if err := row.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt); err != nil {
+	row := pp.DB.QueryRow(`SELECT post_id, user_id, category_id, title, content, slug, publication_date, last_edit_date, is_published, featured_image_url, created_at, featured FROM posts WHERE post_id=$1`, id)
+	if err := row.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt, &post.Featured); err != nil {
 		return nil, err
 	}
 	return &post, nil
 }
 
-func (pp *PostService) Update(id int, categoryID int, title, content string, isPublished bool, featuredImageURL, slug string) error {
+func (pp *PostService) Update(id int, categoryID int, title, content string, isPublished bool, featured bool, featuredImageURL, slug string) error {
 	// Fetch existing post to detect slug change
 	existing, err := pp.GetByID(id)
 	if err != nil {
@@ -414,8 +416,8 @@ func (pp *PostService) Update(id int, categoryID int, title, content string, isP
 		featuredImageURL = strings.ReplaceAll(featuredImageURL, oldPrefix, newPrefix)
 	}
 
-	_, err = pp.DB.Exec(`UPDATE posts SET category_id=$1, title=$2, content=$3, slug=$4, last_edit_date=$5, is_published=$6, featured_image_url=$7 WHERE post_id=$8`,
-		categoryID, title, content, newSlug, time.Now(), isPublished, featuredImageURL, id)
+	_, err = pp.DB.Exec(`UPDATE posts SET category_id=$1, title=$2, content=$3, slug=$4, last_edit_date=$5, is_published=$6, featured=$7, featured_image_url=$8 WHERE post_id=$9`,
+		categoryID, title, content, newSlug, time.Now(), isPublished, featured, featuredImageURL, id)
 	return err
 }
 
