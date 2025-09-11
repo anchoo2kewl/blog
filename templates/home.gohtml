@@ -38,9 +38,9 @@
                 <a href="/blog/{{.Slug}}">{{.Title}}</a>
             </h2>
             
-            <div class="blog-post-excerpt">
-                {{if gt (len .Content) 200}}
-                    {{slice .Content 0 200}}...
+            <div class="blog-post-excerpt prose dark:prose-invert max-w-none">
+                {{if .ContentHTML}}
+                    {{.ContentHTML}}
                 {{else}}
                     {{.Content}}
                 {{end}}
@@ -118,8 +118,9 @@ function appendPost(post) {
             <h2 class="blog-post-title">
                 <a href="/blog/${post.Slug}">${post.Title}</a>
             </h2>
-            <div class="blog-post-excerpt">
-                ${post.Content && post.Content.length > 200 ? post.Content.substring(0, 200) + '...' : (post.Content || '')}
+            <div class="blog-post-excerpt prose dark:prose-invert max-w-none">
+            <div class="blog-post-excerpt prose dark:prose-invert max-w-none">
+                ${post.ContentHTML || (post.Content && post.Content.length > 200 ? post.Content.substring(0, 200) + '...' : (post.Content || ''))}
             </div>
             <div class="flex items-center justify-between">
                 <a href="/blog/${post.Slug}" class="read-more">

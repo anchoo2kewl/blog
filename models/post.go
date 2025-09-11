@@ -1,14 +1,14 @@
 package models
 
 import (
-    "database/sql"
-    "fmt"
-    "html/template"
-    "regexp"
-    "strings"
-    "time"
-    "os"
-    "path/filepath"
+	"database/sql"
+	"fmt"
+	"html/template"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
+	"time"
 )
 
 type PostsList struct {
@@ -32,7 +32,7 @@ type Post struct {
 }
 
 type PostService struct {
-    DB *sql.DB
+	DB *sql.DB
 }
 
 // Create will create a new session for the user provided. The session token
@@ -64,9 +64,9 @@ func (pp *PostService) GetTopPosts() (*PostsList, error) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		post.CreatedAt = t.Format(time.RFC3339) // Keep original for JavaScript
+		post.CreatedAt = t.Format(time.RFC3339)            // Keep original for JavaScript
 		post.PublicationDate = t.Format("January 2, 2006") // Readable fallback
-		
+
 		// Parse and format PublicationDate if it's different from CreatedAt
 		if post.PublicationDate != "" && post.PublicationDate != post.CreatedAt {
 			pubDate, pubErr := time.Parse(time.RFC3339, post.PublicationDate)
@@ -76,6 +76,9 @@ func (pp *PostService) GetTopPosts() (*PostsList, error) {
 		}
 
 		post.Content = trimContent(post.Content)
+
+		// Render trimmed content to HTML so previews keep Markdown formatting
+		post.ContentHTML = template.HTML(RenderContent(post.Content))
 
 		list.Posts = append(list.Posts, post)
 	}
@@ -110,9 +113,9 @@ func (pp *PostService) GetTopPostsWithPagination(limit int, offset int) (*PostsL
 		if err != nil {
 			fmt.Println(err)
 		}
-		post.CreatedAt = t.Format(time.RFC3339) // Keep original for JavaScript
+		post.CreatedAt = t.Format(time.RFC3339)            // Keep original for JavaScript
 		post.PublicationDate = t.Format("January 2, 2006") // Readable fallback
-		
+
 		// Parse and format PublicationDate if it's different from CreatedAt
 		if post.PublicationDate != "" && post.PublicationDate != post.CreatedAt {
 			pubDate, pubErr := time.Parse(time.RFC3339, post.PublicationDate)
@@ -122,6 +125,9 @@ func (pp *PostService) GetTopPostsWithPagination(limit int, offset int) (*PostsL
 		}
 
 		post.Content = trimContent(post.Content)
+
+		// Render trimmed content to HTML so previews keep Markdown formatting
+		post.ContentHTML = template.HTML(RenderContent(post.Content))
 
 		list.Posts = append(list.Posts, post)
 	}
@@ -159,7 +165,7 @@ func (pp *PostService) GetAllPosts() (*PostsList, error) {
 		}
 		post.CreatedAt = t.Format(time.RFC3339)
 		post.PublicationDate = t.Format("January 2, 2006")
-		
+
 		// Parse and format PublicationDate if it's different from CreatedAt
 		if post.PublicationDate != "" && post.PublicationDate != post.CreatedAt {
 			pubDate, pubErr := time.Parse(time.RFC3339, post.PublicationDate)
@@ -203,7 +209,7 @@ func (pp *PostService) GetPostsByUser(userID int) (*PostsList, error) {
 		}
 		post.CreatedAt = t.Format(time.RFC3339)
 		post.PublicationDate = t.Format("January 2, 2006")
-		
+
 		// Parse and format PublicationDate if it's different from CreatedAt
 		if post.PublicationDate != "" && post.PublicationDate != post.CreatedAt {
 			pubDate, pubErr := time.Parse(time.RFC3339, post.PublicationDate)
@@ -225,49 +231,49 @@ func (pp *PostService) GetPostsByUser(userID int) (*PostsList, error) {
 
 // Function to trim content up to the <more--> tag
 func trimContent(content string) string {
-    // Prefer everything before read-more marker; support escaped version too
-    if idx := strings.Index(content, "<more-->"); idx != -1 {
-        content = content[:idx]
-    } else if idx := strings.Index(content, "&lt;more--&gt;"); idx != -1 {
-        content = content[:idx]
-    }
-    // Remove fenced code blocks ```...```
-    fence := regexp.MustCompile("(?s)```.*?```")
-    content = fence.ReplaceAllString(content, " ")
-    // Remove stray backticks
-    content = strings.ReplaceAll(content, "```", " ")
-    content = strings.ReplaceAll(content, "`", "")
-    // Strip HTML tags
-    content = stripHTML(content)
-    // Collapse whitespace
-    words := strings.Fields(content)
-    if len(words) == 0 {
-        return ""
-    }
-    // If there was no read-more, fall back to first N words
-    N := 40
-    if len(words) > N {
-        words = words[:N]
-    }
-    return strings.Join(words, " ")
+	// Prefer everything before read-more marker; support escaped version too
+	if idx := strings.Index(content, "<more-->"); idx != -1 {
+		content = content[:idx]
+	} else if idx := strings.Index(content, "&lt;more--&gt;"); idx != -1 {
+		content = content[:idx]
+	}
+	// Remove fenced code blocks ```...```
+	fence := regexp.MustCompile("(?s)```.*?```")
+	content = fence.ReplaceAllString(content, " ")
+	// Remove stray backticks
+	content = strings.ReplaceAll(content, "```", " ")
+	content = strings.ReplaceAll(content, "`", "")
+	// Strip HTML tags
+	content = stripHTML(content)
+	// Collapse whitespace
+	words := strings.Fields(content)
+	if len(words) == 0 {
+		return ""
+	}
+	// If there was no read-more, fall back to first N words
+	N := 40
+	if len(words) > N {
+		words = words[:N]
+	}
+	return strings.Join(words, " ")
 }
 
 func stripHTML(s string) string {
-    var b strings.Builder
-    in := false
-    for _, r := range s {
-        switch r {
-        case '<':
-            in = true
-        case '>':
-            in = false
-        default:
-            if !in {
-                b.WriteRune(r)
-            }
-        }
-    }
-    return b.String()
+	var b strings.Builder
+	in := false
+	for _, r := range s {
+		switch r {
+		case '<':
+			in = true
+		case '>':
+			in = false
+		default:
+			if !in {
+				b.WriteRune(r)
+			}
+		}
+	}
+	return b.String()
 }
 
 func (pp *PostService) Create(userID int, categoryID int, title, content string, isPublished bool, featuredImageURL string, slug string) (*Post, error) {
@@ -304,41 +310,41 @@ func (pp *PostService) Create(userID int, categoryID int, title, content string,
 }
 
 func (pp *PostService) GetByID(id int) (*Post, error) {
-    var post Post
-    row := pp.DB.QueryRow(`SELECT post_id, user_id, category_id, title, content, slug, publication_date, last_edit_date, is_published, featured_image_url, created_at FROM posts WHERE post_id=$1`, id)
-    if err := row.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt); err != nil {
-        return nil, err
-    }
-    return &post, nil
+	var post Post
+	row := pp.DB.QueryRow(`SELECT post_id, user_id, category_id, title, content, slug, publication_date, last_edit_date, is_published, featured_image_url, created_at FROM posts WHERE post_id=$1`, id)
+	if err := row.Scan(&post.ID, &post.UserID, &post.CategoryID, &post.Title, &post.Content, &post.Slug, &post.PublicationDate, &post.LastEditDate, &post.IsPublished, &post.FeaturedImageURL, &post.CreatedAt); err != nil {
+		return nil, err
+	}
+	return &post, nil
 }
 
 func (pp *PostService) Update(id int, categoryID int, title, content string, isPublished bool, featuredImageURL, slug string) error {
-    // Fetch existing post to detect slug change
-    existing, err := pp.GetByID(id)
-    if err != nil {
-        return err
-    }
+	// Fetch existing post to detect slug change
+	existing, err := pp.GetByID(id)
+	if err != nil {
+		return err
+	}
 
-    oldSlug := strings.TrimSpace(existing.Slug)
-    newSlug := strings.TrimSpace(slug)
+	oldSlug := strings.TrimSpace(existing.Slug)
+	newSlug := strings.TrimSpace(slug)
 
-    // If slug changed, rename upload dir and rewrite URLs in content and featured image
-    if oldSlug != "" && newSlug != "" && oldSlug != newSlug {
-        oldDir := filepath.Join("static", "uploads", oldSlug)
-        newDir := filepath.Join("static", "uploads", newSlug)
-        if _, statErr := os.Stat(oldDir); statErr == nil {
-            // Ensure parent exists, then rename dir if possible
-            _ = os.MkdirAll(filepath.Dir(newDir), 0o755)
-            _ = os.Rename(oldDir, newDir)
-        }
-        // Update URLs inside content and featured URL
-        oldPrefix := "/static/uploads/" + oldSlug + "/"
-        newPrefix := "/static/uploads/" + newSlug + "/"
-        content = strings.ReplaceAll(content, oldPrefix, newPrefix)
-        featuredImageURL = strings.ReplaceAll(featuredImageURL, oldPrefix, newPrefix)
-    }
+	// If slug changed, rename upload dir and rewrite URLs in content and featured image
+	if oldSlug != "" && newSlug != "" && oldSlug != newSlug {
+		oldDir := filepath.Join("static", "uploads", oldSlug)
+		newDir := filepath.Join("static", "uploads", newSlug)
+		if _, statErr := os.Stat(oldDir); statErr == nil {
+			// Ensure parent exists, then rename dir if possible
+			_ = os.MkdirAll(filepath.Dir(newDir), 0o755)
+			_ = os.Rename(oldDir, newDir)
+		}
+		// Update URLs inside content and featured URL
+		oldPrefix := "/static/uploads/" + oldSlug + "/"
+		newPrefix := "/static/uploads/" + newSlug + "/"
+		content = strings.ReplaceAll(content, oldPrefix, newPrefix)
+		featuredImageURL = strings.ReplaceAll(featuredImageURL, oldPrefix, newPrefix)
+	}
 
-    _, err = pp.DB.Exec(`UPDATE posts SET category_id=$1, title=$2, content=$3, slug=$4, last_edit_date=$5, is_published=$6, featured_image_url=$7 WHERE post_id=$8`,
-        categoryID, title, content, newSlug, time.Now(), isPublished, featuredImageURL, id)
-    return err
+	_, err = pp.DB.Exec(`UPDATE posts SET category_id=$1, title=$2, content=$3, slug=$4, last_edit_date=$5, is_published=$6, featured_image_url=$7 WHERE post_id=$8`,
+		categoryID, title, content, newSlug, time.Now(), isPublished, featuredImageURL, id)
+	return err
 }
