@@ -25,6 +25,7 @@ type Slide struct {
 	IsPublished     bool
 	CreatedAt       string
 	UpdatedAt       string
+	RelativeTime    string              // For displaying "10 months ago"
 	Categories      []Category `json:"categories,omitempty"`
 }
 

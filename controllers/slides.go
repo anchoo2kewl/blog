@@ -331,6 +331,11 @@ func (s Slides) PublicSlidesList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Format relative times for slides
+	for i := range slides.Slides {
+		slides.Slides[i].RelativeTime = utils.FormatRelativeTime(slides.Slides[i].CreatedAt)
+	}
+
 	data := struct {
 		LoggedIn       bool
 		Username       string
