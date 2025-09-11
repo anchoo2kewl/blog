@@ -1,6 +1,6 @@
 <div align="center">
 
-# Blog Platform (Go 1.25)
+# Blog Platform (Go 1.25) - Test Deploy
 
 Modern, fast, and secure blog platform written in Go. Includes API token management, user roles, embedded templates, and a minimal, clean UI.
 
