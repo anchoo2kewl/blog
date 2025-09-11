@@ -1,24 +1,673 @@
-{"level":"info","ts":1757605066.84192,"caller":"blog/main.go:39","msg":"API Token: secretToken"}
-{"level":"info","ts":1757605066.861355,"caller":"blog/db.go:34","msg":"Database connection established!"}
+{"level":"info","ts":1757609677.435591,"caller":"blog/main.go:39","msg":"API Token: secretToken"}
+{"level":"info","ts":1757609677.448742,"caller":"blog/db.go:34","msg":"Database connection established!"}
 Signups Disabled ...
-{"level":"info","ts":1757605066.8695219,"caller":"blog/main.go:288","msg":"server listening on :22222"}
+{"level":"info","ts":1757609677.4516969,"caller":"blog/main.go:288","msg":"server listening on :22222"}
+2025/09/11 12:55:34 "GET http://localhost:22222/admin/posts/12/edit HTTP/1.1" from [::1]:51942 - 200 103119B in 90.429625ms
+2025/09/11 12:55:34 "GET http://localhost:22222/static/uploads/featured/test123/65e175a5ccd0bc5b85f1318d492eac6b.jpg HTTP/1.1" from [::1]:51942 - 304 0B in 177.625µs
+2025/09/11 12:55:34 "GET http://localhost:22222/.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" from [::1]:51942 - 404 1125B in 34.952875ms
+2025/09/11 12:55:35 "GET http://localhost:22222/admin/uploads/list?slug=test123 HTTP/1.1" from [::1]:51942 - 200 832B in 78.480167ms
+2025/09/11 12:55:35 "GET http://localhost:22222/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png HTTP/1.1" from [::1]:51942 - 304 0B in 92.708µs
+2025/09/11 12:55:35 "GET http://localhost:22222/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg HTTP/1.1" from [::1]:51943 - 304 0B in 61.708µs
+2025/09/11 12:55:35 "GET http://localhost:22222/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg HTTP/1.1" from [::1]:51942 - 304 0B in 56.583µs
+2025/09/11 12:55:35 "GET http://localhost:22222/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png HTTP/1.1" from [::1]:51951 - 304 0B in 41.625µs
+2025/09/11 12:55:35 "GET http://localhost:22222/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg HTTP/1.1" from [::1]:51952 - 304 0B in 35.625µs
+2025/09/11 12:55:39 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Fpost%2Ftest123%2F924b4147c15220289f3e21b6206c1e3b.jpg HTTP/1.1" from [::1]:51952 - 200 96B in 71.1115ms
+2025/09/11 12:55:39 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Fpost%2Ftest123%2Fa5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg HTTP/1.1" from [::1]:51952 - 200 96B in 52.189792ms
+2025/09/11 12:55:40 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Fpost%2Ftest123%2Fb19716d26df45da2e6cc652550142ffa.png HTTP/1.1" from [::1]:51952 - 200 96B in 56.023209ms
+2025/09/11 12:55:40 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Fpost%2Ftest123%2Fe890909a2778f4bd61bf7471d1d13bc9.png HTTP/1.1" from [::1]:51952 - 200 96B in 48.767417ms
+2025/09/11 12:55:40 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Fpost%2Ftest123%2F13e7b3d079cbcdac21f5232f12e175b8.jpg HTTP/1.1" from [::1]:51952 - 200 96B in 51.103667ms
+2025/09/11 12:55:40 "GET http://localhost:22222/admin/uploads/list?slug=test123 HTTP/1.1" from [::1]:51952 - 200 26B in 51.0785ms
+2025/09/11 12:55:52 "GET http://localhost:22222/admin/uploads/list HTTP/1.1" from [::1]:51952 - 200 2369B in 73.622541ms
+2025/09/11 12:55:57 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Ffeatured%2Ftest123%2F65e175a5ccd0bc5b85f1318d492eac6b.jpg HTTP/1.1" from [::1]:51952 - 200 100B in 53.497875ms
+2025/09/11 12:55:57 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Fpost%2Ffictitious-blog-post%2F69b0ce4db9ceee3862ed23ab3906f4d4.png HTTP/1.1" from [::1]:51952 - 200 109B in 71.604167ms
+2025/09/11 12:55:57 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Fpost%2Ffictitious-blog-post%2F945f9ac5ea7da5b75fe7d53c56883432.jpg HTTP/1.1" from [::1]:51952 - 200 109B in 48.181667ms
+2025/09/11 12:55:57 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Fpost%2Ffictitious-blog-post%2F1eabe5d8f984e29c4618042c8d06d88d.webp HTTP/1.1" from [::1]:51952 - 200 110B in 48.153791ms
+2025/09/11 12:55:57 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Fpost%2Ffictitious-blog-post%2F58cc03a9b8135e2df88aaefad4d13a4f.png HTTP/1.1" from [::1]:51952 - 200 109B in 49.201667ms
+2025/09/11 12:55:57 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Ffeatured%2Fadc4007f1649ec0ca4d22289485f0b6b.png HTTP/1.1" from [::1]:51952 - 200 92B in 49.16025ms
+2025/09/11 12:55:57 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Fpost%2Foptimizing-cloud-resource-allocation-ml%2Ffbf3100f5d85d1111e597715c30cd3fa.png HTTP/1.1" from [::1]:51952 - 200 128B in 47.515833ms
+2025/09/11 12:55:57 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Fpost%2Foptimizing-cloud-resource-allocation-ml%2F62a53859404fc9c29c70d4c5d37a835e.png HTTP/1.1" from [::1]:51952 - 200 128B in 87.319458ms
+2025/09/11 12:55:57 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Fpost%2Foptimizing-cloud-resource-allocation-ml%2F69e500a680d02f2abce574233c8e0e65.jpg HTTP/1.1" from [::1]:51952 - 200 128B in 47.59425ms
+2025/09/11 12:55:58 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Fpost%2Foptimizing-cloud-resource-allocation-ml%2Fc740efbaeb199ff38ce22f5ff87ed77e.jpg HTTP/1.1" from [::1]:51952 - 200 128B in 50.522875ms
+2025/09/11 12:55:58 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Ffeatured%2Foptimizing-cloud-resource-allocation-ml%2F4f49bd9239228cacc489f38fc3a31c3e.jpg HTTP/1.1" from [::1]:51952 - 200 132B in 49.180083ms
+2025/09/11 12:55:58 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Ffeatured%2Foptimizing-cloud-resource-allocation-ml%2F9cfd708535d1aed618fc3e082ed859fc.jpg HTTP/1.1" from [::1]:51952 - 200 132B in 116.569416ms
+2025/09/11 12:55:58 "DELETE http://localhost:22222/admin/uploads?path=%2Fstatic%2Fuploads%2Ff58550ee0be7f3d1495cfe00288d144b.jpg HTTP/1.1" from [::1]:51952 - 200 83B in 59.851209ms
+2025/09/11 12:55:58 "GET http://localhost:22222/admin/uploads/list HTTP/1.1" from [::1]:51952 - 200 26B in 48.468292ms
+2025/09/11 12:56:23 "POST http://localhost:22222/admin/posts/12 HTTP/1.1" from [::1]:51952 - 302 0B in 88.998542ms
+Slug: test123
+Post: &{12 2 1 Test123 </p>Modern ML-driven autoscaling delivers 50–70% cost reductions and 10× reliability gains, plus the patterns, pitfalls, and a <span style="color: #9c2626">practical</span> rollout plan. <more-->
+
+## TL;DR
+
+- **Impact at scale:** Real-world deployments report **50–70% lower costs** and **~10× reliability** improvements from ML-based autoscaling.
+- **Winning pattern:** Blend **predictive ML** (look-ahead) with **reactive heuristics**, driven by **business-specific signals** (not just CPU/RAM).
+- **Architecture shift:** Move from per-service scaling to **holistic, dependency-aware** scaling across microservices.
+- **Ops truth:** Most incidents are **distributed-systems** issues, not model math—design for resilience first.
+- **What to track:** SLOs for **P95 latency**, **accuracy**, **feature freshness**, and **scale-up/scale-down time**
+
+```js
+
+export function testEpic(epicFunc: any, action: any, expectCallback: any) {
+  // BehaviorSubject - contains the base state
+  // .subscribe - run this state throw the whole pipe
+  const action$ = of(action)
+  const epic = epicFunc(action$)
+  epic.subscribe(() => {
+    expectCallback()
+    jest.clearAllMocks()
+  })
+}
+```
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p>
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p>
+
+<div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center;">
+  <a href="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" data-lightbox="article-images" data-title="b19716d26df45da2e6cc652550142ffa.png">
+    <img src="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" alt="b19716d26df45da2e6cc652550142ffa.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" data-lightbox="article-images" data-title="e890909a2778f4bd61bf7471d1d13bc9.png">
+    <img src="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" alt="e890909a2778f4bd61bf7471d1d13bc9.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" data-lightbox="article-images" data-title="13e7b3d079cbcdac21f5232f12e175b8.jpg">
+    <img src="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" alt="13e7b3d079cbcdac21f5232f12e175b8.jpg" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+</div>
+
+ <p></p></p>
+
+<p>Modern ML-driven autoscaling delivers 50–70% cost reductions and 10× reliability gains, plus the patterns, pitfalls, and a <span style="color: #9c2626">practical</span> rollout plan.</p>
+
+<h2>TL;DR</h2>
+
+<ul class="list-disc pl-2">
+<li class="mb-2"><p><strong>Impact at scale:</strong> Real-world deployments report <strong>50–70% lower costs</strong> and <strong>~10× reliability</strong> improvements from ML-based autoscaling.</p></li>
+
+<li class="mb-2"><p><strong>Winning pattern:</strong> Blend <strong>predictive ML</strong> (look-ahead) with <strong>reactive heuristics</strong>, driven by <strong>business-specific signals</strong> (not just CPU/RAM).</p></li>
+
+<li class="mb-2"><p><strong>Architecture shift:</strong> Move from per-service scaling to <strong>holistic, dependency-aware</strong> scaling across microservices.</p></li>
+
+<li class="mb-2"><p><strong>Ops truth:</strong> Most incidents are <strong>distributed-systems</strong> issues, not model math—design for resilience first.</p></li>
+
+<li class="mb-2"><p><strong>What to track:</strong> SLOs for <strong>P95 latency</strong>, <strong>accuracy</strong>, <strong>feature freshness</strong>, and <strong>scale-up/scale-down time</strong></p></li>
+</ul>
+
+<p><pre><code class="language-js">export function testEpic(epicFunc: any, action: any, expectCallback: any) {
+  // BehaviorSubject - contains the base state
+  // .subscribe - run this state throw the whole pipe
+  const action$ = of(action)
+  const epic = epicFunc(action$)
+  epic.subscribe(() =&gt; {
+    expectCallback()
+    jest.clearAllMocks()
+  })
+}
+</code></pre>
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p></p>
+
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p>
+
+<div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center;">
+  <a href="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" data-lightbox="article-images" data-title="b19716d26df45da2e6cc652550142ffa.png">
+    <img src="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" alt="b19716d26df45da2e6cc652550142ffa.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" data-lightbox="article-images" data-title="e890909a2778f4bd61bf7471d1d13bc9.png">
+    <img src="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" alt="e890909a2778f4bd61bf7471d1d13bc9.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" data-lightbox="article-images" data-title="13e7b3d079cbcdac21f5232f12e175b8.jpg">
+    <img src="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" alt="13e7b3d079cbcdac21f5232f12e175b8.jpg" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+</div>
+ test123 September 11, 2025 September 11, 2025 false /static/uploads/featured/test123/65e175a5ccd0bc5b85f1318d492eac6b.jpg September 11, 2025 []}
+&{2 anchoo2kewl anchoo2kewl@gmail.com    2}2025/09/11 12:56:23 "GET http://localhost:22222/blog/test123 HTTP/1.1" from [::1]:51952 - 200 51698B in 56.015167ms
+2025/09/11 12:56:23 "GET http://localhost:22222/.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" from [::1]:51952 - 404 1125B in 336.125µs
+2025/09/11 12:56:23 "GET http://localhost:22222/static/uploads/featured/test123/65e175a5ccd0bc5b85f1318d492eac6b.jpg HTTP/1.1" from [::1]:51952 - 404 19B in 39.292µs
+2025/09/11 12:56:26 "GET http://localhost:22222/admin/posts/12/edit HTTP/1.1" from [::1]:51952 - 200 103119B in 69.625458ms
+2025/09/11 12:56:26 "GET http://localhost:22222/.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" from [::1]:51952 - 404 1125B in 140.667µs
+2025/09/11 12:56:26 "GET http://localhost:22222/static/uploads/featured/test123/65e175a5ccd0bc5b85f1318d492eac6b.jpg HTTP/1.1" from [::1]:51951 - 404 19B in 98.708µs
+2025/09/11 12:56:26 "GET http://localhost:22222/static/uploads/featured/test123/65e175a5ccd0bc5b85f1318d492eac6b.jpg HTTP/1.1" from [::1]:51951 - 404 19B in 20.833µs
+2025/09/11 12:56:36 "POST http://localhost:22222/admin/uploads?slug=test123&type=featured HTTP/1.1" from [::1]:51951 - 200 80B in 73.94225ms
+2025/09/11 12:56:36 "GET http://localhost:22222/static/uploads/featured/test123/21fd7efa4ab81186348ebeb4db786029.jpg HTTP/1.1" from [::1]:51951 - 200 370794B in 192.75µs
 Posts fetched successfully! Count: 5
-DEBUG HOME: User logged in: anchoo2kewl, Email: anchoo2kewl@gmail.com, Role: 2, IsAdmin: true
-2025/09/11 11:37:49 "GET http://localhost:22222/ HTTP/1.1" from [::1]:61053 - 200 194891B in 81.2255ms
-Paginated posts fetched successfully! Limit: 5, Offset: 5
-2025/09/11 11:37:50 "GET http://localhost:22222/api/posts/load-more?offset=5 HTTP/1.1" from [::1]:61053 - 200 67870B in 8.937375ms
-Paginated posts fetched successfully! Limit: 5, Offset: 10
-2025/09/11 11:37:50 "GET http://localhost:22222/api/posts/load-more?offset=10 HTTP/1.1" from [::1]:61053 - 200 15B in 2.246458ms
-2025/09/11 11:39:01 "GET http://localhost:22222/admin/slides HTTP/1.1" from [::1]:61513 - 302 30B in 48.875µs
-2025/09/11 12:01:38 "GET http://localhost:22222/signin HTTP/1.1" from [::1]:51324 - 200 14250B in 1.080375ms
-authenticate: crypto/bcrypt: hashedPassword is not the hash of the given password
-2025/09/11 12:01:44 "POST http://localhost:22222/signin HTTP/1.1" from [::1]:51362 - 500 22B in 97.237042ms
-2025/09/11 12:02:30 "GET http://localhost:22222/slides HTTP/1.1" from [::1]:51679 - 200 16059B in 24.697333ms
-2025/09/11 12:02:36 "GET http://localhost:22222/slides/test-presentation HTTP/1.1" from [::1]:51730 - 200 9867B in 4.905667ms
-2025/09/11 12:02:52 "GET http://localhost:22222/admin/slides HTTP/1.1" from [::1]:51817 - 200 33285B in 89.346459ms
-2025/09/11 12:03:00 "GET http://localhost:22222/slides/test-presentation HTTP/1.1" from [::1]:51817 - 200 10357B in 84.414208ms
-2025/09/11 12:03:28 "GET http://localhost:22222/slides HTTP/1.1" from [::1]:52039 - 200 19180B in 9.890542ms
-2025/09/11 12:03:51 "GET http://localhost:22222/slides/demo-presentation HTTP/1.1" from [::1]:52186 - 200 10534B in 6.45625ms
-2025/09/11 12:14:38 "GET http://localhost:22222/admin/posts/new HTTP/1.1" from [::1]:55193 - 200 86699B in 103.791625ms
-2025/09/11 12:14:41 "POST http://localhost:22222/admin/preview HTTP/1.1" from [::1]:55193 - 200 4589B in 92.76025ms
-2025/09/11 12:15:01 "POST http://localhost:22222/admin/preview HTTP/1.1" from [::1]:55193 - 200 4589B in 86.288917ms
+DEBUG HOME: User not logged in, error: http: named cookie not present
+DEBUG HOME: Session token from cookie: NO_COOKIE
+2025/09/11 12:56:37 "GET http://localhost:22222/ HTTP/1.1" from [::1]:52265 - 200 185884B in 8.325166ms
+2025/09/11 12:56:38 "POST http://localhost:22222/admin/posts/12 HTTP/1.1" from [::1]:51951 - 302 0B in 82.48725ms
+Slug: test123
+Post: &{12 2 1 Test123 </p>Modern ML-driven autoscaling delivers 50–70% cost reductions and 10× reliability gains, plus the patterns, pitfalls, and a <span style="color: #9c2626">practical</span> rollout plan. <more-->
+
+## TL;DR
+
+- **Impact at scale:** Real-world deployments report **50–70% lower costs** and **~10× reliability** improvements from ML-based autoscaling.
+- **Winning pattern:** Blend **predictive ML** (look-ahead) with **reactive heuristics**, driven by **business-specific signals** (not just CPU/RAM).
+- **Architecture shift:** Move from per-service scaling to **holistic, dependency-aware** scaling across microservices.
+- **Ops truth:** Most incidents are **distributed-systems** issues, not model math—design for resilience first.
+- **What to track:** SLOs for **P95 latency**, **accuracy**, **feature freshness**, and **scale-up/scale-down time**
+
+```js
+
+export function testEpic(epicFunc: any, action: any, expectCallback: any) {
+  // BehaviorSubject - contains the base state
+  // .subscribe - run this state throw the whole pipe
+  const action$ = of(action)
+  const epic = epicFunc(action$)
+  epic.subscribe(() => {
+    expectCallback()
+    jest.clearAllMocks()
+  })
+}
+```
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p>
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p>
+
+<div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center;">
+  <a href="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" data-lightbox="article-images" data-title="b19716d26df45da2e6cc652550142ffa.png">
+    <img src="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" alt="b19716d26df45da2e6cc652550142ffa.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" data-lightbox="article-images" data-title="e890909a2778f4bd61bf7471d1d13bc9.png">
+    <img src="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" alt="e890909a2778f4bd61bf7471d1d13bc9.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" data-lightbox="article-images" data-title="13e7b3d079cbcdac21f5232f12e175b8.jpg">
+    <img src="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" alt="13e7b3d079cbcdac21f5232f12e175b8.jpg" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+</div>
+
+ <p></p></p>
+
+<p>Modern ML-driven autoscaling delivers 50–70% cost reductions and 10× reliability gains, plus the patterns, pitfalls, and a <span style="color: #9c2626">practical</span> rollout plan.</p>
+
+<h2>TL;DR</h2>
+
+<ul class="list-disc pl-2">
+<li class="mb-2"><p><strong>Impact at scale:</strong> Real-world deployments report <strong>50–70% lower costs</strong> and <strong>~10× reliability</strong> improvements from ML-based autoscaling.</p></li>
+
+<li class="mb-2"><p><strong>Winning pattern:</strong> Blend <strong>predictive ML</strong> (look-ahead) with <strong>reactive heuristics</strong>, driven by <strong>business-specific signals</strong> (not just CPU/RAM).</p></li>
+
+<li class="mb-2"><p><strong>Architecture shift:</strong> Move from per-service scaling to <strong>holistic, dependency-aware</strong> scaling across microservices.</p></li>
+
+<li class="mb-2"><p><strong>Ops truth:</strong> Most incidents are <strong>distributed-systems</strong> issues, not model math—design for resilience first.</p></li>
+
+<li class="mb-2"><p><strong>What to track:</strong> SLOs for <strong>P95 latency</strong>, <strong>accuracy</strong>, <strong>feature freshness</strong>, and <strong>scale-up/scale-down time</strong></p></li>
+</ul>
+
+<p><pre><code class="language-js">export function testEpic(epicFunc: any, action: any, expectCallback: any) {
+  // BehaviorSubject - contains the base state
+  // .subscribe - run this state throw the whole pipe
+  const action$ = of(action)
+  const epic = epicFunc(action$)
+  epic.subscribe(() =&gt; {
+    expectCallback()
+    jest.clearAllMocks()
+  })
+}
+</code></pre>
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p></p>
+
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p>
+
+<div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center;">
+  <a href="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" data-lightbox="article-images" data-title="b19716d26df45da2e6cc652550142ffa.png">
+    <img src="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" alt="b19716d26df45da2e6cc652550142ffa.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" data-lightbox="article-images" data-title="e890909a2778f4bd61bf7471d1d13bc9.png">
+    <img src="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" alt="e890909a2778f4bd61bf7471d1d13bc9.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" data-lightbox="article-images" data-title="13e7b3d079cbcdac21f5232f12e175b8.jpg">
+    <img src="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" alt="13e7b3d079cbcdac21f5232f12e175b8.jpg" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+</div>
+ test123 September 11, 2025 September 11, 2025 false /static/uploads/featured/test123/21fd7efa4ab81186348ebeb4db786029.jpg September 11, 2025 []}
+&{2 anchoo2kewl anchoo2kewl@gmail.com    2}2025/09/11 12:56:38 "GET http://localhost:22222/blog/test123 HTTP/1.1" from [::1]:51951 - 200 51698B in 56.847666ms
+2025/09/11 12:56:38 "GET http://localhost:22222/.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" from [::1]:51951 - 404 1125B in 303.083µs
+2025/09/11 12:56:38 "GET http://localhost:22222/static/uploads/featured/test123/21fd7efa4ab81186348ebeb4db786029.jpg HTTP/1.1" from [::1]:51951 - 304 0B in 154.667µs
+2025/09/11 12:56:38 "GET http://localhost:22222/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg HTTP/1.1" from [::1]:51952 - 404 19B in 64.708µs
+2025/09/11 12:56:38 "GET http://localhost:22222/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg HTTP/1.1" from [::1]:51952 - 404 19B in 26.041µs
+2025/09/11 12:56:40 "GET http://localhost:22222/admin/posts/12/edit HTTP/1.1" from [::1]:51952 - 200 103119B in 83.654667ms
+2025/09/11 12:56:40 "GET http://localhost:22222/.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" from [::1]:51952 - 404 1125B in 56.333µs
+2025/09/11 12:56:40 "GET http://localhost:22222/static/uploads/featured/test123/21fd7efa4ab81186348ebeb4db786029.jpg HTTP/1.1" from [::1]:51951 - 304 0B in 29.75µs
+Posts fetched successfully! Count: 5
+DEBUG HOME: User not logged in, error: http: named cookie not present
+DEBUG HOME: Session token from cookie: NO_COOKIE
+2025/09/11 12:56:45 "GET http://localhost:22222/ HTTP/1.1" from [::1]:52306 - 200 185884B in 6.778625ms
+2025/09/11 12:56:49 "POST http://localhost:22222/admin/uploads/multiple?slug=test123 HTTP/1.1" from [::1]:51951 - 200 780B in 67.75075ms
+2025/09/11 12:56:53 "POST http://localhost:22222/admin/posts/12 HTTP/1.1" from [::1]:51951 - 302 0B in 83.701208ms
+Slug: test123
+Post: &{12 2 1 Test123 </p>Modern ML-driven autoscaling delivers 50–70% cost reductions and 10× reliability gains, plus the patterns, pitfalls, and a <span style="color: #9c2626">practical</span> rollout plan. <more-->
+
+## TL;DR
+
+- **Impact at scale:** Real-world deployments report **50–70% lower costs** and **~10× reliability** improvements from ML-based autoscaling.
+- **Winning pattern:** Blend **predictive ML** (look-ahead) with **reactive heuristics**, driven by **business-specific signals** (not just CPU/RAM).
+- **Architecture shift:** Move from per-service scaling to **holistic, dependency-aware** scaling across microservices.
+- **Ops truth:** Most incidents are **distributed-systems** issues, not model math—design for resilience first.
+- **What to track:** SLOs for **P95 latency**, **accuracy**, **feature freshness**, and **scale-up/scale-down time**
+
+```js
+
+export function testEpic(epicFunc: any, action: any, expectCallback: any) {
+  // BehaviorSubject - contains the base state
+  // .subscribe - run this state throw the whole pipe
+  const action$ = of(action)
+  const epic = epicFunc(action$)
+  epic.subscribe(() => {
+    expectCallback()
+    jest.clearAllMocks()
+  })
+}
+```
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p>
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p>
+
+<div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center;">
+  <a href="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" data-lightbox="article-images" data-title="b19716d26df45da2e6cc652550142ffa.png">
+    <img src="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" alt="b19716d26df45da2e6cc652550142ffa.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" data-lightbox="article-images" data-title="e890909a2778f4bd61bf7471d1d13bc9.png">
+    <img src="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" alt="e890909a2778f4bd61bf7471d1d13bc9.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" data-lightbox="article-images" data-title="13e7b3d079cbcdac21f5232f12e175b8.jpg">
+    <img src="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" alt="13e7b3d079cbcdac21f5232f12e175b8.jpg" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+</div>
+
+
+          <div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center;">
+            <a href="/static/uploads/post/test123/26a5577b78a30d1571b2986589be3640.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_cw4ec6cw4ec6cw4e.png"><img src="/static/uploads/post/test123/26a5577b78a30d1571b2986589be3640.png" alt="Gemini_Generated_Image_cw4ec6cw4ec6cw4e.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/faa997d5d6b905b1dd1d0e36bbe12791.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr (1).png"><img src="/static/uploads/post/test123/faa997d5d6b905b1dd1d0e36bbe12791.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr (1).png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/bc976696b095bc5d98ece71b14b39597.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr (2).png"><img src="/static/uploads/post/test123/bc976696b095bc5d98ece71b14b39597.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr (2).png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/87e1c5febb50238c57449f1a35b0b780.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr.png"><img src="/static/uploads/post/test123/87e1c5febb50238c57449f1a35b0b780.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/f32b7a64fea1ed497bfecbda1119a3b2.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_yweydvyweydvywey.png"><img src="/static/uploads/post/test123/f32b7a64fea1ed497bfecbda1119a3b2.png" alt="Gemini_Generated_Image_yweydvyweydvywey.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a>
+          </div>
+        
+ <p></p></p>
+
+<p>Modern ML-driven autoscaling delivers 50–70% cost reductions and 10× reliability gains, plus the patterns, pitfalls, and a <span style="color: #9c2626">practical</span> rollout plan.</p>
+
+<h2>TL;DR</h2>
+
+<ul class="list-disc pl-2">
+<li class="mb-2"><p><strong>Impact at scale:</strong> Real-world deployments report <strong>50–70% lower costs</strong> and <strong>~10× reliability</strong> improvements from ML-based autoscaling.</p></li>
+
+<li class="mb-2"><p><strong>Winning pattern:</strong> Blend <strong>predictive ML</strong> (look-ahead) with <strong>reactive heuristics</strong>, driven by <strong>business-specific signals</strong> (not just CPU/RAM).</p></li>
+
+<li class="mb-2"><p><strong>Architecture shift:</strong> Move from per-service scaling to <strong>holistic, dependency-aware</strong> scaling across microservices.</p></li>
+
+<li class="mb-2"><p><strong>Ops truth:</strong> Most incidents are <strong>distributed-systems</strong> issues, not model math—design for resilience first.</p></li>
+
+<li class="mb-2"><p><strong>What to track:</strong> SLOs for <strong>P95 latency</strong>, <strong>accuracy</strong>, <strong>feature freshness</strong>, and <strong>scale-up/scale-down time</strong></p></li>
+</ul>
+
+<p><pre><code class="language-js">export function testEpic(epicFunc: any, action: any, expectCallback: any) {
+  // BehaviorSubject - contains the base state
+  // .subscribe - run this state throw the whole pipe
+  const action$ = of(action)
+  const epic = epicFunc(action$)
+  epic.subscribe(() =&gt; {
+    expectCallback()
+    jest.clearAllMocks()
+  })
+}
+</code></pre>
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p></p>
+
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p>
+
+<div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center;">
+  <a href="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" data-lightbox="article-images" data-title="b19716d26df45da2e6cc652550142ffa.png">
+    <img src="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" alt="b19716d26df45da2e6cc652550142ffa.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" data-lightbox="article-images" data-title="e890909a2778f4bd61bf7471d1d13bc9.png">
+    <img src="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" alt="e890909a2778f4bd61bf7471d1d13bc9.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" data-lightbox="article-images" data-title="13e7b3d079cbcdac21f5232f12e175b8.jpg">
+    <img src="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" alt="13e7b3d079cbcdac21f5232f12e175b8.jpg" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+</div>
+
+<div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center;">
+            <a href="/static/uploads/post/test123/26a5577b78a30d1571b2986589be3640.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_cw4ec6cw4ec6cw4e.png"><img src="/static/uploads/post/test123/26a5577b78a30d1571b2986589be3640.png" alt="Gemini_Generated_Image_cw4ec6cw4ec6cw4e.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/faa997d5d6b905b1dd1d0e36bbe12791.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr (1).png"><img src="/static/uploads/post/test123/faa997d5d6b905b1dd1d0e36bbe12791.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr (1).png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/bc976696b095bc5d98ece71b14b39597.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr (2).png"><img src="/static/uploads/post/test123/bc976696b095bc5d98ece71b14b39597.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr (2).png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/87e1c5febb50238c57449f1a35b0b780.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr.png"><img src="/static/uploads/post/test123/87e1c5febb50238c57449f1a35b0b780.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/f32b7a64fea1ed497bfecbda1119a3b2.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_yweydvyweydvywey.png"><img src="/static/uploads/post/test123/f32b7a64fea1ed497bfecbda1119a3b2.png" alt="Gemini_Generated_Image_yweydvyweydvywey.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a>
+          </div>
+ test123 September 11, 2025 September 11, 2025 false /static/uploads/featured/test123/21fd7efa4ab81186348ebeb4db786029.jpg September 11, 2025 []}
+&{2 anchoo2kewl anchoo2kewl@gmail.com    2}2025/09/11 12:56:53 "GET http://localhost:22222/blog/test123 HTTP/1.1" from [::1]:51951 - 200 53914B in 52.524625ms
+2025/09/11 12:56:53 "GET http://localhost:22222/.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" from [::1]:51951 - 404 1125B in 429.959µs
+2025/09/11 12:56:53 "GET http://localhost:22222/static/uploads/featured/test123/21fd7efa4ab81186348ebeb4db786029.jpg HTTP/1.1" from [::1]:51952 - 304 0B in 61.125µs
+2025/09/11 12:56:53 "GET http://localhost:22222/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg HTTP/1.1" from [::1]:51951 - 404 19B in 88.75µs
+2025/09/11 12:56:53 "GET http://localhost:22222/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg HTTP/1.1" from [::1]:51951 - 404 19B in 63.834µs
+2025/09/11 12:56:53 "GET http://localhost:22222/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png HTTP/1.1" from [::1]:51952 - 404 19B in 190.917µs
+2025/09/11 12:56:53 "GET http://localhost:22222/static/uploads/post/test123/faa997d5d6b905b1dd1d0e36bbe12791.png HTTP/1.1" from [::1]:51942 - 200 698390B in 1.047417ms
+2025/09/11 12:56:53 "GET http://localhost:22222/static/uploads/post/test123/bc976696b095bc5d98ece71b14b39597.png HTTP/1.1" from [::1]:51943 - 200 862743B in 2.056167ms
+2025/09/11 12:56:53 "GET http://localhost:22222/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg HTTP/1.1" from [::1]:51952 - 404 19B in 62.417µs
+2025/09/11 12:56:53 "GET http://localhost:22222/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png HTTP/1.1" from [::1]:52354 - 404 19B in 342.542µs
+2025/09/11 12:56:53 "GET http://localhost:22222/static/uploads/post/test123/87e1c5febb50238c57449f1a35b0b780.png HTTP/1.1" from [::1]:52353 - 200 964714B in 1.953ms
+2025/09/11 12:56:53 "GET http://localhost:22222/static/uploads/post/test123/f32b7a64fea1ed497bfecbda1119a3b2.png HTTP/1.1" from [::1]:51952 - 200 862743B in 1.346958ms
+2025/09/11 12:56:53 "GET http://localhost:22222/static/uploads/post/test123/26a5577b78a30d1571b2986589be3640.png HTTP/1.1" from [::1]:51951 - 200 2027742B in 10.549ms
+Slug: test123
+Post: &{12 2 1 Test123 </p>Modern ML-driven autoscaling delivers 50–70% cost reductions and 10× reliability gains, plus the patterns, pitfalls, and a <span style="color: #9c2626">practical</span> rollout plan. <more-->
+
+## TL;DR
+
+- **Impact at scale:** Real-world deployments report **50–70% lower costs** and **~10× reliability** improvements from ML-based autoscaling.
+- **Winning pattern:** Blend **predictive ML** (look-ahead) with **reactive heuristics**, driven by **business-specific signals** (not just CPU/RAM).
+- **Architecture shift:** Move from per-service scaling to **holistic, dependency-aware** scaling across microservices.
+- **Ops truth:** Most incidents are **distributed-systems** issues, not model math—design for resilience first.
+- **What to track:** SLOs for **P95 latency**, **accuracy**, **feature freshness**, and **scale-up/scale-down time**
+
+```js
+
+export function testEpic(epicFunc: any, action: any, expectCallback: any) {
+  // BehaviorSubject - contains the base state
+  // .subscribe - run this state throw the whole pipe
+  const action$ = of(action)
+  const epic = epicFunc(action$)
+  epic.subscribe(() => {
+    expectCallback()
+    jest.clearAllMocks()
+  })
+}
+```
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p>
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p>
+
+<div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center;">
+  <a href="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" data-lightbox="article-images" data-title="b19716d26df45da2e6cc652550142ffa.png">
+    <img src="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" alt="b19716d26df45da2e6cc652550142ffa.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" data-lightbox="article-images" data-title="e890909a2778f4bd61bf7471d1d13bc9.png">
+    <img src="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" alt="e890909a2778f4bd61bf7471d1d13bc9.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" data-lightbox="article-images" data-title="13e7b3d079cbcdac21f5232f12e175b8.jpg">
+    <img src="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" alt="13e7b3d079cbcdac21f5232f12e175b8.jpg" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+</div>
+
+
+          <div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center;">
+            <a href="/static/uploads/post/test123/26a5577b78a30d1571b2986589be3640.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_cw4ec6cw4ec6cw4e.png"><img src="/static/uploads/post/test123/26a5577b78a30d1571b2986589be3640.png" alt="Gemini_Generated_Image_cw4ec6cw4ec6cw4e.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/faa997d5d6b905b1dd1d0e36bbe12791.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr (1).png"><img src="/static/uploads/post/test123/faa997d5d6b905b1dd1d0e36bbe12791.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr (1).png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/bc976696b095bc5d98ece71b14b39597.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr (2).png"><img src="/static/uploads/post/test123/bc976696b095bc5d98ece71b14b39597.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr (2).png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/87e1c5febb50238c57449f1a35b0b780.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr.png"><img src="/static/uploads/post/test123/87e1c5febb50238c57449f1a35b0b780.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/f32b7a64fea1ed497bfecbda1119a3b2.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_yweydvyweydvywey.png"><img src="/static/uploads/post/test123/f32b7a64fea1ed497bfecbda1119a3b2.png" alt="Gemini_Generated_Image_yweydvyweydvywey.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a>
+          </div>
+        
+ <p></p></p>
+
+<p>Modern ML-driven autoscaling delivers 50–70% cost reductions and 10× reliability gains, plus the patterns, pitfalls, and a <span style="color: #9c2626">practical</span> rollout plan.</p>
+
+<h2>TL;DR</h2>
+
+<ul class="list-disc pl-2">
+<li class="mb-2"><p><strong>Impact at scale:</strong> Real-world deployments report <strong>50–70% lower costs</strong> and <strong>~10× reliability</strong> improvements from ML-based autoscaling.</p></li>
+
+<li class="mb-2"><p><strong>Winning pattern:</strong> Blend <strong>predictive ML</strong> (look-ahead) with <strong>reactive heuristics</strong>, driven by <strong>business-specific signals</strong> (not just CPU/RAM).</p></li>
+
+<li class="mb-2"><p><strong>Architecture shift:</strong> Move from per-service scaling to <strong>holistic, dependency-aware</strong> scaling across microservices.</p></li>
+
+<li class="mb-2"><p><strong>Ops truth:</strong> Most incidents are <strong>distributed-systems</strong> issues, not model math—design for resilience first.</p></li>
+
+<li class="mb-2"><p><strong>What to track:</strong> SLOs for <strong>P95 latency</strong>, <strong>accuracy</strong>, <strong>feature freshness</strong>, and <strong>scale-up/scale-down time</strong></p></li>
+</ul>
+
+<p><pre><code class="language-js">export function testEpic(epicFunc: any, action: any, expectCallback: any) {
+  // BehaviorSubject - contains the base state
+  // .subscribe - run this state throw the whole pipe
+  const action$ = of(action)
+  const epic = epicFunc(action$)
+  epic.subscribe(() =&gt; {
+    expectCallback()
+    jest.clearAllMocks()
+  })
+}
+</code></pre>
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p></p>
+
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p>
+
+<div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center;">
+  <a href="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" data-lightbox="article-images" data-title="b19716d26df45da2e6cc652550142ffa.png">
+    <img src="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" alt="b19716d26df45da2e6cc652550142ffa.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" data-lightbox="article-images" data-title="e890909a2778f4bd61bf7471d1d13bc9.png">
+    <img src="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" alt="e890909a2778f4bd61bf7471d1d13bc9.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" data-lightbox="article-images" data-title="13e7b3d079cbcdac21f5232f12e175b8.jpg">
+    <img src="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" alt="13e7b3d079cbcdac21f5232f12e175b8.jpg" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+</div>
+
+<div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center;">
+            <a href="/static/uploads/post/test123/26a5577b78a30d1571b2986589be3640.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_cw4ec6cw4ec6cw4e.png"><img src="/static/uploads/post/test123/26a5577b78a30d1571b2986589be3640.png" alt="Gemini_Generated_Image_cw4ec6cw4ec6cw4e.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/faa997d5d6b905b1dd1d0e36bbe12791.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr (1).png"><img src="/static/uploads/post/test123/faa997d5d6b905b1dd1d0e36bbe12791.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr (1).png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/bc976696b095bc5d98ece71b14b39597.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr (2).png"><img src="/static/uploads/post/test123/bc976696b095bc5d98ece71b14b39597.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr (2).png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/87e1c5febb50238c57449f1a35b0b780.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr.png"><img src="/static/uploads/post/test123/87e1c5febb50238c57449f1a35b0b780.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/f32b7a64fea1ed497bfecbda1119a3b2.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_yweydvyweydvywey.png"><img src="/static/uploads/post/test123/f32b7a64fea1ed497bfecbda1119a3b2.png" alt="Gemini_Generated_Image_yweydvyweydvywey.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a>
+          </div>
+ test123 September 11, 2025 September 11, 2025 false /static/uploads/featured/test123/21fd7efa4ab81186348ebeb4db786029.jpg September 11, 2025 []}
+&{2 anchoo2kewl anchoo2kewl@gmail.com    2}2025/09/11 12:56:56 "GET http://localhost:22222/blog/test123 HTTP/1.1" from [::1]:51951 - 200 53914B in 54.54625ms
+2025/09/11 12:56:56 "GET http://localhost:22222/static/uploads/featured/test123/21fd7efa4ab81186348ebeb4db786029.jpg HTTP/1.1" from [::1]:51951 - 304 0B in 138.917µs
+2025/09/11 12:56:56 "GET http://localhost:22222/.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" from [::1]:52353 - 404 1125B in 376.084µs
+2025/09/11 12:56:56 "GET http://localhost:22222/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg HTTP/1.1" from [::1]:51952 - 404 19B in 55.542µs
+2025/09/11 12:56:56 "GET http://localhost:22222/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg HTTP/1.1" from [::1]:51952 - 404 19B in 24.417µs
+2025/09/11 12:56:56 "GET http://localhost:22222/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png HTTP/1.1" from [::1]:52353 - 404 19B in 78.166µs
+2025/09/11 12:56:56 "GET http://localhost:22222/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg HTTP/1.1" from [::1]:51943 - 404 19B in 26.291µs
+2025/09/11 12:56:56 "GET http://localhost:22222/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png HTTP/1.1" from [::1]:51951 - 404 19B in 141.5µs
+2025/09/11 12:56:56 "GET http://localhost:22222/static/uploads/post/test123/26a5577b78a30d1571b2986589be3640.png HTTP/1.1" from [::1]:51952 - 304 0B in 61.834µs
+2025/09/11 12:56:56 "GET http://localhost:22222/static/uploads/post/test123/bc976696b095bc5d98ece71b14b39597.png HTTP/1.1" from [::1]:52353 - 304 0B in 17.5µs
+2025/09/11 12:56:56 "GET http://localhost:22222/static/uploads/post/test123/faa997d5d6b905b1dd1d0e36bbe12791.png HTTP/1.1" from [::1]:51943 - 304 0B in 37.333µs
+2025/09/11 12:56:56 "GET http://localhost:22222/static/uploads/post/test123/87e1c5febb50238c57449f1a35b0b780.png HTTP/1.1" from [::1]:51951 - 304 0B in 43.667µs
+2025/09/11 12:56:56 "GET http://localhost:22222/static/uploads/post/test123/f32b7a64fea1ed497bfecbda1119a3b2.png HTTP/1.1" from [::1]:51943 - 304 0B in 23.208µs
+Slug: test123
+Post: &{12 2 1 Test123 </p>Modern ML-driven autoscaling delivers 50–70% cost reductions and 10× reliability gains, plus the patterns, pitfalls, and a <span style="color: #9c2626">practical</span> rollout plan. <more-->
+
+## TL;DR
+
+- **Impact at scale:** Real-world deployments report **50–70% lower costs** and **~10× reliability** improvements from ML-based autoscaling.
+- **Winning pattern:** Blend **predictive ML** (look-ahead) with **reactive heuristics**, driven by **business-specific signals** (not just CPU/RAM).
+- **Architecture shift:** Move from per-service scaling to **holistic, dependency-aware** scaling across microservices.
+- **Ops truth:** Most incidents are **distributed-systems** issues, not model math—design for resilience first.
+- **What to track:** SLOs for **P95 latency**, **accuracy**, **feature freshness**, and **scale-up/scale-down time**
+
+```js
+
+export function testEpic(epicFunc: any, action: any, expectCallback: any) {
+  // BehaviorSubject - contains the base state
+  // .subscribe - run this state throw the whole pipe
+  const action$ = of(action)
+  const epic = epicFunc(action$)
+  epic.subscribe(() => {
+    expectCallback()
+    jest.clearAllMocks()
+  })
+}
+```
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p>
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p>
+
+<div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center;">
+  <a href="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" data-lightbox="article-images" data-title="b19716d26df45da2e6cc652550142ffa.png">
+    <img src="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" alt="b19716d26df45da2e6cc652550142ffa.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" data-lightbox="article-images" data-title="e890909a2778f4bd61bf7471d1d13bc9.png">
+    <img src="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" alt="e890909a2778f4bd61bf7471d1d13bc9.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" data-lightbox="article-images" data-title="13e7b3d079cbcdac21f5232f12e175b8.jpg">
+    <img src="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" alt="13e7b3d079cbcdac21f5232f12e175b8.jpg" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+</div>
+
+
+          <div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center;">
+            <a href="/static/uploads/post/test123/26a5577b78a30d1571b2986589be3640.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_cw4ec6cw4ec6cw4e.png"><img src="/static/uploads/post/test123/26a5577b78a30d1571b2986589be3640.png" alt="Gemini_Generated_Image_cw4ec6cw4ec6cw4e.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/faa997d5d6b905b1dd1d0e36bbe12791.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr (1).png"><img src="/static/uploads/post/test123/faa997d5d6b905b1dd1d0e36bbe12791.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr (1).png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/bc976696b095bc5d98ece71b14b39597.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr (2).png"><img src="/static/uploads/post/test123/bc976696b095bc5d98ece71b14b39597.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr (2).png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/87e1c5febb50238c57449f1a35b0b780.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr.png"><img src="/static/uploads/post/test123/87e1c5febb50238c57449f1a35b0b780.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/f32b7a64fea1ed497bfecbda1119a3b2.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_yweydvyweydvywey.png"><img src="/static/uploads/post/test123/f32b7a64fea1ed497bfecbda1119a3b2.png" alt="Gemini_Generated_Image_yweydvyweydvywey.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a>
+          </div>
+        
+ <p></p></p>
+
+<p>Modern ML-driven autoscaling delivers 50–70% cost reductions and 10× reliability gains, plus the patterns, pitfalls, and a <span style="color: #9c2626">practical</span> rollout plan.</p>
+
+<h2>TL;DR</h2>
+
+<ul class="list-disc pl-2">
+<li class="mb-2"><p><strong>Impact at scale:</strong> Real-world deployments report <strong>50–70% lower costs</strong> and <strong>~10× reliability</strong> improvements from ML-based autoscaling.</p></li>
+
+<li class="mb-2"><p><strong>Winning pattern:</strong> Blend <strong>predictive ML</strong> (look-ahead) with <strong>reactive heuristics</strong>, driven by <strong>business-specific signals</strong> (not just CPU/RAM).</p></li>
+
+<li class="mb-2"><p><strong>Architecture shift:</strong> Move from per-service scaling to <strong>holistic, dependency-aware</strong> scaling across microservices.</p></li>
+
+<li class="mb-2"><p><strong>Ops truth:</strong> Most incidents are <strong>distributed-systems</strong> issues, not model math—design for resilience first.</p></li>
+
+<li class="mb-2"><p><strong>What to track:</strong> SLOs for <strong>P95 latency</strong>, <strong>accuracy</strong>, <strong>feature freshness</strong>, and <strong>scale-up/scale-down time</strong></p></li>
+</ul>
+
+<p><pre><code class="language-js">export function testEpic(epicFunc: any, action: any, expectCallback: any) {
+  // BehaviorSubject - contains the base state
+  // .subscribe - run this state throw the whole pipe
+  const action$ = of(action)
+  const epic = epicFunc(action$)
+  epic.subscribe(() =&gt; {
+    expectCallback()
+    jest.clearAllMocks()
+  })
+}
+</code></pre>
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p></p>
+
+<p style="text-align:center; margin: 10px 0;"><a href="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" data-lightbox="article-images" data-title="Uploaded image"><img src="/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg" alt="Uploaded image" style="width:66%; height:auto; max-width:100%;" /></a></p>
+
+<div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center;">
+  <a href="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" data-lightbox="article-images" data-title="b19716d26df45da2e6cc652550142ffa.png">
+    <img src="/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png" alt="b19716d26df45da2e6cc652550142ffa.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" data-lightbox="article-images" data-title="e890909a2778f4bd61bf7471d1d13bc9.png">
+    <img src="/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png" alt="e890909a2778f4bd61bf7471d1d13bc9.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+  <a href="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" data-lightbox="article-images" data-title="13e7b3d079cbcdac21f5232f12e175b8.jpg">
+    <img src="/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg" alt="13e7b3d079cbcdac21f5232f12e175b8.jpg" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  </a>
+</div>
+
+<div class="image-gallery" style="display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center;">
+            <a href="/static/uploads/post/test123/26a5577b78a30d1571b2986589be3640.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_cw4ec6cw4ec6cw4e.png"><img src="/static/uploads/post/test123/26a5577b78a30d1571b2986589be3640.png" alt="Gemini_Generated_Image_cw4ec6cw4ec6cw4e.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/faa997d5d6b905b1dd1d0e36bbe12791.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr (1).png"><img src="/static/uploads/post/test123/faa997d5d6b905b1dd1d0e36bbe12791.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr (1).png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/bc976696b095bc5d98ece71b14b39597.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr (2).png"><img src="/static/uploads/post/test123/bc976696b095bc5d98ece71b14b39597.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr (2).png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/87e1c5febb50238c57449f1a35b0b780.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_u4grrou4grrou4gr.png"><img src="/static/uploads/post/test123/87e1c5febb50238c57449f1a35b0b780.png" alt="Gemini_Generated_Image_u4grrou4grrou4gr.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a><a href="/static/uploads/post/test123/f32b7a64fea1ed497bfecbda1119a3b2.png" data-lightbox="article-images" data-title="Gemini_Generated_Image_yweydvyweydvywey.png"><img src="/static/uploads/post/test123/f32b7a64fea1ed497bfecbda1119a3b2.png" alt="Gemini_Generated_Image_yweydvyweydvywey.png" style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></a>
+          </div>
+ test123 September 11, 2025 September 11, 2025 false /static/uploads/featured/test123/21fd7efa4ab81186348ebeb4db786029.jpg September 11, 2025 []}
+&{2 anchoo2kewl anchoo2kewl@gmail.com    2}2025/09/11 12:56:57 "GET http://localhost:22222/blog/test123 HTTP/1.1" from [::1]:51943 - 200 53914B in 79.524708ms
+2025/09/11 12:56:57 "GET http://localhost:22222/.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" from [::1]:51943 - 404 1125B in 187.041µs
+2025/09/11 12:56:57 "GET http://localhost:22222/static/uploads/featured/test123/21fd7efa4ab81186348ebeb4db786029.jpg HTTP/1.1" from [::1]:51943 - 200 370794B in 911µs
+2025/09/11 12:56:57 "GET http://localhost:22222/static/css/modern-theme.css HTTP/1.1" from [::1]:51951 - 200 39272B in 558.958µs
+2025/09/11 12:56:57 "GET http://localhost:22222/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg HTTP/1.1" from [::1]:52353 - 404 19B in 96.167µs
+2025/09/11 12:56:57 "GET http://localhost:22222/static/uploads/post/test123/a5f33a7bd4dfcf77dcec4f560aeb8b4a.jpg HTTP/1.1" from [::1]:51943 - 404 19B in 20.917µs
+2025/09/11 12:56:57 "GET http://localhost:22222/static/uploads/post/test123/b19716d26df45da2e6cc652550142ffa.png HTTP/1.1" from [::1]:51943 - 404 19B in 10.5µs
+2025/09/11 12:56:57 "GET http://localhost:22222/static/uploads/post/test123/e890909a2778f4bd61bf7471d1d13bc9.png HTTP/1.1" from [::1]:51943 - 404 19B in 24.5µs
+2025/09/11 12:56:58 "GET http://localhost:22222/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg HTTP/1.1" from [::1]:51943 - 404 19B in 31µs
+2025/09/11 12:56:58 "GET http://localhost:22222/static/uploads/post/test123/26a5577b78a30d1571b2986589be3640.png HTTP/1.1" from [::1]:51943 - 200 2027742B in 513µs
+2025/09/11 12:56:58 "GET http://localhost:22222/static/uploads/post/test123/faa997d5d6b905b1dd1d0e36bbe12791.png HTTP/1.1" from [::1]:51943 - 200 698390B in 227.459µs
+2025/09/11 12:56:58 "GET http://localhost:22222/static/uploads/post/test123/bc976696b095bc5d98ece71b14b39597.png HTTP/1.1" from [::1]:51951 - 200 862743B in 236.834µs
+2025/09/11 12:56:58 "GET http://localhost:22222/static/uploads/post/test123/87e1c5febb50238c57449f1a35b0b780.png HTTP/1.1" from [::1]:52353 - 200 964714B in 390.917µs
+2025/09/11 12:56:58 "GET http://localhost:22222/static/uploads/post/test123/f32b7a64fea1ed497bfecbda1119a3b2.png HTTP/1.1" from [::1]:51952 - 200 862743B in 478.334µs
+2025/09/11 12:56:58 "GET http://localhost:22222/favicon.ico HTTP/1.1" from [::1]:52353 - 200 1944B in 230.875µs
+2025/09/11 12:57:05 "GET http://localhost:22222/static/uploads/post/test123/13e7b3d079cbcdac21f5232f12e175b8.jpg HTTP/1.1" from [::1]:52353 - 404 19B in 21.875µs
+2025/09/11 12:57:07 "GET http://localhost:22222/static/uploads/post/test123/924b4147c15220289f3e21b6206c1e3b.jpg HTTP/1.1" from [::1]:52353 - 404 19B in 52.459µs
+2025/09/11 12:57:12 "GET http://localhost:22222/admin/posts/12/edit HTTP/1.1" from [::1]:52353 - 200 105717B in 81.62925ms
+2025/09/11 12:57:12 "GET http://localhost:22222/static/uploads/featured/test123/21fd7efa4ab81186348ebeb4db786029.jpg HTTP/1.1" from [::1]:52353 - 304 0B in 150.625µs
+2025/09/11 12:57:12 "GET http://localhost:22222/.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" from [::1]:51952 - 404 1125B in 529.041µs
+2025/09/11 12:57:21 "POST http://localhost:22222/admin/posts/12 HTTP/1.1" from [::1]:52353 - 302 0B in 84.431584ms
+Slug: test123
+Post: &{12 2 1 Test123 </p>Modern ML-driven autoscaling delivers 50–70% cost reductions and 10× reliability gains, plus the patterns, pitfalls, and a <span style="color: #9c2626">practical</span> rollout plan. <more-->
+
+## TL;DR
+
+- **Impact at scale:** Real-world deployments report **50–70% lower costs** and **~10× reliability** improvements from ML-based autoscaling.
+- **Winning pattern:** Blend **predictive ML** (look-ahead) with **reactive heuristics**, driven by **business-specific signals** (not just CPU/RAM).
+- **Architecture shift:** Move from per-service scaling to **holistic, dependency-aware** scaling across microservices.
+- **Ops truth:** Most incidents are **distributed-systems** issues, not model math—design for resilience first.
+- **What to track:** SLOs for **P95 latency**, **accuracy**, **feature freshness**, and **scale-up/scale-down time**
+
+```js
+
+export function testEpic(epicFunc: any, action: any, expectCallback: any) {
+  // BehaviorSubject - contains the base state
+  // .subscribe - run this state throw the whole pipe
+  const action$ = of(action)
+  const epic = epicFunc(action$)
+  epic.subscribe(() => {
+    expectCallback()
+    jest.clearAllMocks()
+  })
+}
+``` <p></p></p>
+
+<p>Modern ML-driven autoscaling delivers 50–70% cost reductions and 10× reliability gains, plus the patterns, pitfalls, and a <span style="color: #9c2626">practical</span> rollout plan.</p>
+
+<h2>TL;DR</h2>
+
+<ul class="list-disc pl-2">
+<li class="mb-2"><p><strong>Impact at scale:</strong> Real-world deployments report <strong>50–70% lower costs</strong> and <strong>~10× reliability</strong> improvements from ML-based autoscaling.</p></li>
+
+<li class="mb-2"><p><strong>Winning pattern:</strong> Blend <strong>predictive ML</strong> (look-ahead) with <strong>reactive heuristics</strong>, driven by <strong>business-specific signals</strong> (not just CPU/RAM).</p></li>
+
+<li class="mb-2"><p><strong>Architecture shift:</strong> Move from per-service scaling to <strong>holistic, dependency-aware</strong> scaling across microservices.</p></li>
+
+<li class="mb-2"><p><strong>Ops truth:</strong> Most incidents are <strong>distributed-systems</strong> issues, not model math—design for resilience first.</p></li>
+
+<li class="mb-2"><p><strong>What to track:</strong> SLOs for <strong>P95 latency</strong>, <strong>accuracy</strong>, <strong>feature freshness</strong>, and <strong>scale-up/scale-down time</strong></p></li>
+</ul>
+
+<pre><code class="language-js">export function testEpic(epicFunc: any, action: any, expectCallback: any) {
+  // BehaviorSubject - contains the base state
+  // .subscribe - run this state throw the whole pipe
+  const action$ = of(action)
+  const epic = epicFunc(action$)
+  epic.subscribe(() =&gt; {
+    expectCallback()
+    jest.clearAllMocks()
+  })
+}
+</code></pre>
+ test123 September 11, 2025 September 11, 2025 false /static/uploads/featured/test123/21fd7efa4ab81186348ebeb4db786029.jpg September 11, 2025 []}
+&{2 anchoo2kewl anchoo2kewl@gmail.com    2}2025/09/11 12:57:21 "GET http://localhost:22222/blog/test123 HTTP/1.1" from [::1]:52353 - 200 49666B in 50.853208ms
+2025/09/11 12:57:21 "GET http://localhost:22222/.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" from [::1]:52353 - 404 1125B in 112.333µs
+2025/09/11 12:57:21 "GET http://localhost:22222/static/uploads/featured/test123/21fd7efa4ab81186348ebeb4db786029.jpg HTTP/1.1" from [::1]:52353 - 304 0B in 156.041µs
+2025/09/11 12:57:24 "GET http://localhost:22222/admin/posts/12/edit HTTP/1.1" from [::1]:52353 - 200 100679B in 83.8995ms
+2025/09/11 12:57:24 "GET http://localhost:22222/.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" from [::1]:52353 - 404 1125B in 160.958µs
+2025/09/11 12:57:28 "POST http://localhost:22222/admin/preview HTTP/1.1" from [::1]:52353 - 200 2347B in 77.662042ms
+2025/09/11 12:57:37 "POST http://localhost:22222/admin/posts/12 HTTP/1.1" from [::1]:52353 - 302 0B in 86.687208ms
+Slug: test123
+Post: &{12 2 1 Test123 </p>Modern ML-driven autoscaling delivers 50–70% cost reductions and 10× reliability gains, plus the patterns, pitfalls, and a <span style="color: #9c2626">practical</span> rollout plan. <more-->
+
+## TL;DR
+
+- **Impact at scale:** Real-world deployments report **50–70% lower costs** and **~10× reliability** improvements from ML-based autoscaling.
+- **Winning pattern:** Blend **predictive ML** (look-ahead) with **reactive heuristics**, driven by **business-specific signals** (not just CPU/RAM).
+- **Architecture shift:** Move from per-service scaling to **holistic, dependency-aware** scaling across microservices.
+- **Ops truth:** Most incidents are **distributed-systems** issues, not model math—design for resilience first.
+- **What to track:** SLOs for **P95 latency**, **accuracy**, **feature freshness**, and **scale-up/scale-down time**
+
+```js
+
+export function testEpic(epicFunc: any, action: any, expectCallback: any) {
+  // BehaviorSubject - contains the base state
+  // .subscribe - run this state throw the whole pipe
+  const action$ = of(action)
+  const epic = epicFunc(action$)
+  epic.subscribe(() => {
+    expectCallback()
+    jest.clearAllMocks()
+  })
+}
+``` <p></p></p>
+
+<p>Modern ML-driven autoscaling delivers 50–70% cost reductions and 10× reliability gains, plus the patterns, pitfalls, and a <span style="color: #9c2626">practical</span> rollout plan.</p>
+
+<h2>TL;DR</h2>
+
+<ul class="list-disc pl-2">
+<li class="mb-2"><p><strong>Impact at scale:</strong> Real-world deployments report <strong>50–70% lower costs</strong> and <strong>~10× reliability</strong> improvements from ML-based autoscaling.</p></li>
+
+<li class="mb-2"><p><strong>Winning pattern:</strong> Blend <strong>predictive ML</strong> (look-ahead) with <strong>reactive heuristics</strong>, driven by <strong>business-specific signals</strong> (not just CPU/RAM).</p></li>
+
+<li class="mb-2"><p><strong>Architecture shift:</strong> Move from per-service scaling to <strong>holistic, dependency-aware</strong> scaling across microservices.</p></li>
+
+<li class="mb-2"><p><strong>Ops truth:</strong> Most incidents are <strong>distributed-systems</strong> issues, not model math—design for resilience first.</p></li>
+
+<li class="mb-2"><p><strong>What to track:</strong> SLOs for <strong>P95 latency</strong>, <strong>accuracy</strong>, <strong>feature freshness</strong>, and <strong>scale-up/scale-down time</strong></p></li>
+</ul>
+
+<pre><code class="language-js">export function testEpic(epicFunc: any, action: any, expectCallback: any) {
+  // BehaviorSubject - contains the base state
+  // .subscribe - run this state throw the whole pipe
+  const action$ = of(action)
+  const epic = epicFunc(action$)
+  epic.subscribe(() =&gt; {
+    expectCallback()
+    jest.clearAllMocks()
+  })
+}
+</code></pre>
+ test123 September 11, 2025 September 11, 2025 false /static/uploads/featured/test123/21fd7efa4ab81186348ebeb4db786029.jpg September 11, 2025 []}
+&{2 anchoo2kewl anchoo2kewl@gmail.com    2}2025/09/11 12:57:37 "GET http://localhost:22222/blog/test123 HTTP/1.1" from [::1]:52353 - 200 49666B in 55.023458ms
+2025/09/11 12:57:37 "GET http://localhost:22222/.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" from [::1]:52353 - 404 1125B in 128.208µs
+2025/09/11 12:57:37 "GET http://localhost:22222/static/uploads/featured/test123/21fd7efa4ab81186348ebeb4db786029.jpg HTTP/1.1" from [::1]:52353 - 304 0B in 113.125µs

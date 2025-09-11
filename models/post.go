@@ -300,7 +300,9 @@ func previewContentRaw(content string) string {
 	
 	// If we found a more tag, use content up to that point
 	if moreIdx != -1 {
-		return strings.TrimSpace(content[:moreIdx])
+		contentBeforeMore := strings.TrimSpace(content[:moreIdx])
+		// Return the markdown content before the more tag - it will be rendered later
+		return contentBeforeMore
 	}
 	
 	// No more tag found, render the content first then extract preview
