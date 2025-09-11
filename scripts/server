@@ -1267,22 +1267,45 @@ deploy_to_production() {
     local DOMAIN="anshumanbiswas.com"
     local commit_message="${1:-Deploy: automated commit before deployment}"
     
-    # Check if there are changes to commit
-    print_status "Checking git status..."
+    # Step 1: Commit any changes on production server first
+    print_status "Checking for changes on production server..."
+    ssh "$SERVER" "cd '$DEPLOY_PATH' && if [ -n \"\$(git status --porcelain)\" ]; then
+        echo 'Production changes detected, committing...'
+        git add .
+        git commit -m 'Production: commit uploaded files and changes
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>' || echo 'Commit failed or no changes'
+        git push origin main || echo 'Push from production failed'
+    else
+        echo 'No changes on production server'
+    fi"
+    
+    # Step 2: Pull any changes from remote (including production uploads)
+    print_status "Pulling latest changes from remote..."
+    git fetch origin
+    git merge origin/main --no-edit || {
+        print_warning "Merge conflicts detected. Please resolve manually and retry deployment."
+        return 1
+    }
+    
+    # Step 3: Check if there are local changes to commit
+    print_status "Checking local git status..."
     if [ -n "$(git status --porcelain)" ]; then
-        print_status "Changes detected, committing all changes..."
+        print_status "Local changes detected, committing all changes..."
         git add .
         git commit -m "$commit_message
 
 🤖 Generated with [Claude Code](https://claude.ai/code)
 
 Co-Authored-By: Claude <noreply@anthropic.com>" || {
-            print_error "Failed to commit changes"
+            print_error "Failed to commit local changes"
             return 1
         }
     fi
     
-    # Push to remote
+    # Step 4: Push to remote
     print_status "Pushing to git remote..."
     git push origin main || {
         print_error "Failed to push to git remote"
