@@ -9,3 +9,18 @@ Posts fetched successfully! Count: 5
 DEBUG HOME: User logged in: anchoo2kewl, Email: anchoo2kewl@gmail.com, Role: 2, IsAdmin: true
 2025/09/11 09:03:13 "GET http://localhost:22222/ HTTP/1.1" from [::1]:57385 - 200 33605B in 56.744125ms
 2025/09/11 09:03:15 "GET http://localhost:22222/admin/posts HTTP/1.1" from [::1]:57385 - 200 55825B in 97.243292ms
+2025/09/11 09:03:48 "GET http://localhost:22222/slides HTTP/1.1" from [::1]:57596 - 200 12859B in 5.226834ms
+2025/09/11 09:03:54 "GET http://localhost:22222/admin/slides HTTP/1.1" from [::1]:57630 - 302 30B in 17.542µs
+2025/09/11 09:03:59 "GET http://localhost:22222/slides HTTP/1.1" from [::1]:57663 - 200 12859B in 2.745417ms
+Posts fetched successfully! Count: 5
+DEBUG HOME: User logged in: anchoo2kewl, Email: anchoo2kewl@gmail.com, Role: 2, IsAdmin: true
+2025/09/11 09:15:04 "GET http://localhost:22222/ HTTP/1.1" from [::1]:60809 - 200 33605B in 108.880417ms
+2025/09/11 09:15:10 "GET http://localhost:22222/admin/posts HTTP/1.1" from [::1]:60809 - 200 55825B in 96.022042ms
+Posts fetched successfully! Count: 5
+DEBUG HOME: User not logged in, error: http: named cookie not present
+DEBUG HOME: Session token from cookie: NO_COOKIE
+2025/09/11 09:19:29 "GET http://localhost:22222/ HTTP/1.1" from [::1]:62285 - 200 29252B in 5.577917ms
+2025/09/11 09:19:34 "GET http://localhost:22222/admin/slides HTTP/1.1" from [::1]:62317 - 302 30B in 26.208µs
+2025/09/11 09:19:39 "GET http://localhost:22222/admin/posts HTTP/1.1" from [::1]:62343 - 302 30B in 23.75µs
+2025/09/11 09:19:45 "GET http://localhost:22222/admin/slides/new HTTP/1.1" from [::1]:62375 - 302 30B in 38.125µs
+2025/09/11 09:19:50 "GET http://localhost:22222/admin/posts/new HTTP/1.1" from [::1]:62414 - 302 30B in 39.083µs

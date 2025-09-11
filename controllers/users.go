@@ -153,7 +153,11 @@ func (u Users) UploadImage(w http.ResponseWriter, r *http.Request) {
 	// Ensure upload directory exists
 	base := filepath.Join("static", "uploads")
 	if uploadType == "featured" {
+		// Store featured images under featured/{slug}/ when slug is available
 		base = filepath.Join(base, "featured")
+		if slug != "" {
+			base = filepath.Join(base, slug)
+		}
 	} else if slug != "" {
 		// For post-specific uploads, use /uploads/post/{slug}/
 		base = filepath.Join(base, "post", slug)
@@ -174,6 +178,9 @@ func (u Users) UploadImage(w http.ResponseWriter, r *http.Request) {
 	urlBase := "/static/uploads"
 	if uploadType == "featured" {
 		urlBase += "/featured"
+		if slug != "" {
+			urlBase += "/" + slug
+		}
 	} else if slug != "" {
 		urlBase += "/post/" + slug
 	}
