@@ -46,13 +46,111 @@
             <!-- Desktop Navigation -->
             <ul class="nav-links">
                 <li><a href="/" class="nav-link ">Home</a></li>
+                <li><a href="/slides" class="nav-link ">Slides</a></li>
                 <li><a href="/about" class="nav-link ">About</a></li>
                 {{if .LoggedIn}}
                     {{if .IsAdmin}}
-                        <li><a href="/admin" class="nav-link ">Admin</a></li>
+                        <li class="relative admin-dropdown">
+                            <button class="nav-link admin-dropdown-btn " aria-label="Admin menu">
+                                <span>Admin</span>
+                                <svg class="w-4 h-4 ml-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            <div class="admin-dropdown-menu">
+                                <div>
+                                    <a href="/admin/posts" class="dropdown-item">
+                                        <span class="flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-1m-10 4h8m-8 2h8m-8 2h8"/></svg>
+                                            <span>Posts</span>
+                                        </span>
+                                    </a>
+                                    <a href="/admin/posts/new" class="dropdown-item">
+                                        <span class="flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                                            <span>New Post</span>
+                                        </span>
+                                    </a>
+                                </div>
+                                <div class="h-px bg-gray-200 dark:bg-gray-700 my-2"></div>
+                                <div>
+                                    <a href="/admin/slides" class="dropdown-item">
+                                        <span class="flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h2a2 2 0 002-2z"/></svg>
+                                            <span>Slides</span>
+                                        </span>
+                                    </a>
+                                    <a href="/admin/slides/new" class="dropdown-item">
+                                        <span class="flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                                            <span>New Slide</span>
+                                        </span>
+                                    </a>
+                                </div>
+                                <div class="h-px bg-gray-200 dark:bg-gray-700 my-2"></div>
+                                <div>
+                                    <a href="/admin/categories" class="dropdown-item">
+                                        <span class="flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                                            <span>Categories</span>
+                                        </span>
+                                    </a>
+                                    <a href="/admin/formatting-guide" class="dropdown-item">
+                                        <span class="flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16h8M8 12h8M8 8h8M4 6h16v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/></svg>
+                                            <span>Formatting Guide</span>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
                     {{end}}
-                    <li><a href="/users/me" class="nav-link">Profile</a></li>
-                    <li><a href="/logout" class="nav-link">Sign Out</a></li>
+                    <li class="relative user-dropdown">
+                        <button class="nav-link user-dropdown-btn" aria-label="User menu">
+                            <span class="avatar-circle">{{initial .Username}}</span>
+                            <span class="username-text">{{.Username}}</span>
+                            <svg class="w-4 h-4 ml-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div class="user-dropdown-menu">
+                            <div>
+                                <a href="/users/me" class="dropdown-item">
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                        <span>Profile</span>
+                                    </span>
+                                </a>
+                                <a href="/my-posts" class="dropdown-item">
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2m14 0V7a2 2 0 00-2-2H5a2 2 0 00-2 2v4"/></svg>
+                                        <span>My Posts</span>
+                                    </span>
+                                </a>
+                                <a href="/api-access" class="dropdown-item">
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.1.9-2 2-2h6m-8 7h6m-6-4h6M7 7h.01M7 12h.01M7 17h.01M3 5h14a2 2 0 012 2v10a2 2 0 01-2 2H3V5z"/></svg>
+                                        <span>API Access</span>
+                                    </span>
+                                </a>
+                            </div>
+                            <div class="h-px bg-gray-200 dark:bg-gray-700 my-2"></div>
+                            <div>
+                                <a href="/docs/formatting-guide" class="dropdown-item">
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16h8M8 12h8M8 8h8M4 6h16v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6z"/></svg>
+                                        <span>Formatting Guide</span>
+                                    </span>
+                                </a>
+                                <a href="/admin/categories" class="dropdown-item">
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                                        <span>Categories</span>
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                    </li>
                 {{else}}
                     <li><a href="/signin" class="nav-link ">Sign In</a></li>
                     {{if not .SignupDisabled}}
@@ -93,12 +191,19 @@
             <div class="mobile-menu" id="mobile-menu">
                 <ul class="mobile-nav-links">
                     <li><a href="/" class="nav-link ">Home</a></li>
+                    <li><a href="/slides" class="nav-link ">Slides</a></li>
                     <li><a href="/about" class="nav-link ">About</a></li>
                     {{if .LoggedIn}}
-                        {{if .IsAdmin}}
-                            <li><a href="/admin" class="nav-link ">Admin Panel</a></li>
-                        {{end}}
+                        <li><a href="/my-posts" class="nav-link ">My Posts</a></li>
                         <li><a href="/users/me" class="nav-link">Profile ({{.Username}})</a></li>
+                        {{if .IsAdmin}}
+                            <li><a href="/admin/posts" class="nav-link ">Posts</a></li>
+                            <li><a href="/admin/posts/new" class="nav-link">New Post</a></li>
+                            <li><a href="/admin/slides" class="nav-link">Slides</a></li>
+                            <li><a href="/admin/slides/new" class="nav-link">New Slide</a></li>
+                            <li><a href="/admin/categories" class="nav-link">Categories</a></li>
+                            <li><a href="/admin/formatting-guide" class="nav-link">Formatting Guide</a></li>
+                        {{end}}
                         <li><a href="/logout" class="nav-link">Sign Out</a></li>
                     {{else}}
                         <li><a href="/signin" class="nav-link ">Sign In</a></li>
@@ -110,6 +215,88 @@
             </div>
         </div>
     </nav>
+    
+    <!-- JavaScript for dropdown functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            const html = document.documentElement;
+            
+            themeToggle.addEventListener('click', () => {
+                if (html.classList.contains('dark')) {
+                    html.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    html.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+            
+            // Mobile menu toggle
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('open');
+            });
+            
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!mobileMenuBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+                    mobileMenu.classList.remove('open');
+                }
+            });
+            
+            // Admin dropdown toggle
+            const adminDropdown = document.querySelector('.admin-dropdown');
+            const adminDropdownBtn = document.querySelector('.admin-dropdown-btn');
+            
+            if (adminDropdownBtn && adminDropdown) {
+                const openMenu = () => adminDropdown.classList.add('open');
+                const closeMenu = () => adminDropdown.classList.remove('open');
+                
+                adminDropdownBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (adminDropdown.classList.contains('open')) {
+                        closeMenu();
+                    } else {
+                        openMenu();
+                    }
+                });
+                
+                document.addEventListener('click', (e) => {
+                    if (!adminDropdown.contains(e.target)) {
+                        closeMenu();
+                    }
+                });
+            }
+            
+            // User dropdown toggle
+            const userDropdown = document.querySelector('.user-dropdown');
+            const userDropdownBtn = document.querySelector('.user-dropdown-btn');
+            
+            if (userDropdownBtn && userDropdown) {
+                const openMenu = () => userDropdown.classList.add('open');
+                const closeMenu = () => userDropdown.classList.remove('open');
+                
+                userDropdownBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (userDropdown.classList.contains('open')) {
+                        closeMenu();
+                    } else {
+                        openMenu();
+                    }
+                });
+                
+                document.addEventListener('click', (e) => {
+                    if (!userDropdown.contains(e.target)) {
+                        closeMenu();
+                    }
+                });
+            }
+        });
+    </script>
     
     <!-- Main Content -->
     <main class="main-container">

@@ -92,6 +92,8 @@
             <button type="button" class="btn" data-cmd="formatBlock" data-value="blockquote">❝ Quote</button>
             <button type="button" class="btn" id="insert-hr">HR</button>
             <button type="button" class="btn" id="insert-code"> Code</button>
+            <span class="sep"></span>
+            <button type="button" class="btn btn-secondary" id="clear-formatting">🧹 Clear</button>
           </div>
 
           <div class="btn-group">
@@ -495,6 +497,15 @@ sizeInput.addEventListener('change', () => {
 });
 document.getElementById('insert-hr').addEventListener('click', () => document.execCommand('insertHorizontalRule'));
 document.getElementById('clear-color').addEventListener('click', () => exec('removeFormat'));
+
+// Clear button - removes everything and starts fresh
+document.getElementById('clear-formatting').addEventListener('click', () => {
+  const editor = document.getElementById('editor');
+  if (confirm('This will clear everything in the editor. Continue?')) {
+    editor.innerHTML = '<div><br></div>';
+    editor.focus();
+  }
+});
 
 // Modern cover image upload functionality
 const uploadNewCoverBtn = document.getElementById('upload-new-cover-btn');

@@ -9,6 +9,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"anshumanbiswas.com/blog/internal/render"
 )
 
 type PostsList struct {
@@ -75,10 +77,9 @@ func (pp *PostService) GetTopPosts() (*PostsList, error) {
 			}
 		}
 
-		post.Content = trimContent(post.Content)
-
-		// Render trimmed content to HTML so previews keep Markdown formatting
-		post.ContentHTML = template.HTML(RenderContent(post.Content))
+		// Build preview from raw content to preserve Markdown list/numbering, then trim for length
+		preview := previewContentRaw(post.Content)
+		post.ContentHTML = template.HTML(RenderContent(preview))
 
 		list.Posts = append(list.Posts, post)
 	}
@@ -124,10 +125,9 @@ func (pp *PostService) GetTopPostsWithPagination(limit int, offset int) (*PostsL
 			}
 		}
 
-		post.Content = trimContent(post.Content)
-
-		// Render trimmed content to HTML so previews keep Markdown formatting
-		post.ContentHTML = template.HTML(RenderContent(post.Content))
+		// Build preview from raw content to preserve Markdown list/numbering, then trim for length
+		preview := previewContentRaw(post.Content)
+		post.ContentHTML = template.HTML(RenderContent(preview))
 
 		list.Posts = append(list.Posts, post)
 	}
@@ -276,6 +276,55 @@ func stripHTML(s string) string {
 	return b.String()
 }
 
+// previewContentRaw returns a trimmed slice of the raw content that preserves
+// Markdown structure (numbers, bullets, headings) by cutting on paragraph/line
+// boundaries rather than stripping formatting markers first.
+func previewContentRaw(content string) string {
+	const maxChars = 150
+	
+	// Check for read-more markers and find their positions
+	moreIdx1 := strings.Index(content, "<more-->")
+	moreIdx2 := strings.Index(content, "&lt;more--&gt;")
+	
+	// Find the earliest more tag position
+	moreIdx := -1
+	if moreIdx1 != -1 && moreIdx2 != -1 {
+		if moreIdx1 < moreIdx2 {
+			moreIdx = moreIdx1
+		} else {
+			moreIdx = moreIdx2
+		}
+	} else if moreIdx1 != -1 {
+		moreIdx = moreIdx1
+	} else if moreIdx2 != -1 {
+		moreIdx = moreIdx2
+	}
+	
+	// If we found a more tag, truncate at that point or 150 chars, whichever is shorter
+	var rawContent string
+	if moreIdx != -1 {
+		rawContent = content[:moreIdx]
+	} else {
+		rawContent = content
+	}
+	
+	// Convert to plain text by removing HTML tags
+	plainText := stripHTML(rawContent)
+	
+	// Now apply the 150 character limit
+	if len(plainText) <= maxChars {
+		return strings.TrimSpace(plainText)
+	}
+	
+	// Find the last space within the character limit to avoid cutting words
+	truncated := plainText[:maxChars]
+	if lastSpace := strings.LastIndex(truncated, " "); lastSpace > maxChars/2 {
+		truncated = plainText[:lastSpace]
+	}
+	
+	return strings.TrimSpace(truncated) + "..."
+}
+
 func (pp *PostService) Create(userID int, categoryID int, title, content string, isPublished bool, featuredImageURL string, slug string) (*Post, error) {
 	timefmt := time.Now()
 	query := `
@@ -347,4 +396,10 @@ func (pp *PostService) Update(id int, categoryID int, title, content string, isP
 	_, err = pp.DB.Exec(`UPDATE posts SET category_id=$1, title=$2, content=$3, slug=$4, last_edit_date=$5, is_published=$6, featured_image_url=$7 WHERE post_id=$8`,
 		categoryID, title, content, newSlug, time.Now(), isPublished, featuredImageURL, id)
 	return err
+}
+
+// RenderContent converts markdown content to HTML using the default renderer
+func RenderContent(content string) string {
+	renderer := render.NewRenderer(render.DefaultOptions())
+	return renderer.Render(content)
 }

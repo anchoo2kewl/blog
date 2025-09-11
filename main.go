@@ -94,9 +94,7 @@ func main() {
 	}
 
 	// Initialize BlogService
-	blogService := models.BlogService{
-		DB: DB,
-	}
+	blogService := models.NewBlogService(DB)
 
 	// Initialize CategoryService
 	categoryService := models.CategoryService{
@@ -119,7 +117,7 @@ func main() {
 
 	// Initialize Blog controller
 	blogC := controllers.Blog{
-		BlogService:    &blogService,
+		BlogService:    blogService,
 		SessionService: &sessionService,
 	}
 
