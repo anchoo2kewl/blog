@@ -46,6 +46,7 @@
             <!-- Desktop Navigation -->
             <ul class="nav-links">
                 <li><a href="/" class="nav-link {{if eq .CurrentPage "home"}}active{{end}}">Home</a></li>
+                <li><a href="/slides" class="nav-link {{if eq .CurrentPage "slides"}}active{{end}}">Slides</a></li>
                 <li><a href="/about" class="nav-link {{if eq .CurrentPage "about"}}active{{end}}">About</a></li>
                 {{if .LoggedIn}}
                     {{if .IsAdmin}}
@@ -154,6 +155,7 @@
             <!-- Mobile Menu -->
             <div class="mobile-menu" id="mobile-menu">
                 <ul class="mobile-nav-links">
+                    <li><a href="/slides" class="nav-link {{if eq .CurrentPage "slides"}}active{{end}}">Slides</a></li>
                     <li><a href="/about" class="nav-link {{if eq .CurrentPage "about"}}active{{end}}">About</a></li>
                     {{if .LoggedIn}}
                         <li><a href="/my-posts" class="nav-link {{if eq .CurrentPage "my-posts"}}active{{end}}">My Posts</a></li>

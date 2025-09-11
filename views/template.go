@@ -37,6 +37,9 @@ func ParseFS(fs fs.FS, patterns ...string) (Template, error) {
 				return strings.Contains(s, substr)
 			},
 			"upper": func(s string) string { return strings.ToUpper(s) },
+			"add": func(a, b int) int {
+				return a + b
+			},
 			"initial": func(s string) string {
 				if s == "" {
 					return ""
@@ -93,6 +96,9 @@ func (t Template) Execute(w http.ResponseWriter, r *http.Request, data interface
 				return strings.Contains(s, substr)
 			},
 			"upper": func(s string) string { return strings.ToUpper(s) },
+			"add": func(a, b int) int {
+				return a + b
+			},
 			"initial": func(s string) string {
 				if s == "" {
 					return ""

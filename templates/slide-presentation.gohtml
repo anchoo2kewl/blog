@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>{{.Slide.Title}} - Presentation</title>
+    <meta name="description" content="{{.Slide.Title}} - Interactive presentation" />
+    <meta name="author" content="Anshuman Biswas" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+    
+    <!-- Reveal.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/theme/white.css" id="theme">
+    
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/highlight/monokai.css">
+    
+    <!-- Custom styles -->
+    <style>
+        .reveal .slides section {
+            text-align: left;
+        }
+        
+        .reveal .slides section.center {
+            text-align: center;
+        }
+        
+        .reveal .slides section h1,
+        .reveal .slides section h2,
+        .reveal .slides section h3,
+        .reveal .slides section h4,
+        .reveal .slides section h5,
+        .reveal .slides section h6 {
+            text-align: center;
+            margin-bottom: 1em;
+        }
+        
+        .reveal .controls {
+            color: #2563eb;
+        }
+        
+        .reveal .progress {
+            color: #2563eb;
+        }
+        
+        .reveal a {
+            color: #2563eb;
+        }
+        
+        .reveal a:hover {
+            color: #1d4ed8;
+        }
+        
+        /* Custom navigation overlay */
+        .presentation-nav {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            color: #374151;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            color: #2563eb;
+        }
+        
+        .nav-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+        
+        /* Hide navigation on print */
+        @media print {
+            .presentation-nav {
+                display: none;
+            }
+        }
+        
+        /* Dark theme adjustments */
+        @media (prefers-color-scheme: dark) {
+            .nav-btn {
+                background: rgba(30, 41, 59, 0.9);
+                border-color: #475569;
+                color: #e2e8f0;
+            }
+            
+            .nav-btn:hover {
+                background: rgba(30, 41, 59, 1);
+                color: #60a5fa;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Custom Navigation -->
+    <div class="presentation-nav">
+        {{if .LoggedIn}}
+            {{if .IsAdmin}}
+                <a href="/admin/slides/{{.Slide.ID}}/edit" class="nav-btn" title="Edit Slide">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    Edit
+                </a>
+            {{end}}
+        {{end}}
+        <a href="/slides" class="nav-btn" title="Back to Slides">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back
+        </a>
+        <button id="fullscreen-btn" class="nav-btn" title="Toggle Fullscreen">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+            </svg>
+            Fullscreen
+        </button>
+    </div>
+    
+    <div class="reveal">
+        <div class="slides">
+            {{.Slide.ContentHTML}}
+        </div>
+    </div>
+
+    <!-- Reveal.js JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/markdown/markdown.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/notes/notes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/plugin/zoom/zoom.js"></script>
+
+    <script>
+        // Initialize Reveal.js
+        Reveal.initialize({
+            hash: true,
+            controls: true,
+            progress: true,
+            center: false,
+            touch: true,
+            loop: false,
+            rtl: false,
+            navigationMode: 'default',
+            shuffle: false,
+            fragments: true,
+            fragmentInURL: false,
+            embedded: false,
+            help: true,
+            pause: true,
+            showNotes: false,
+            autoPlayMedia: null,
+            preloadIframes: null,
+            autoAnimate: true,
+            autoAnimateMatcher: null,
+            autoAnimateEasing: 'ease',
+            autoAnimateDuration: 1.0,
+            autoAnimateUnmatched: true,
+            autoAnimateStyles: [
+                'opacity',
+                'color',
+                'background-color',
+                'padding',
+                'font-size',
+                'line-height',
+                'letter-spacing',
+                'border-width',
+                'border-color',
+                'border-radius',
+                'outline',
+                'outline-offset'
+            ],
+            autoSlide: 0,
+            autoSlideStoppable: true,
+            autoSlideMethod: null,
+            defaultTiming: null,
+            mouseWheel: false,
+            hideInactiveCursor: true,
+            hideCursorTime: 5000,
+            previewLinks: false,
+            postMessage: true,
+            postMessageEvents: false,
+            focusBodyOnPageVisibilityChange: true,
+            transition: 'slide',
+            transitionSpeed: 'default',
+            backgroundTransition: 'fade',
+            parallaxBackgroundImage: '',
+            parallaxBackgroundSize: '',
+            parallaxBackgroundRepeat: '',
+            parallaxBackgroundPosition: '',
+            parallaxBackgroundHorizontal: null,
+            parallaxBackgroundVertical: null,
+            view: 'scroll',
+            width: 960,
+            height: 700,
+            margin: 0.04,
+            minScale: 0.2,
+            maxScale: 2.0,
+            disableLayout: false,
+            
+            // Learn about plugins: https://revealjs.com/plugins/
+            plugins: [ 
+                RevealMarkdown, 
+                RevealHighlight, 
+                RevealNotes, 
+                RevealZoom 
+            ]
+        });
+
+        // Fullscreen functionality
+        document.getElementById('fullscreen-btn').addEventListener('click', function() {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                document.documentElement.requestFullscreen();
+            }
+        });
+
+        // Keyboard shortcuts help
+        document.addEventListener('keydown', function(event) {
+            // Press 'h' to show help
+            if (event.key === 'h' && !event.ctrlKey && !event.metaKey && !event.altKey) {
+                Reveal.getPlugin('notes').toggleHelp();
+            }
+        });
+
+        // Update fullscreen button on fullscreen change
+        document.addEventListener('fullscreenchange', function() {
+            const btn = document.getElementById('fullscreen-btn');
+            const svg = btn.querySelector('svg path');
+            if (document.fullscreenElement) {
+                svg.setAttribute('d', 'M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1zM8 21a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1zM3 8a1 1 0 011-1h2a1 1 0 110 2H4a1 1 0 01-1-1zM21 8a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z');
+                btn.title = 'Exit Fullscreen';
+            } else {
+                svg.setAttribute('d', 'M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4');
+                btn.title = 'Toggle Fullscreen';
+            }
+        });
+
+        // Analytics - track slide views
+        if (window.gtag) {
+            gtag('event', 'slide_view', {
+                'slide_title': '{{.Slide.Title}}',
+                'slide_slug': '{{.Slide.Slug}}'
+            });
+        }
+
+        // Track slide changes for analytics
+        Reveal.on('slidechanged', function(event) {
+            if (window.gtag) {
+                gtag('event', 'slide_change', {
+                    'slide_title': '{{.Slide.Title}}',
+                    'slide_index': event.indexh + '-' + event.indexv
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -103,6 +103,11 @@ func main() {
 		DB: DB,
 	}
 
+	// Initialize SlideService
+	slideService := models.SlideService{
+		DB: DB,
+	}
+
 	// Setup our controllers
 	usersC := controllers.Users{
 		UserService:     &userService,
@@ -122,6 +127,13 @@ func main() {
 	categoriesC := controllers.Categories{
 		CategoryService: &categoryService,
 		SessionService:  &sessionService,
+	}
+
+	// Initialize Slides controller
+	slidesC := controllers.Slides{
+		SlideService:    &slideService,
+		SessionService:  &sessionService,
+		CategoryService: &categoryService,
 	}
 
 	usersC.Templates.New = views.Must(views.ParseFS(
@@ -168,6 +180,19 @@ func main() {
 	categoriesC.Templates.Manage = views.Must(views.ParseFS(
 		templates.FS, "admin-categories.gohtml", "tailwind.gohtml"))
 
+	// Initialize Slides templates
+	slidesC.Templates.AdminSlides = views.Must(views.ParseFS(
+		templates.FS, "admin-slides.gohtml", "tailwind.gohtml"))
+	
+	slidesC.Templates.SlideEditor = views.Must(views.ParseFS(
+		templates.FS, "slide-editor.gohtml", "tailwind.gohtml"))
+	
+	slidesC.Templates.SlidesList = views.Must(views.ParseFS(
+		templates.FS, "slides-list.gohtml", "tailwind.gohtml"))
+	
+	slidesC.Templates.SlidePresentation = views.Must(views.ParseFS(
+		templates.FS, "slide-presentation.gohtml", "tailwind.gohtml"))
+
 	r.Get("/", usersC.Home)
 	r.Get("/admin/posts", usersC.AdminPosts)
 	r.Get("/admin/posts/new", usersC.NewPost)
@@ -188,6 +213,19 @@ func main() {
 	r.Post("/admin/categories", categoriesC.CreateCategoryForm)
 	r.Post("/admin/categories/{id}", categoriesC.UpdateCategoryForm)
 	r.Post("/admin/categories/{id}/delete", categoriesC.DeleteCategoryForm)
+
+	// Slides Routes
+	r.Get("/slides", slidesC.PublicSlidesList)
+	r.Get("/slides/{slug}", slidesC.ViewSlide)
+	
+	// Admin Slides Routes
+	r.Get("/admin/slides", slidesC.AdminSlides)
+	r.Get("/admin/slides/new", slidesC.NewSlide)
+	r.Post("/admin/slides", slidesC.CreateSlide)
+	r.Get("/admin/slides/{slideID}/edit", slidesC.EditSlide)
+	r.Post("/admin/slides/{slideID}", slidesC.UpdateSlide)
+	r.Post("/admin/slides/{slideID}/delete", slidesC.DeleteSlide)
+	r.Post("/admin/slides/preview", slidesC.PreviewSlide)
 
 	r.Get("/users/me", usersC.CurrentUser)
 	r.Post("/users/password", usersC.UpdatePassword)

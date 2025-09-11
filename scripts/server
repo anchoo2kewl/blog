@@ -22,6 +22,13 @@ PID_DIR="./pids"
 DOCKER_CONTAINER_NAME="pg"
 DB_VOLUME_NAME="postgres-volume"
 
+# Remote production settings
+REMOTE_SERVER="ubuntu@anshumanbiswas.com"
+REMOTE_DEPLOY_PATH="/home/ubuntu/projects/blog"
+REMOTE_DB_CONTAINER="blog-postgres"
+REMOTE_DB_NAME="blog"
+REMOTE_DB_USER="blog"
+
 # Create directories if they don't exist
 mkdir -p "$LOG_DIR" "$PID_DIR"
 
@@ -77,6 +84,7 @@ show_help() {
     echo ""
     echo -e "${YELLOW}Database Commands:${NC}"
     echo "  db [query]             Execute SQL query on database"
+    echo "  remote-db [query]      Execute SQL query on REMOTE production database"
     echo "  db-migrate             Run database migrations"
     echo "  db-reset               Reset database (drop and recreate)"
     echo "  db-seed                Load test data into database"
@@ -448,6 +456,32 @@ execute_db_query() {
     fi
     
     docker exec $DOCKER_CONTAINER_NAME psql -U $PG_USER -d $PG_DB -c "$query"
+}
+
+# Execute SQL on remote production database via SSH safely (supports quotes/newlines)
+execute_remote_db_query() {
+    local query="$1"
+
+    if [ -z "$query" ]; then
+        print_error "Usage: $0 remote-db \"SQL_QUERY\""
+        return 1
+    fi
+
+    print_header "Remote Database Query"
+    echo -e "${CYAN}Server:${NC} $REMOTE_SERVER"
+    echo -e "${CYAN}Query:${NC} $query"
+    echo ""
+
+    # Verify SSH connectivity
+    if ! ssh -o ConnectTimeout=10 "$REMOTE_SERVER" "echo ok" >/dev/null 2>&1; then
+        print_error "Cannot connect to $REMOTE_SERVER"
+        return 1
+    fi
+
+    # Feed SQL via stdin to avoid quoting issues
+    ssh "$REMOTE_SERVER" "cd '$REMOTE_DEPLOY_PATH' && docker exec -i '$REMOTE_DB_CONTAINER' psql -U '$REMOTE_DB_USER' -d '$REMOTE_DB_NAME' -v ON_ERROR_STOP=1" <<SQL
+$query
+SQL
 }
 
 run_migrations() {
@@ -1576,6 +1610,15 @@ case ${1:-help} in
             execute_db_query "$2"
         else
             show_posts
+        fi
+        ;;
+    remote-db)
+        shift
+        if [ $# -gt 0 ]; then
+            execute_remote_db_query "$*"
+        else
+            print_error "Usage: $0 remote-db \"SQL_QUERY\""
+            exit 1
         fi
         ;;
     db-migrate)
