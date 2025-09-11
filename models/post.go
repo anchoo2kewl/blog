@@ -280,8 +280,6 @@ func stripHTML(s string) string {
 // Markdown structure (numbers, bullets, headings) by cutting on paragraph/line
 // boundaries rather than stripping formatting markers first.
 func previewContentRaw(content string) string {
-	const maxChars = 150
-	
 	// Check for read-more markers and find their positions
 	moreIdx1 := strings.Index(content, "<more-->")
 	moreIdx2 := strings.Index(content, "&lt;more--&gt;")
@@ -300,29 +298,50 @@ func previewContentRaw(content string) string {
 		moreIdx = moreIdx2
 	}
 	
-	// If we found a more tag, truncate at that point or 150 chars, whichever is shorter
-	var rawContent string
+	// If we found a more tag, use content up to that point
 	if moreIdx != -1 {
-		rawContent = content[:moreIdx]
-	} else {
-		rawContent = content
+		return strings.TrimSpace(content[:moreIdx])
 	}
 	
-	// Convert to plain text by removing HTML tags
-	plainText := stripHTML(rawContent)
+	// No more tag found, render the content first then extract preview
+	rendered := RenderContent(content)
 	
-	// Now apply the 150 character limit
+	// Convert rendered HTML to plain text for length calculation
+	plainText := stripHTML(rendered)
+	
+	// If rendered content is short enough, return the original markdown
+	const maxChars = 150
 	if len(plainText) <= maxChars {
-		return strings.TrimSpace(plainText)
+		return strings.TrimSpace(content)
 	}
 	
-	// Find the last space within the character limit to avoid cutting words
-	truncated := plainText[:maxChars]
-	if lastSpace := strings.LastIndex(truncated, " "); lastSpace > maxChars/2 {
-		truncated = plainText[:lastSpace]
+	// Find a good breaking point in the original markdown
+	// Look for paragraph breaks, sentence ends, or word boundaries
+	lines := strings.Split(content, "\n")
+	var result strings.Builder
+	var currentLength int
+	
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		
+		// Estimate plain text length of this line
+		lineText := stripHTML(RenderContent(line))
+		
+		if currentLength + len(lineText) > maxChars {
+			break
+		}
+		
+		if result.Len() > 0 {
+			result.WriteString("\n\n")
+		}
+		result.WriteString(line)
+		currentLength += len(lineText)
 	}
 	
-	return strings.TrimSpace(truncated) + "..."
+	return strings.TrimSpace(result.String())
 }
 
 func (pp *PostService) Create(userID int, categoryID int, title, content string, isPublished bool, featuredImageURL string, slug string) (*Post, error) {

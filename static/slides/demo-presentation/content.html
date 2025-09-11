@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Demo Presentation</title>
+</head>
+<body>
+    <section>
+        <h1>Welcome to Our Updated Demo</h1>
+        <p>This presentation demonstrates the slide creation and editing functionality.</p>
+        <p><strong>✅ EDIT TEST SUCCESSFUL!</strong></p>
+        <ul>
+            <li>Slide creation ✓</li>
+            <li>Slide editing ✅ UPDATED!</li>
+            <li>File management ✓</li>
+        </ul>
+    </section>
+    
+    <section>
+        <h2>Technical Features</h2>
+        <p>Our slide system includes:</p>
+        <ul>
+            <li>Reveal.js integration</li>
+            <li>File-based content storage</li>
+            <li>Category management</li>
+            <li>Publishing controls</li>
+        </ul>
+    </section>
+    
+    <section>
+        <h2>Code Example</h2>
+        <pre><code class="language-go">
+func (ss *SlideService) Create(userID int, title, slug, content string, isPublished bool, categoryIDs []int) (*Slide, error) {
+    // Generate slug if empty
+    if slug == "" {
+        slug = generateSlug(title)
+    }
+    
+    // Create slide directory
+    slideDir := filepath.Join("static", "slides", slug)
+    if err := os.MkdirAll(slideDir, 0755); err != nil {
+        return nil, fmt.Errorf("failed to create slide directory: %v", err)
+    }
+    
+    // Create content file
+    contentPath := filepath.Join(slideDir, "content.html")
+    if err := os.WriteFile(contentPath, []byte(content), 0644); err != nil {
+        return nil, fmt.Errorf("failed to write content file: %v", err)
+    }
+    
+    return &slide, nil
+}
+        </code></pre>
+    </section>
+    
+    <section>
+        <h2>Testing Complete</h2>
+        <p>✅ The slide system is working perfectly!</p>
+        <ul>
+            <li>Database integration</li>
+            <li>File system management</li>
+            <li>Web interface</li>
+            <li>Reveal.js rendering</li>
+        </ul>
+    </section>
+</body>
+</html>

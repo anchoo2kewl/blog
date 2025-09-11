@@ -9,3 +9,16 @@ Paginated posts fetched successfully! Limit: 5, Offset: 5
 2025/09/11 11:37:50 "GET http://localhost:22222/api/posts/load-more?offset=5 HTTP/1.1" from [::1]:61053 - 200 67870B in 8.937375ms
 Paginated posts fetched successfully! Limit: 5, Offset: 10
 2025/09/11 11:37:50 "GET http://localhost:22222/api/posts/load-more?offset=10 HTTP/1.1" from [::1]:61053 - 200 15B in 2.246458ms
+2025/09/11 11:39:01 "GET http://localhost:22222/admin/slides HTTP/1.1" from [::1]:61513 - 302 30B in 48.875µs
+2025/09/11 12:01:38 "GET http://localhost:22222/signin HTTP/1.1" from [::1]:51324 - 200 14250B in 1.080375ms
+authenticate: crypto/bcrypt: hashedPassword is not the hash of the given password
+2025/09/11 12:01:44 "POST http://localhost:22222/signin HTTP/1.1" from [::1]:51362 - 500 22B in 97.237042ms
+2025/09/11 12:02:30 "GET http://localhost:22222/slides HTTP/1.1" from [::1]:51679 - 200 16059B in 24.697333ms
+2025/09/11 12:02:36 "GET http://localhost:22222/slides/test-presentation HTTP/1.1" from [::1]:51730 - 200 9867B in 4.905667ms
+2025/09/11 12:02:52 "GET http://localhost:22222/admin/slides HTTP/1.1" from [::1]:51817 - 200 33285B in 89.346459ms
+2025/09/11 12:03:00 "GET http://localhost:22222/slides/test-presentation HTTP/1.1" from [::1]:51817 - 200 10357B in 84.414208ms
+2025/09/11 12:03:28 "GET http://localhost:22222/slides HTTP/1.1" from [::1]:52039 - 200 19180B in 9.890542ms
+2025/09/11 12:03:51 "GET http://localhost:22222/slides/demo-presentation HTTP/1.1" from [::1]:52186 - 200 10534B in 6.45625ms
+2025/09/11 12:14:38 "GET http://localhost:22222/admin/posts/new HTTP/1.1" from [::1]:55193 - 200 86699B in 103.791625ms
+2025/09/11 12:14:41 "POST http://localhost:22222/admin/preview HTTP/1.1" from [::1]:55193 - 200 4589B in 92.76025ms
+2025/09/11 12:15:01 "POST http://localhost:22222/admin/preview HTTP/1.1" from [::1]:55193 - 200 4589B in 86.288917ms
