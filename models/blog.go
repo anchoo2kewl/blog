@@ -57,13 +57,14 @@ func (bs *BlogService) GetBlogPostBySlug(slug string) (*Post, error) {
 		content = preprocessLooseMarkdownHTML(content)
 		content = buildNestedLists(content)
 		content = normalizeInlinePipeTables(content)
-		content = convertPipeTablesSimple(content)
 		// Convert Markdown-style fenced blocks to HTML before markdown render,
 		// because editor content may mix HTML and backticks.
 		content = convertFences(content)
 		// Let blackfriday process the complete markdown including lists and links
 		htmlOut := renderMarkdown(content)
 		htmlOut = replaceBlockquoteTag(replacelistTag(htmlOut))
+		// Ensure image galleries have lightbox links even if editor inserted bare <img>
+		htmlOut = wrapImageGalleries(htmlOut)
 		post.ContentHTML = template.HTML(htmlOut)
 	}
 
@@ -154,7 +155,6 @@ func RenderContent(content string) string {
 	content = preprocessLooseMarkdownHTML(content)
 	content = buildNestedLists(content)
 	content = normalizeInlinePipeTables(content)
-	content = convertPipeTablesSimple(content)
 	content = convertFences(content)
 	htmlOut := renderMarkdown(content)
 	htmlOut = replaceBlockquoteTag(replacelistTag(htmlOut))
@@ -207,7 +207,7 @@ func processBlockquotes(content string) string {
 			} else {
 				text = strings.TrimSpace(trimmed[1:]) // Remove ">"
 			}
-			
+
 			if !inBlockquote {
 				// Start new blockquote
 				inBlockquote = true
@@ -229,13 +229,13 @@ func processBlockquotes(content string) string {
 			result = append(result, line)
 		}
 	}
-	
+
 	// Handle case where content ends with a blockquote
 	if inBlockquote {
 		blockquoteContent := strings.Join(blockquoteLines, " ")
 		result = append(result, "<blockquote><p>"+blockquoteContent+"</p></blockquote>")
 	}
-	
+
 	return strings.Join(result, "\n")
 }
 
@@ -258,6 +258,11 @@ func preprocessLooseMarkdownHTML(content string) string {
 	content = strings.ReplaceAll(content, "<br>", "\n")
 	content = strings.ReplaceAll(content, "<br/>", "\n")
 	content = strings.ReplaceAll(content, "<br />", "\n")
+
+	// Ensure markdown resumes after HTML blocks by injecting a blank line after closing tags
+	// This helps Blackfriday recognize headings that appear immediately after a gallery or other HTML block
+	closeBlock := regexp.MustCompile(`(?is)</(div|figure|section|table|blockquote)>\s*`)
+	content = closeBlock.ReplaceAllString(content, "</$1>\n\n")
 
 	// Protect code blocks to avoid altering their contents
 	preRe := regexp.MustCompile(`(?is)<pre[\s\S]*?</pre>`) // matches <pre>...</pre>
@@ -425,86 +430,7 @@ func buildNestedLists(content string) string {
 	return result
 }
 
-// Convert simple pipe table blocks (header | alignment line | rows) into HTML tables.
-func convertPipeTablesSimple(content string) string {
-	// Protect code blocks
-	preRe := regexp.MustCompile(`(?is)<pre[\s\S]*?</pre>`)
-	placeholders := []string{}
-	content = preRe.ReplaceAllStringFunc(content, func(m string) string {
-		placeholders = append(placeholders, m)
-		return fmt.Sprintf("[[[PRE_BLOCK_%d]]]", len(placeholders)-1)
-	})
-
-	lines := strings.Split(content, "\n")
-	var out strings.Builder
-
-	i := 0
-	for i < len(lines) {
-		// detect header line with pipes
-		if strings.Contains(lines[i], "|") {
-			if i+1 < len(lines) {
-				sep := strings.TrimSpace(lines[i+1])
-				if regexp.MustCompile(`^\|?[ \t]*[:\-\| ]+\|?$`).MatchString(sep) {
-					// collect rows until a blank line or non-pipe line
-					j := i + 2
-					for j < len(lines) && strings.Contains(lines[j], "|") && strings.TrimSpace(lines[j]) != "" {
-						j++
-					}
-					block := lines[i:j]
-					out.WriteString(pipeBlockToTable(block))
-					out.WriteByte('\n')
-					i = j
-					continue
-				}
-			}
-		}
-		out.WriteString(lines[i])
-		out.WriteByte('\n')
-		i++
-	}
-	result := out.String()
-	for i, m := range placeholders {
-		result = strings.ReplaceAll(result, fmt.Sprintf("[[[PRE_BLOCK_%d]]]", i), m)
-	}
-	return result
-}
-
-func pipeBlockToTable(block []string) string {
-	mk := func(row string) []string {
-		row = strings.TrimSpace(row)
-		if strings.HasPrefix(row, "|") {
-			row = row[1:]
-		}
-		if strings.HasSuffix(row, "|") {
-			row = row[:len(row)-1]
-		}
-		parts := strings.Split(row, "|")
-		for i := range parts {
-			parts[i] = strings.TrimSpace(parts[i])
-		}
-		return parts
-	}
-	headers := mk(block[0])
-	aligns := mk(block[1])
-	// Build table
-	var b strings.Builder
-	b.WriteString("<table>\n<thead><tr>")
-	for _, h := range headers {
-		b.WriteString("<th>" + h + "</th>")
-	}
-	b.WriteString("</tr></thead>\n<tbody>\n")
-	for _, row := range block[2:] {
-		cells := mk(row)
-		b.WriteString("<tr>")
-		for _, c := range cells {
-			b.WriteString("<td>" + c + "</td>")
-		}
-		b.WriteString("</tr>\n")
-	}
-	b.WriteString("</tbody>\n</table>")
-	_ = aligns // alignment not applied in this simple version
-	return b.String()
-}
+// (custom pipe table conversion removed; rely on Markdown renderer's Tables extension)
 
 // Markdown renderer with common extensions enabled
 func renderMarkdown(content string) string {
@@ -550,3 +476,63 @@ func cleanStyleHeader(code string) string {
 	}
 	return strings.Join(lines, "\n")
 }
+
+// wrapImageGalleries finds <div class="image-gallery"> blocks and wraps any
+// bare <img ...> elements with <a data-lightbox="article-images">...</a>
+// to match preview behavior and enable Lightbox on the blog page without JS.
+func wrapImageGalleries(html string) string {
+	// Match any div that contains class "image-gallery"
+	galleryRe := regexp.MustCompile(`(?is)(<div[^>]*class="[^"]*image-gallery[^"]*"[^>]*>)([\s\S]*?)(</div>)`)
+
+	// Regex to match an <img ...> tag and capture pre/post attributes and src
+	imgRe := regexp.MustCompile(`(?is)<img([^>]*?)\s+src="([^"]+)"([^>]*)>`)
+	// Regex to extract alt text if present inside the combined attributes
+	altRe := regexp.MustCompile(`(?i)alt="([^"]*)"`)
+
+	transformGallery := func(content string) string {
+		items := imgRe.ReplaceAllStringFunc(content, func(imgTag string) string {
+			// Extract attributes and src
+			m := imgRe.FindStringSubmatch(imgTag)
+			if len(m) != 4 {
+				return imgTag
+			}
+			preAttrs := m[1]
+			src := m[2]
+			postAttrs := m[3]
+			attrs := preAttrs + " " + postAttrs
+			alt := ""
+			if am := altRe.FindStringSubmatch(attrs); len(am) == 2 {
+				alt = am[1]
+			}
+			// Build wrapped anchor preserving original <img ...> markup
+			anchor := fmt.Sprintf(`<a href="%s" data-lightbox="article-images" rel="lightbox[article-images]" data-title="%s"><img%s src="%s"%s></a>`,
+				src, htmlEscapeAttr(alt), preAttrs, src, postAttrs)
+			return anchor
+		})
+		return items
+	}
+
+	// Replace each gallery content separately to avoid over-wrapping
+	return galleryRe.ReplaceAllStringFunc(html, func(block string) string {
+		parts := galleryRe.FindStringSubmatch(block)
+		if len(parts) != 4 {
+			return block
+		}
+		open := parts[1]
+		inner := parts[2]
+		close := parts[3]
+		// Keep original container; layout handled by CSS at render time
+		return open + transformGallery(inner) + close
+	})
+}
+
+// htmlEscapeAttr escapes quotes for safe placement in attributes
+func htmlEscapeAttr(s string) string {
+	s = strings.ReplaceAll(s, `"`, `&quot;`)
+	s = strings.ReplaceAll(s, `&`, `&amp;`)
+	s = strings.ReplaceAll(s, `<`, `&lt;`)
+	s = strings.ReplaceAll(s, `>`, `&gt;`)
+	return s
+}
+
+// (inline style injector removed; we rely on stylesheet in template)

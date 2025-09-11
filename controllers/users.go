@@ -646,7 +646,7 @@ func (u Users) DeleteImage(w http.ResponseWriter, r *http.Request) {
 
 	// Convert URL path to file system path
 	filePath := filepath.Join("static", strings.TrimPrefix(imagePath, "/static/"))
-	
+
 	// Check if file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		http.Error(w, "Image not found", http.StatusNotFound)
@@ -1140,7 +1140,7 @@ func (u Users) UpdatePost(w http.ResponseWriter, r *http.Request) {
 		// Don't fail the entire request, just log the error
 	}
 
-	http.Redirect(w, r, "/admin/posts", http.StatusFound)
+	http.Redirect(w, r, "/blog/"+slug, http.StatusFound)
 }
 
 // APIAccess shows the API access management page

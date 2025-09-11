@@ -222,7 +222,7 @@
 
 <!-- Lightbox for images -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox-plus-jquery.min.js"></script>
 
 <style>
 /* Enhanced prose styling */
@@ -309,9 +309,35 @@
     position: relative;
 }
 
-.prose img:hover {
-    transform: scale(1.02);
-    box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.2);
+/* Center single images and add spacing */
+.prose p > img,
+.prose div > img {
+    display: block;
+    margin: 12px auto;
+}
+
+/* Image gallery layout */
+.prose .image-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    align-items: flex-start;
+    margin: 12px 0;
+}
+.prose .image-gallery a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.prose .image-gallery img {
+    display: block;
+    margin: 0;
+}
+
+/* Ensure following elements reset spacing properly */
+.prose .image-gallery + * {
+    margin-top: 1rem;
 }
 
 /* Lightbox link styling */
@@ -488,40 +514,100 @@
     // Enhanced content processing
     function initializeLightbox() {
         const content = document.getElementById('article-content');
-        
-        // Add/normalize lightbox for images
-        content.querySelectorAll('img').forEach(img => {
-            // Skip if already processed
-            if (img.parentElement && img.parentElement.hasAttribute('data-lightbox')) {
-                return;
+        const root = content || document;
+
+        const toAbsoluteUrl = (url) => {
+            try {
+                return new URL(url, window.location.origin).href;
+            } catch (_) {
+                return url;
             }
-            
+        };
+        
+        const enhanceImage = (img) => {
+            if (!img || img.dataset.lbProcessed === '1') return;
             const parent = img.parentElement;
-            // If already wrapped in a link and points to the image, just enhance
+            
+            const imgSrc = toAbsoluteUrl(img.getAttribute('src') || img.src || '');
+            
+            // If already wrapped in a link
             if (parent && parent.tagName === 'A') {
-                const href = parent.getAttribute('href') || '';
-                // If link goes to same image file, treat as lightbox
-                const isSame = href && (href === img.src || href.split('?')[0] === img.src.split('?')[0]);
-                const isImage = /\.(png|jpe?g|webp|gif|svg)$/i.test(href);
-                if (isSame || isImage) {
+                const href = toAbsoluteUrl(parent.getAttribute('href') || '');
+                const isImage = /\.(png|jpe?g|webp|gif|svg)(\?.*)?$/i.test(href);
+                const isSame = href && imgSrc && (href === imgSrc || href.split('?')[0] === imgSrc.split('?')[0]);
+                if (isImage || isSame) {
                     parent.setAttribute('data-lightbox', 'article-images');
-                    parent.setAttribute('data-title', img.alt || '');
-                    parent.removeAttribute('target');
+                    parent.setAttribute('rel', 'lightbox[article-images]');
+                    parent.setAttribute('data-title', img.getAttribute('alt') || '');
+                    parent.classList.add('lightbox-link');
+                    img.dataset.lbProcessed = '1';
                     return;
                 }
             }
+            
             // Otherwise, wrap with a lightbox link
             const link = document.createElement('a');
-            link.href = img.src;
+            link.href = imgSrc;
             link.setAttribute('data-lightbox', 'article-images');
-            link.setAttribute('data-title', img.alt || '');
+            link.setAttribute('rel', 'lightbox[article-images]');
+            link.setAttribute('data-title', img.getAttribute('alt') || '');
+            link.className = 'lightbox-link';
             img.parentNode.insertBefore(link, img);
             link.appendChild(img);
+            img.dataset.lbProcessed = '1';
+        };
+
+        // Add/normalize lightbox for existing images (article, galleries, anywhere in content)
+        root.querySelectorAll('#article-content img, .prose img, .image-gallery img').forEach(enhanceImage);
+
+        // Observe future image additions (e.g., async content)
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((m) => {
+                m.addedNodes.forEach((node) => {
+                    if (node.nodeType === 1) {
+                        if (node.tagName === 'IMG') {
+                            enhanceImage(node);
+                        } else {
+                            node.querySelectorAll && node.querySelectorAll('img').forEach(enhanceImage);
+                        }
+                    }
+                });
+            });
         });
+        observer.observe(root, { childList: true, subtree: true });
+
+        // Fallback: programmatically open Lightbox when clicking bare images
+        const attachFallback = () => {
+            root.querySelectorAll('.image-gallery img, #article-content img').forEach((img) => {
+                if (img.dataset.lbFallback === '1') return;
+                const wrapped = img.closest('a[data-lightbox]');
+                if (!wrapped) {
+                    img.style.cursor = 'zoom-in';
+                    img.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const a = document.createElement('a');
+                        a.href = img.currentSrc || img.src;
+                        a.setAttribute('data-lightbox', 'article-images');
+                        a.setAttribute('rel', 'lightbox[article-images]');
+                        a.style.display = 'none';
+                        document.body.appendChild(a);
+                        a.click();
+                        // Clean up after a tick
+                        setTimeout(() => a.remove(), 0);
+                    });
+                    img.dataset.lbFallback = '1';
+                }
+            });
+        };
+
+        attachFallback();
+        // Re-attach fallback when DOM changes
+        const fbObserver = new MutationObserver(() => attachFallback());
+        fbObserver.observe(root, { childList: true, subtree: true });
     }
     
     // Wait for both DOM and lightbox library to be ready
-    document.addEventListener('DOMContentLoaded', function() {
+    (function startLightboxInit(){
         // Check if lightbox is loaded, if not wait for it
         function waitForLightbox() {
             if (typeof lightbox !== 'undefined') {
@@ -592,9 +678,13 @@
                     });
                 });
             }
-        }, 1000);
+        }, 500);
         
         waitForLightbox();
+        // Run immediately in case DOM is already ready
+        initializeLightbox();
+        // Run again on window load as a final safety
+        window.addEventListener('load', initializeLightbox);
         
         const content = document.getElementById('article-content');
         
@@ -652,7 +742,7 @@
                 history.replaceState(null, null, window.location.pathname + '#' + id);
             });
         });
-    });
+    })();
 </script>
 
 {{template "modern-footer" .}}

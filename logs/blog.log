@@ -1,9 +1,4 @@
-{"level":"info","ts":1757548546.326001,"caller":"blog/main.go:39","msg":"API Token: secretToken"}
-{"level":"info","ts":1757548546.33962,"caller":"blog/db.go:34","msg":"Database connection established!"}
+{"level":"info","ts":1757551942.435968,"caller":"blog/main.go:39","msg":"API Token: secretToken"}
+{"level":"info","ts":1757551942.455751,"caller":"blog/db.go:34","msg":"Database connection established!"}
 Signups Disabled ...
-{"level":"info","ts":1757548546.343101,"caller":"blog/main.go:252","msg":"server listening on :22222"}
-Posts fetched successfully! Count: 5
-DEBUG HOME: User logged in: anchoo2kewl, Email: anchoo2kewl@gmail.com, Role: 2, IsAdmin: true
-2025/09/10 19:55:51 "GET http://localhost:22222/ HTTP/1.1" from [::1]:61588 - 200 27126B in 73.86325ms
-2025/09/10 19:55:51 "GET http://localhost:22222/static/css/modern-theme.css HTTP/1.1" from [::1]:61588 - 200 39272B in 5.189583ms
-2025/09/10 19:55:54 "GET http://localhost:22222/admin/posts HTTP/1.1" from [::1]:61588 - 200 52321B in 75.946417ms
+{"level":"info","ts":1757551942.462341,"caller":"blog/main.go:252","msg":"server listening on :22222"}

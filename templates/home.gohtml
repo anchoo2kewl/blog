@@ -97,29 +97,68 @@
     {{end}}
 </section>
 
-<!-- Newsletter Signup -->
-{{if not .LoggedIn}}
-<section class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-8 text-center">
-    <h3 class="text-2xl font-bold mb-4 gradient-text">Stay Updated</h3>
-    <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-        Get notified when new posts are published. No spam, unsubscribe anytime.
-    </p>
-    <form class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto" action="/subscribe" method="POST">
-        <input 
-            type="email" 
-            name="email" 
-            placeholder="Enter your email" 
-            class="form-input flex-1"
-            required
-        />
-        <button type="submit" class="btn btn-primary">
-            Subscribe
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-            </svg>
-        </button>
-    </form>
-</section>
-{{end}}
+<!-- Infinite Scroll JavaScript -->
+<script>
+let offset = 5; // initial posts rendered by server
+let loading = false;
+let hasMorePosts = true;
+
+function appendPost(post) {
+    const blogPostsSection = document.querySelector('.blog-posts');
+    const articleHTML = `
+        <article class="blog-post">
+            <div class="blog-post-meta">
+                <div class="blog-post-date">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <time datetime="${post.CreatedAt}">${post.PublicationDate}</time>
+                </div>
+            </div>
+            <h2 class="blog-post-title">
+                <a href="/blog/${post.Slug}">${post.Title}</a>
+            </h2>
+            <div class="blog-post-excerpt">
+                ${post.Content && post.Content.length > 200 ? post.Content.substring(0, 200) + '...' : (post.Content || '')}
+            </div>
+            <div class="flex items-center justify-between">
+                <a href="/blog/${post.Slug}" class="read-more">
+                    Read more
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+            </div>
+        </article>`;
+    blogPostsSection.insertAdjacentHTML('beforeend', articleHTML);
+}
+
+function loadMorePosts() {
+    if (loading || !hasMorePosts) return;
+    loading = true;
+
+    fetch(`/api/posts/load-more?offset=${offset}`)
+        .then((res) => res.json())
+        .then((data) => {
+            if (data && data.Posts && data.Posts.length > 0) {
+                data.Posts.forEach(appendPost);
+                offset += data.Posts.length;
+            } else {
+                hasMorePosts = false;
+            }
+        })
+        .catch(() => { /* ignore */ })
+        .finally(() => { loading = false; });
+}
+
+// Trigger when near bottom
+window.addEventListener('scroll', () => {
+    const scrollPosition = window.scrollY + window.innerHeight;
+    const threshold = document.body.offsetHeight - 600; // start loading earlier
+    if (scrollPosition >= threshold) {
+        loadMorePosts();
+    }
+});
+</script>
 
 {{template "modern-footer" .}}

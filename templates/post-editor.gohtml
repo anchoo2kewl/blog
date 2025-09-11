@@ -107,6 +107,15 @@
           <button type="button" class="btn" id="insert-more">More</button>
           <input type="file" id="inline-upload" accept="image/*" style="display:none" />
           <button type="button" class="btn btn-secondary" id="upload-inline-btn">Upload Inline</button>
+          <button type="button" class="btn" id="browse-btn">Browse Images</button>
+          <label class="tool-label">Size
+            <select id="img-size-select">
+              <option value="33%">Small</option>
+              <option value="66%" selected>Medium</option>
+              <option value="100%">Large</option>
+            </select>
+          </label>
+          <button type="button" class="btn" id="apply-size-btn" title="Apply size to selected image">Apply Size</button>
           <input type="file" id="multi-upload" accept="image/*" multiple style="display:none" />
           <div class="upload-drop-zone" id="multi-upload-zone">
             <div class="upload-drop-content">
@@ -1052,7 +1061,9 @@ document.addEventListener('DOMContentLoaded', function() {
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const imageUrl = btn.getAttribute('data-url');
-            insertImageIntoEditor(imageUrl);
+            const select = document.getElementById('img-size-select');
+            let pct = (select && select.value) ? select.value : '66%';
+            insertImageIntoEditor(imageUrl, pct);
             document.getElementById('existing-images-modal').classList.add('hidden');
           });
         });
@@ -1090,30 +1101,46 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // Function to insert image into editor
-  function insertImageIntoEditor(imageUrl) {
+  function insertImageIntoEditor(imageUrl, widthPct) {
     const editor = document.getElementById('editor');
     editor.focus();
     
     // Create image HTML
-    const imageHtml = `<img src="${imageUrl}" alt="Uploaded image" style="max-width: 100%; height: auto; margin: 10px 0;" /><br>`;
+    const w = widthPct || '66%';
+    const imageHtml = `<p style="text-align:center; margin: 10px 0;"><img src="${imageUrl}" alt="Uploaded image" style="width:${w}; height:auto; max-width:100%;" /></p>`;
     
     // Insert the image
     document.execCommand('insertHTML', false, imageHtml);
   }
-  
-  // Override the browse images button to open the enhanced modal
-  const browseBtn = document.getElementById('browse-btn');
-  if (browseBtn) {
-    // Remove existing event listeners by cloning
-    const newBrowseBtn = browseBtn.cloneNode(true);
-    browseBtn.parentNode.replaceChild(newBrowseBtn, browseBtn);
-    
-    newBrowseBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      currentImageMode = 'post';
-      setActiveTab(document.getElementById('tab-post-images'));
-      loadImages();
-      document.getElementById('existing-images-modal').classList.remove('hidden');
+
+  // Lightweight resize tool for selected image
+  document.addEventListener('keydown', (e) => {
+    if (!e.ctrlKey) return; // use Ctrl+Shift+S/M/L
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const node = sel.anchorNode && sel.anchorNode.parentElement;
+    if (!node) return;
+    const img = node.tagName === 'IMG' ? node : node.querySelector && node.querySelector('img');
+    if (!img) return;
+    if (e.key.toLowerCase() === 's') { img.style.width = '33%'; e.preventDefault(); }
+    if (e.key.toLowerCase() === 'm') { img.style.width = '66%'; e.preventDefault(); }
+    if (e.key.toLowerCase() === 'l') { img.style.width = '100%'; e.preventDefault(); }
+  });
+
+  // Apply size button handler
+  const applyBtn = document.getElementById('apply-size-btn');
+  if (applyBtn) {
+    applyBtn.addEventListener('click', () => {
+      const select = document.getElementById('img-size-select');
+      const pct = (select && select.value) ? select.value : '66%';
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+      const node = sel.anchorNode && sel.anchorNode.parentElement;
+      if (!node) return;
+      const img = node.tagName === 'IMG' ? node : node.querySelector && node.querySelector('img');
+      if (img) {
+        img.style.width = pct;
+      }
     });
   }
 });
