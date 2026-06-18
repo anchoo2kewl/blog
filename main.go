@@ -51,6 +51,14 @@ func getAppPort() string {
 	return port
 }
 
+// getenvDefault returns the env var value or fallback when unset/empty.
+func getenvDefault(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
+}
+
 func main() {
 	// Track application start time for uptime calculation
 	startTime := time.Now()
@@ -460,6 +468,13 @@ func main() {
 		CategoryService:     &categoryService,
 		APITokenService:     &apiTokenService,
 		Engine:              slideEngine,
+		// Browser-exact PDF export via the headless-Chrome sidecar (see
+		// controllers/slide_pdf.go). PDF_CHROME_URL points at the sidecar's
+		// DevTools endpoint; EXPORT_BASE_URL is how that Chrome reaches this app
+		// over the internal network; export tokens are signed with SESSION_SECRET.
+		PDFRemoteURL:  getenvDefault("PDF_CHROME_URL", "http://pdfsvc:9222"),
+		ExportBaseURL: getenvDefault("EXPORT_BASE_URL", "http://app:22222"),
+		ExportSecret:  os.Getenv("SESSION_SECRET"),
 	}
 
 	// Initialize Guides controller
@@ -684,6 +699,7 @@ func main() {
 	r.Get("/tags/{name}", categoriesC.TagPage)
 	r.Get("/slides", slidesC.PublicSlidesList)
 	r.Get("/slides/{slug}", slidesC.ViewSlide)
+	r.Get("/slides/{slug}/pdf", slidesC.ExportSlidePDF)
 	r.Post("/slides/{slug}/verify", slidesC.VerifySlidePassword)
 
 	// Admin Slides Routes
@@ -969,6 +985,10 @@ func main() {
 		r.Post("/", createSlide(&slideService))
 		r.Put("/{slideID}", updateSlide(&slideService))
 		r.Delete("/{slideID}", deleteSlide(&slideService))
+		// Browser-exact PDF export (Bearer-authed by the group middleware).
+		// Password-protected decks require the deck password (query/form).
+		r.Get("/{slideID}/pdf", slidesC.APIExportSlidePDF)
+		r.Post("/{slideID}/pdf", slidesC.APIExportSlidePDF)
 	})
 
 	// Guides API

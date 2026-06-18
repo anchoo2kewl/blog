@@ -43,6 +43,16 @@ type Slides struct {
 	// embeds the go-slide editor in the admin page. When nil, the
 	// controller falls back to the legacy local templates.
 	Engine *goslide.Engine
+
+	// PDF export (see slide_pdf.go). PDFRemoteURL is the http base of the
+	// headless-Chrome sidecar (e.g. http://pdfsvc:9222). ExportBaseURL is how
+	// that Chrome reaches this app over the internal network (e.g.
+	// http://app:22222). ExportSecret signs short-lived export tokens. When
+	// PDFRemoteURL/ExportSecret are empty, export returns 503 and the token
+	// bypass is inert.
+	PDFRemoteURL  string
+	ExportBaseURL string
+	ExportSecret  string
 }
 
 // AdminSlides displays the admin slides management page
@@ -457,15 +467,20 @@ func (s Slides) ViewSlide(w http.ResponseWriter, r *http.Request) {
 		slide.Contributors = contributors
 	}
 
+	// A valid, unexpired export token (carried by the headless-Chrome sidecar
+	// during PDF rendering) authorizes exactly this slug: it bypasses both the
+	// published check and the password gate so the renderer can reach the deck.
+	exportOK := s.hasValidExportToken(r, slug)
+
 	// Check if slide is published (unless user can edit slides)
-	if !slide.IsPublished && (user == nil || !models.CanEditSlides(user.Role)) {
+	if !slide.IsPublished && !exportOK && (user == nil || !models.CanEditSlides(user.Role)) {
 		http.Error(w, "Slide not found", http.StatusNotFound)
 		return
 	}
 
-	// Password protection check: editors/admins bypass
+	// Password protection check: editors/admins and the export renderer bypass
 	isEditor := user != nil && models.CanEditSlides(user.Role)
-	if slide.PasswordHash != "" && !isEditor {
+	if slide.PasswordHash != "" && !isEditor && !exportOK {
 		cookieName := fmt.Sprintf("slide_access_%s", slug)
 		cookie, err := r.Cookie(cookieName)
 		if err != nil || cookie.Value != "granted" {

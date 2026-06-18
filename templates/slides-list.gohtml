@@ -101,11 +101,18 @@
                             {{end}}
                         </div>
 
-                        <!-- Action Button -->
-                        <a href="/slides/{{.Slug}}" class="btn btn-primary w-full justify-center">
-                            {{icon "smiley" "w-4 h-4"}}
-                            View Presentation
-                        </a>
+                        <!-- Action Buttons -->
+                        <div class="flex items-center gap-2">
+                            <a href="/slides/{{.Slug}}" class="btn btn-primary flex-1 justify-center">
+                                {{icon "smiley" "w-4 h-4"}}
+                                View Presentation
+                            </a>
+                            <a href="/slides/{{.Slug}}/pdf" title="Download as PDF" aria-label="Download as PDF"
+                               class="btn btn-secondary justify-center px-3" download>
+                                {{icon "document-text" "w-4 h-4"}}
+                                <span class="sr-only">Download PDF</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 {{end}}
