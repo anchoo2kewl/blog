@@ -45,4 +45,10 @@ func TestRenderDeckPDF_Integration(t *testing.T) {
 	if len(pdf) < 2000 {
 		t.Fatalf("PDF suspiciously small: %d bytes", len(pdf))
 	}
+	if out := os.Getenv("PDFTEST_OUT"); out != "" {
+		if err := os.WriteFile(out, pdf, 0644); err != nil {
+			t.Fatalf("write %s: %v", out, err)
+		}
+		t.Logf("wrote %s", out)
+	}
 }

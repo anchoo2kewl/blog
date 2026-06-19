@@ -241,22 +241,43 @@ func renderDeckPDF(ctx context.Context, remoteBase, printURL string) ([]byte, er
 	return pdf, nil
 }
 
-// waitRevealPrintReady polls until reveal.js reports ready (or a short deadline),
-// then pauses briefly so web fonts and CDN stylesheets are painted before print.
+// waitRevealPrintReady polls until reveal.js has laid out its print-pdf pages
+// (or a short deadline), injects a print-clip override, then settles for fonts.
+//
+// Reveal builds one .pdf-page per slide and stacks them; we wait for that
+// structure rather than just Reveal.isReady() so we never print mid-layout.
+//
+// The injected override is essential: the slide template ships an inline
+//
+//	html, body { height: 100% !important; overflow: hidden !important }
+//
+// which (being !important and loaded after reveal's print stylesheet) clips the
+// printed document to a single viewport, collapsing a 10-slide deck to ONE PDF
+// page. We append a print-scoped override last so it wins the cascade and the
+// full stacked height paginates.
 func waitRevealPrintReady(ctx context.Context) error {
-	deadline := time.Now().Add(8 * time.Second)
+	deadline := time.Now().Add(10 * time.Second)
 	for time.Now().Before(deadline) {
-		var ready bool
-		// Reveal exposes isReady(); guard for it not yet existing.
+		var pages int
+		// Prefer the print-layout signal (pdf-page count) over bare isReady().
 		if err := chromedp.Evaluate(
-			`!!(window.Reveal && Reveal.isReady && Reveal.isReady())`, &ready,
-		).Do(ctx); err == nil && ready {
+			`document.querySelectorAll('.pdf-page').length`, &pages,
+		).Do(ctx); err == nil && pages > 0 {
 			break
 		}
 		if err := chromedp.Sleep(200 * time.Millisecond).Do(ctx); err != nil {
 			return err
 		}
 	}
+	// Override the template's print-clipping rule so the full deck paginates.
+	var ignored interface{}
+	_ = chromedp.Evaluate(`(function(){
+	  var s = document.createElement('style');
+	  s.setAttribute('data-pdf-export','1');
+	  s.textContent = '@media print{html,body{height:auto !important;overflow:visible !important}.pdf-page:last-child{break-after:auto !important;page-break-after:auto !important}}';
+	  document.head.appendChild(s);
+	  return true;
+	})()`, &ignored).Do(ctx)
 	// Final settle for font swap + print stylesheet application.
 	return chromedp.Sleep(1500 * time.Millisecond).Do(ctx)
 }
