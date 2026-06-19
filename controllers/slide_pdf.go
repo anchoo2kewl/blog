@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -260,12 +261,34 @@ func waitRevealPrintReady(ctx context.Context) error {
 	return chromedp.Sleep(1500 * time.Millisecond).Do(ctx)
 }
 
-// resolveChromeWS turns an http base (http://host:9222) into the browser
-// webSocketDebuggerUrl that NewRemoteAllocator needs. headless-shell binds to
-// its container hostname, so we rewrite the ws host back to the one we dialed.
+// resolveChromeWS turns an http base (http://pdfsvc:9222) into the browser
+// webSocketDebuggerUrl that NewRemoteAllocator needs.
+//
+// Critical detail: Chrome's DevTools endpoints (both the /json/* HTTP API and
+// the WebSocket upgrade) reject any request whose Host header is not an IP
+// address or "localhost" — a DNS-rebinding protection. The sidecar is reached
+// by its compose service name (a hostname), which Chrome refuses. So we resolve
+// the host to an IP up front and speak to Chrome purely by IP:port for both the
+// version probe and the returned ws URL.
 func resolveChromeWS(ctx context.Context, base string) (string, error) {
-	base = strings.TrimRight(base, "/")
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, base+"/json/version", nil)
+	u, err := url.Parse(strings.TrimRight(base, "/"))
+	if err != nil {
+		return "", err
+	}
+	host, port := u.Hostname(), u.Port()
+	if port == "" {
+		port = "9222"
+	}
+	ipHostPort := net.JoinHostPort(host, port)
+	if net.ParseIP(host) == nil && host != "localhost" {
+		ips, lerr := net.DefaultResolver.LookupHost(ctx, host)
+		if lerr != nil || len(ips) == 0 {
+			return "", fmt.Errorf("resolve chrome host %q: %v", host, lerr)
+		}
+		ipHostPort = net.JoinHostPort(ips[0], port)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.Scheme+"://"+ipHostPort+"/json/version", nil)
 	if err != nil {
 		return "", err
 	}
@@ -282,19 +305,14 @@ func resolveChromeWS(ctx context.Context, base string) (string, error) {
 		WebSocketDebuggerURL string `json:"webSocketDebuggerUrl"`
 	}
 	if err := json.Unmarshal(body, &v); err != nil || v.WebSocketDebuggerURL == "" {
-		return "", fmt.Errorf("no webSocketDebuggerUrl from %s: %s", base, strings.TrimSpace(string(body)))
+		return "", fmt.Errorf("no webSocketDebuggerUrl from %s: %s", ipHostPort, strings.TrimSpace(string(body)))
 	}
-	// The ws URL Chrome reports uses ITS view of the host (often 127.0.0.1 or the
-	// container id). Rewrite host:port to what we actually dialed so the app can
-	// reach it across the docker network.
-	dialed, err := url.Parse(base)
-	if err != nil {
-		return v.WebSocketDebuggerURL, nil
-	}
+	// Rewrite the ws host:port to the resolved IP so the upgrade request also
+	// carries an IP Host header (and reaches the sidecar across the network).
 	ws, err := url.Parse(v.WebSocketDebuggerURL)
 	if err != nil {
 		return v.WebSocketDebuggerURL, nil
 	}
-	ws.Host = dialed.Host
+	ws.Host = ipHostPort
 	return ws.String(), nil
 }
