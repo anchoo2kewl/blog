@@ -549,6 +549,15 @@ func (s Slides) ViewSlide(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
+		// Repoint the engine's in-presentation "Download PDF" button from the
+		// client-side browser-print flow (?print-pdf, which the template's
+		// overflow:hidden clipping breaks) to our server-side endpoint, which
+		// renders a correct multi-page PDF. The endpoint enforces the same
+		// access rules (a viewer of a protected deck already holds the cookie).
+		html = strings.Replace(html,
+			`href="?print-pdf" target="_blank" rel="noopener" class="nav-btn" title="Download PDF" id="download-pdf-btn"`,
+			fmt.Sprintf(`href="/slides/%s/pdf" class="nav-btn" title="Download PDF" id="download-pdf-btn" download`, slide.Slug),
+			1)
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		_, _ = w.Write([]byte(html))
 		_ = userPerms // keep referenced for legacy fallback path
